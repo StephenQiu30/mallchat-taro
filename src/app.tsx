@@ -1,6 +1,6 @@
-import './tailwind.css'
 import { PropsWithChildren } from 'react'
 import { useLaunch } from '@tarojs/taro'
+import { RootLayout } from './layout'
 
 import './app.css'
 
@@ -9,10 +9,12 @@ function App({ children }: PropsWithChildren<any>) {
     console.log('App launched.')
   })
 
-  // children 是将要会渲染的页面
-  return children
+  // 1. Using centralized RootLayout pattern from the layout module
+  return (
+    <RootLayout>
+      {children}
+    </RootLayout>
+  )
 }
-  
-
 
 export default App

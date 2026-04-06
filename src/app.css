@@ -1,0 +1,51 @@
+@import "tailwindcss";
+@import "@taroify/core/index.css";
+@import "weapp-tailwindcss";
+
+/* 全局自定义架构 (补全微型样式差异) */
+@layer utilities {
+  /* 隐藏滚动条 */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;    /* Firefox */
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;           /* Chrome, Safari, and Opera */
+  }
+
+  /* 气泡指向圆角 */
+  .rounded-tr-none {
+    border-top-right-radius: 0;
+  }
+  .rounded-tl-none {
+    border-top-left-radius: 0;
+  }
+
+  /* 刘海屏安全区适配 */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Custom Design Tokens */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.mesh-gradient {
+  background-color: #3B82F6;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+}
+
+.mesh-gradient-light {
+  background-color: #60A5FA;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(210,100%,70%,1) 0, transparent 50%), 
+    radial-gradient(at 100% 100%, hsla(270,100%,80%,1) 0, transparent 50%);
+}

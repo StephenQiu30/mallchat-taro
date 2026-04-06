@@ -47,7 +47,7 @@ export default defineConfig<'vite'>(async (merge) => {
         // 由于 taro vite 默认会移除所有的 tailwindcss css 变量，所以一定要开启这个配置，进行css 变量的重新注入
         injectAdditionalCssVarScope: true,
         // @ts-ignore
-        cssEntries: [path.resolve(__dirname, '../src/tailwind.css')]
+        cssEntries: [path.resolve(__dirname, '../src/app.css')]
       })]
 
     },
