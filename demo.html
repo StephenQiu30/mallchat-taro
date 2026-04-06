@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高保真IM通讯小程序原型</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 自定义滚动条隐藏，保持UI整洁 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 页面切换动画 */
+        .page-enter {
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page-enter-active {
+            transform: translateX(0);
+        }
+
+        .page-exit {
+            transform: translateX(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page-exit-active {
+            transform: translateX(100%);
+        }
+
+        /* 渐变文本 */
+        .text-gradient {
+            background: linear-gradient(to right, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-200 flex justify-center items-center min-h-screen font-sans selection:bg-blue-200 antialiased">
+
+    <!-- 手机外框 430 x 932 -->
+    <!-- 使用 ring 模拟手机物理边框，内部为真实的屏幕显示区域 -->
+    <div
+        class="relative w-[430px] h-[932px] bg-gray-50 rounded-[48px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] ring-[14px] ring-gray-900 overflow-hidden">
+
+        <!-- ==================== 顶部状态栏 (固定) ==================== -->
+        <div class="absolute top-0 w-full h-12 flex justify-between items-center px-7 z-50 pointer-events-none">
+            <span class="text-[15px] font-semibold text-gray-900 tracking-tight mt-2">9:41</span>
+            <!-- 模拟刘海/灵动岛 -->
+            <div class="absolute left-1/2 -translate-x-1/2 top-0 w-32 h-7 bg-gray-900 rounded-b-3xl"></div>
+            <div class="flex space-x-2 items-center mt-2 text-gray-900">
+                <i class="fas fa-signal text-xs"></i>
+                <i class="fas fa-wifi text-xs"></i>
+                <i class="fas fa-battery-full text-sm"></i>
+            </div>
+        </div>
+
+        <!-- ==================== 主内容区 ==================== -->
+        <div class="relative w-full h-full pt-12 pb-[84px] overflow-hidden">
+
+            <!-- 1. 消息页面 (默认显示) -->
+            <div id="page-messages" class="page-view w-full h-full flex flex-col no-scrollbar overflow-y-auto pb-4">
+                <!-- Header -->
+                <div
+                    class="px-5 pt-4 pb-2 flex justify-between items-center sticky top-0 bg-gray-50/90 backdrop-blur-md z-30">
+                    <div class="flex items-center space-x-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200 shadow-sm cursor-pointer hover:bg-blue-200 transition">
+                            <img src="https://i.pravatar.cc/150?img=11" class="w-full h-full rounded-full object-cover"
+                                alt="My Avatar">
+                        </div>
+                        <h1 class="text-2xl font-bold text-gray-800">消息</h1>
+                    </div>
+                    <button
+                        class="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-600 hover:text-blue-500 transition">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <!-- 搜索框 -->
+                <div class="px-5 py-2">
+                    <div class="bg-white h-10 rounded-2xl flex items-center px-4 shadow-sm border border-gray-100">
+                        <i class="fas fa-search text-gray-400 mr-2 text-sm"></i>
+                        <input type="text" placeholder="搜索"
+                            class="bg-transparent outline-none text-sm w-full text-gray-700 placeholder-gray-400">
+                    </div>
+                </div>
+                <!-- 消息列表 (卡片式) -->
+                <div class="px-4 mt-2 space-y-3">
+                    <!-- 置顶群聊卡片 -->
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center active:scale-[0.98] transition cursor-pointer"
+                        onclick="openChat('前端交流群', 'group')">
+                        <div class="relative">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-inner">
+                                <i class="fas fa-users text-xl"></i>
+                            </div>
+                            <span
+                                class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <div class="ml-3 flex-1 overflow-hidden">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-base font-semibold text-gray-800 truncate">前端开发交流群 (128)</h3>
+                                <span class="text-xs text-gray-400">14:20</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate mt-0.5"><span class="text-blue-500">[有人@我]</span>
+                                王总: 那个H5页面的原型出来了没？</p>
+                        </div>
+                    </div>
+
+                    <!-- 个人消息卡片 1 -->
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center active:scale-[0.98] transition cursor-pointer"
+                        onclick="openChat('UI设计师 - 小李', 'user1')">
+                        <div class="relative">
+                            <img src="https://i.pravatar.cc/150?img=32"
+                                class="w-12 h-12 rounded-full object-cover shadow-sm" alt="Avatar">
+                            <span
+                                class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">3</span>
+                        </div>
+                        <div class="ml-3 flex-1 overflow-hidden">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-base font-semibold text-gray-800 truncate">UI设计师 - 小李</h3>
+                                <span class="text-xs text-gray-400">昨天</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate mt-0.5">切图文件我已经发到群里了，你看一下尺寸对不对。</p>
+                        </div>
+                    </div>
+
+                    <!-- 个人消息卡片 2 -->
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center active:scale-[0.98] transition cursor-pointer"
+                        onclick="openChat('产品经理 - 张哥', 'user2')">
+                        <img src="https://i.pravatar.cc/150?img=15"
+                            class="w-12 h-12 rounded-full object-cover shadow-sm" alt="Avatar">
+                        <div class="ml-3 flex-1 overflow-hidden">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-base font-semibold text-gray-800 truncate">产品经理 - 张哥</h3>
+                                <span class="text-xs text-gray-400">星期二</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate mt-0.5">好的，那就按这个交互逻辑来做。</p>
+                        </div>
+                    </div>
+
+                    <!-- 系统消息卡片 -->
+                    <div
+                        class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center active:scale-[0.98] transition cursor-pointer">
+                        <div
+                            class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-500 shadow-sm">
+                            <i class="fas fa-bell text-xl"></i>
+                        </div>
+                        <div class="ml-3 flex-1 overflow-hidden">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-base font-semibold text-gray-800 truncate">服务通知</h3>
+                                <span class="text-xs text-gray-400">10-12</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate mt-0.5">您的云服务器已成功续费。</p>
+                        </div>
+                    </div>
+
+                    <!-- 个人消息卡片 3 -->
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center active:scale-[0.98] transition cursor-pointer"
+                        onclick="openChat('林妹妹', 'user3')">
+                        <img src="https://i.pravatar.cc/150?img=9" class="w-12 h-12 rounded-full object-cover shadow-sm"
+                            alt="Avatar">
+                        <div class="ml-3 flex-1 overflow-hidden">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-base font-semibold text-gray-800 truncate">林妹妹</h3>
+                                <span class="text-xs text-gray-400">10-10</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate mt-0.5">[动画表情]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 联系人页面 (默认隐藏) -->
+            <div id="page-contacts"
+                class="page-view hidden w-full h-full flex flex-col no-scrollbar overflow-y-auto pb-4">
+                <!-- Header -->
+                <div
+                    class="px-5 pt-4 pb-2 flex justify-center items-center sticky top-0 bg-gray-50/90 backdrop-blur-md z-30">
+                    <h1 class="text-xl font-bold text-gray-800">联系人</h1>
+                    <button class="absolute right-5 text-gray-600 hover:text-blue-500">
+                        <i class="fas fa-user-plus"></i>
+                    </button>
+                </div>
+                <!-- 搜索 -->
+                <div class="px-5 py-2">
+                    <div class="bg-white h-10 rounded-2xl flex items-center px-4 shadow-sm border border-gray-100">
+                        <i class="fas fa-search text-gray-400 mr-2 text-sm"></i>
+                        <input type="text" placeholder="搜索联系人"
+                            class="bg-transparent outline-none text-sm w-full text-gray-700 placeholder-gray-400">
+                    </div>
+                </div>
+                <!-- 功能入口卡片 -->
+                <div class="px-4 mt-2">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div
+                            class="flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition cursor-pointer">
+                            <div
+                                class="w-10 h-10 rounded-full bg-orange-100 flex justify-center items-center text-orange-500">
+                                <i class="fas fa-user-friends"></i></div>
+                            <span class="ml-4 font-medium text-gray-800 flex-1">新朋友</span>
+                            <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                        </div>
+                        <div
+                            class="flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition cursor-pointer">
+                            <div
+                                class="w-10 h-10 rounded-full bg-blue-100 flex justify-center items-center text-blue-500">
+                                <i class="fas fa-users"></i></div>
+                            <span class="ml-4 font-medium text-gray-800 flex-1">群通知</span>
+                            <span class="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 mr-2">1</span>
+                            <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- 好友分组卡片 -->
+                <div class="px-4 mt-4 space-y-3">
+                    <h2 class="text-xs font-semibold text-gray-400 ml-1 uppercase tracking-wider">我的好友</h2>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <!-- 分组 1 -->
+                        <div
+                            class="flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition cursor-pointer">
+                            <i class="fas fa-caret-down text-gray-400 w-4"></i>
+                            <span class="ml-2 font-medium text-gray-800 flex-1">特别关心</span>
+                            <span class="text-xs text-gray-400">1/1</span>
+                        </div>
+                        <!-- 分组1的好友 -->
+                        <div
+                            class="bg-gray-50/50 pl-10 pr-4 py-3 flex items-center border-b border-gray-50 cursor-pointer hover:bg-gray-100 transition">
+                            <img src="https://i.pravatar.cc/150?img=5"
+                                class="w-9 h-9 rounded-full object-cover shadow-sm">
+                            <div class="ml-3">
+                                <h4 class="text-sm font-semibold text-gray-800">老妈</h4>
+                                <p class="text-xs text-gray-400">4G在线</p>
+                            </div>
+                        </div>
+
+                        <!-- 分组 2 -->
+                        <div
+                            class="flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition cursor-pointer">
+                            <i class="fas fa-caret-right text-gray-400 w-4"></i>
+                            <span class="ml-2 font-medium text-gray-800 flex-1">大学同学</span>
+                            <span class="text-xs text-gray-400">12/45</span>
+                        </div>
+                        <!-- 分组 3 -->
+                        <div class="flex items-center p-4 active:bg-gray-50 transition cursor-pointer">
+                            <i class="fas fa-caret-right text-gray-400 w-4"></i>
+                            <span class="ml-2 font-medium text-gray-800 flex-1">工作伙伴</span>
+                            <span class="text-xs text-gray-400">34/120</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 我的/动态页面 (默认隐藏) -->
+            <div id="page-profile"
+                class="page-view hidden w-full h-full flex flex-col no-scrollbar overflow-y-auto pb-4">
+                <!-- 顶部蓝色背景 -->
+                <div
+                    class="absolute top-0 left-0 w-full h-48 bg-gradient-to-br from-blue-500 to-blue-600 rounded-b-[40px] -z-10">
+                </div>
+
+                <div class="px-5 pt-4 pb-2 flex justify-end items-center sticky top-0 z-30 text-white">
+                    <button class="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-full transition">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+
+                <!-- 个人信息卡片 -->
+                <div class="px-4 mt-2">
+                    <div
+                        class="bg-white rounded-[24px] p-5 shadow-lg shadow-blue-500/10 border border-white relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -z-10"></div>
+                        <div class="flex items-center">
+                            <div class="relative">
+                                <img src="https://i.pravatar.cc/150?img=11"
+                                    class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md">
+                                <div
+                                    class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white">
+                                </div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <h2 class="text-xl font-bold text-gray-800">前端攻城狮</h2>
+                                <p class="text-xs text-gray-500 mt-1">账号: 123456789 <i
+                                        class="fas fa-qrcode ml-2 text-gray-400"></i></p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-300"></i>
+                        </div>
+                        <div class="flex mt-6 pt-4 border-t border-gray-50">
+                            <div class="flex-1 text-center cursor-pointer hover:bg-gray-50 rounded-lg py-1 transition">
+                                <div class="font-bold text-gray-800">128</div>
+                                <div class="text-xs text-gray-500 mt-0.5">空间访客</div>
+                            </div>
+                            <div class="flex-1 text-center cursor-pointer hover:bg-gray-50 rounded-lg py-1 transition">
+                                <div class="font-bold text-gray-800">45</div>
+                                <div class="text-xs text-gray-500 mt-0.5">好友动态</div>
+                            </div>
+                            <div class="flex-1 text-center cursor-pointer hover:bg-gray-50 rounded-lg py-1 transition">
+                                <div class="font-bold text-gray-800">12</div>
+                                <div class="text-xs text-gray-500 mt-0.5">我的收藏</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 列表服务卡片 -->
+                <div class="px-4 mt-4 space-y-3">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-50 overflow-hidden">
+                        <div
+                            class="flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition cursor-pointer">
+                            <i class="fas fa-wallet text-blue-500 w-6 text-center text-lg"></i>
+                            <span class="ml-3 font-medium text-gray-800 flex-1">我的钱包</span>
+                            <span class="text-xs text-gray-400 mr-2">¥ 88.00</span>
+                            <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                        </div>
+                        <div
+                            class="flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition cursor-pointer">
+                            <i class="fas fa-tshirt text-purple-500 w-6 text-center text-lg"></i>
+                            <span class="ml-3 font-medium text-gray-800 flex-1">个性装扮</span>
+                            <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                        </div>
+                        <div class="flex items-center p-4 active:bg-gray-50 transition cursor-pointer">
+                            <i class="fas fa-star text-yellow-400 w-6 text-center text-lg"></i>
+                            <span class="ml-3 font-medium text-gray-800 flex-1">我的收藏</span>
+                            <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-50 overflow-hidden">
+                        <div
+                            class="flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition cursor-pointer">
+                            <i class="fas fa-gamepad text-green-500 w-6 text-center text-lg"></i>
+                            <span class="ml-3 font-medium text-gray-800 flex-1">游戏中心</span>
+                            <span class="bg-red-500 w-2 h-2 rounded-full mr-3"></span>
+                            <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                        </div>
+                        <div class="flex items-center p-4 active:bg-gray-50 transition cursor-pointer">
+                            <i class="fas fa-box-open text-orange-400 w-6 text-center text-lg"></i>
+                            <span class="ml-3 font-medium text-gray-800 flex-1">小程序</span>
+                            <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==================== 底部导航栏 (固定) ==================== -->
+        <div
+            class="absolute bottom-0 w-full h-[84px] bg-white/90 backdrop-blur-md border-t border-gray-100 flex justify-around items-start pt-3 z-40">
+            <!-- 消息 Tab -->
+            <div class="tab-btn flex flex-col items-center justify-center w-16 cursor-pointer text-blue-500 group"
+                onclick="switchTab('messages', this)">
+                <div class="relative transition-transform group-active:scale-90">
+                    <i class="fas fa-comment text-2xl"></i>
+                    <span
+                        class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-white">4</span>
+                </div>
+                <span class="text-[10px] mt-1 font-medium">消息</span>
+            </div>
+
+            <!-- 联系人 Tab -->
+            <div class="tab-btn flex flex-col items-center justify-center w-16 cursor-pointer text-gray-400 hover:text-gray-600 transition group"
+                onclick="switchTab('contacts', this)">
+                <div class="transition-transform group-active:scale-90">
+                    <i class="fas fa-address-book text-2xl"></i>
+                </div>
+                <span class="text-[10px] mt-1 font-medium">联系人</span>
+            </div>
+
+            <!-- 动态/我的 Tab -->
+            <div class="tab-btn flex flex-col items-center justify-center w-16 cursor-pointer text-gray-400 hover:text-gray-600 transition group"
+                onclick="switchTab('profile', this)">
+                <div class="relative transition-transform group-active:scale-90">
+                    <i class="fas fa-compass text-2xl"></i>
+                    <span class="absolute top-0 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                </div>
+                <span class="text-[10px] mt-1 font-medium">动态</span>
+            </div>
+
+            <!-- iOS 底部横条指示器 -->
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-1/3 h-1 bg-gray-300 rounded-full"></div>
+        </div>
+
+        <!-- ==================== 聊天详情页 (滑入覆盖) ==================== -->
+        <div id="chat-page" class="absolute inset-0 bg-gray-50 z-50 flex flex-col page-enter" style="display: none;">
+            <!-- 聊天页顶部 Header -->
+            <div
+                class="w-full h-[88px] pt-12 pb-2 px-4 bg-gray-50/95 backdrop-blur border-b border-gray-200 flex justify-between items-center z-10">
+                <button onclick="closeChat()"
+                    class="flex items-center text-gray-800 hover:text-blue-500 transition px-2 py-1 -ml-2 rounded-lg active:bg-gray-200">
+                    <i class="fas fa-chevron-left text-lg"></i>
+                    <span class="ml-1 text-sm font-medium">返回</span>
+                </button>
+                <h2 id="chat-title" class="text-base font-bold text-gray-900 truncate max-w-[200px]">UI设计师 - 小李</h2>
+                <button class="text-gray-800 hover:text-blue-500 px-2 py-1 -mr-2 rounded-lg active:bg-gray-200">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+            </div>
+
+            <!-- 聊天内容区 -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-5 no-scrollbar bg-[#F3F4F6]" id="chat-scroll-area">
+                <!-- 时间戳 -->
+                <div class="text-center">
+                    <span class="text-[11px] text-gray-400 bg-gray-200/60 px-2 py-0.5 rounded-md">昨天 14:20</span>
+                </div>
+
+                <!-- 接收的消息 (对方) -->
+                <div class="flex items-start">
+                    <img src="https://i.pravatar.cc/150?img=32" class="w-10 h-10 rounded-full shadow-sm mt-1">
+                    <div class="ml-3 max-w-[70%]">
+                        <div
+                            class="bg-white p-3 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 text-gray-800 text-[15px] leading-relaxed">
+                            切图文件我已经发到群里了，你看一下尺寸对不对。还有图标需要换成 SVG 格式的吗？
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 发送的消息 (我) -->
+                <div class="flex items-start flex-row-reverse">
+                    <img src="https://i.pravatar.cc/150?img=11" class="w-10 h-10 rounded-full shadow-sm mt-1">
+                    <div class="mr-3 max-w-[70%]">
+                        <div
+                            class="bg-blue-500 p-3 rounded-2xl rounded-tr-sm shadow-sm text-white text-[15px] leading-relaxed">
+                            收到了，尺寸没问题。图标最好是SVG的，这样在高清屏上不会模糊。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 接收的消息 (对方) -->
+                <div class="flex items-start">
+                    <img src="https://i.pravatar.cc/150?img=32" class="w-10 h-10 rounded-full shadow-sm mt-1">
+                    <div class="ml-3 max-w-[70%]">
+                        <div
+                            class="bg-white p-3 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 text-gray-800 text-[15px] leading-relaxed flex items-center">
+                            <i class="fas fa-file-archive text-yellow-500 text-2xl mr-3"></i>
+                            <div>
+                                <p class="text-sm font-semibold truncate w-32">icons_v2.zip</p>
+                                <p class="text-xs text-gray-400">1.2 MB</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聊天底部输入框 -->
+            <div class="w-full bg-gray-50 border-t border-gray-200 px-4 py-3 pb-8">
+                <div class="flex items-center space-x-3">
+                    <button
+                        class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center text-gray-600 active:bg-gray-200 transition">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <div
+                        class="flex-1 bg-white rounded-full h-10 px-4 flex items-center shadow-inner border border-gray-200">
+                        <input type="text" placeholder="输入消息..."
+                            class="w-full bg-transparent outline-none text-[15px] text-gray-800">
+                    </div>
+                    <button class="text-gray-600 text-2xl active:scale-90 transition">
+                        <i class="far fa-smile"></i>
+                    </button>
+                    <button
+                        class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-sm active:bg-blue-600 transition">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <!-- iOS 底部横条指示器 占位 -->
+                <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-1/3 h-1 bg-gray-300 rounded-full"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 交互逻辑 JS -->
+    <script>
+        // 底部Tab切换逻辑
+        function switchTab(tabName, element) {
+            // 1. 重置所有Tab按钮样式
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => {
+                tab.classList.remove('text-blue-500');
+                tab.classList.add('text-gray-400');
+            });
+
+            // 2. 激活当前点击的Tab
+            element.classList.remove('text-gray-400');
+            element.classList.add('text-blue-500');
+
+            // 3. 隐藏所有页面
+            const pages = document.querySelectorAll('.page-view');
+            pages.forEach(page => {
+                page.classList.add('hidden');
+            });
+
+            // 4. 显示对应页面
+            document.getElementById(`page-${tabName}`).classList.remove('hidden');
+        }
+
+        // 打开聊天窗口
+        function openChat(titleName, userId) {
+            const chatPage = document.getElementById('chat-page');
+            const chatTitle = document.getElementById('chat-title');
+
+            // 设置聊天标题
+            chatTitle.textContent = titleName;
+
+            // 动画处理：先设为block使其参与渲染，应用进入动画
+            chatPage.style.display = 'flex';
+            chatPage.classList.remove('page-exit', 'page-exit-active');
+            chatPage.classList.add('page-enter');
+
+            // 触发重绘
+            void chatPage.offsetWidth;
+
+            // 激活进入动画
+            chatPage.classList.add('page-enter-active');
+
+            // 滚动到底部
+            setTimeout(() => {
+                const scrollArea = document.getElementById('chat-scroll-area');
+                scrollArea.scrollTop = scrollArea.scrollHeight;
+            }, 50);
+        }
+
+        // 关闭聊天窗口
+        function closeChat() {
+            const chatPage = document.getElementById('chat-page');
+
+            // 移除进入动画类，准备退出动画
+            chatPage.classList.remove('page-enter', 'page-enter-active');
+            chatPage.classList.add('page-exit');
+
+            // 触发重绘
+            void chatPage.offsetWidth;
+
+            // 激活退出动画
+            chatPage.classList.add('page-exit-active');
+
+            // 动画结束后隐藏 DOM
+            setTimeout(() => {
+                chatPage.style.display = 'none';
+            }, 300); // 300ms 与 CSS transition 一致
+        }
+    </script>
+</body>
+
+</html>
