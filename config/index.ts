@@ -1,5 +1,4 @@
 import path from 'path';
-import { UnifiedViteWeappTailwindcssPlugin } from "weapp-tailwindcss/vite";
 import { defineConfig, type UserConfigExport } from '@tarojs/cli';
 import devConfig from './dev';
 import prodConfig from './prod';
@@ -32,15 +31,7 @@ export default defineConfig<'vite'>(async (merge) => {
       '@': path.resolve(__dirname, '..', 'src'),
     },
     compiler: {
-      type: "vite",
-      vitePlugins: [
-        UnifiedViteWeappTailwindcssPlugin({
-          rem2rpx: true,
-          disabled: process.env.TARO_ENV === 'h5' || process.env.TARO_ENV === 'harmony' || process.env.TARO_ENV === 'rn',
-          injectAdditionalCssVarScope: true,
-          cssEntries: [path.resolve(__dirname, '../src/app.css')]
-        })
-      ]
+      type: "vite"
     },
     mini: {
       postcss: {

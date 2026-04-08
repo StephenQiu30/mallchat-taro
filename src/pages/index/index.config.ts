@@ -1,3 +1,5 @@
 export default definePageConfig({
-  navigationBarTitleText: '首页'
+  navigationBarTitleText: '消息',
+  navigationBarBackgroundColor: '#F7F9FC',
+  backgroundColor: '#F4F7FB'
 })

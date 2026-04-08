@@ -1,0 +1,191 @@
+@use '@/styles/theme.scss' as *;
+
+.contact-page {
+  &__hero {
+    margin-bottom: 24rpx;
+  }
+
+  &__title {
+    display: block;
+    margin-bottom: 10rpx;
+    color: $text-primary;
+    font-size: 52rpx;
+    font-weight: 700;
+  }
+
+  &__subtitle {
+    display: block;
+    color: $text-secondary;
+    font-size: 24rpx;
+    line-height: 1.6;
+  }
+
+  &__quick-list {
+    margin-bottom: 28rpx;
+  }
+
+  &__quick-entry {
+    display: flex;
+    align-items: center;
+    padding: 24rpx;
+    margin-bottom: 16rpx;
+
+    &--orange {
+      .contact-page__quick-icon {
+        color: #f97316;
+        background: rgba(249, 115, 22, 0.1);
+      }
+    }
+
+    &--blue {
+      .contact-page__quick-icon {
+        color: $brand-primary;
+        background: rgba(37, 99, 235, 0.1);
+      }
+    }
+  }
+
+  &__quick-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include size(80rpx);
+    margin-right: 18rpx;
+    border-radius: 24rpx;
+  }
+
+  &__quick-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__quick-title {
+    display: block;
+    margin-bottom: 8rpx;
+    color: $text-primary;
+    font-size: 30rpx;
+    font-weight: 700;
+  }
+
+  &__quick-desc {
+    display: block;
+    color: $text-secondary;
+    font-size: 22rpx;
+  }
+
+  &__quick-arrow {
+    margin-left: 14rpx;
+    color: $text-tertiary;
+  }
+
+  &__group {
+    margin-bottom: 28rpx;
+    overflow: hidden;
+
+    &-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24rpx 24rpx 18rpx;
+    }
+
+    &-title-wrap {
+      display: flex;
+      align-items: center;
+    }
+
+    &-arrow {
+      margin-right: 10rpx;
+      color: $brand-primary;
+    }
+
+    &-title {
+      color: $text-primary;
+      font-size: 28rpx;
+      font-weight: 700;
+    }
+
+    &-count {
+      color: $text-tertiary;
+      font-size: 22rpx;
+    }
+  }
+
+  &__person {
+    display: flex;
+    align-items: center;
+    padding: 18rpx 24rpx 22rpx;
+
+    &--border {
+      border-bottom: 2rpx solid rgba(226, 232, 240, 0.85);
+    }
+
+    &-avatar {
+      position: relative;
+      @include size(82rpx);
+      margin-right: 18rpx;
+      border-radius: 24rpx;
+      overflow: hidden;
+    }
+
+    &-online {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      @include size(18rpx);
+      background: $success;
+      border: 4rpx solid #ffffff;
+      border-radius: 999rpx;
+    }
+
+    &-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &-name {
+      display: block;
+      margin-bottom: 6rpx;
+      color: $text-primary;
+      font-size: 28rpx;
+      font-weight: 700;
+    }
+
+    &-status {
+      display: block;
+      color: $text-secondary;
+      font-size: 22rpx;
+    }
+
+    &-arrow {
+      color: $text-tertiary;
+    }
+  }
+
+  &__summary {
+    padding: 8rpx 24rpx;
+
+    &-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22rpx 0;
+
+      &--border {
+        border-top: 2rpx solid rgba(226, 232, 240, 0.85);
+        border-bottom: 2rpx solid rgba(226, 232, 240, 0.85);
+      }
+    }
+
+    &-name {
+      color: $text-primary;
+      font-size: 28rpx;
+      font-weight: 600;
+    }
+
+    &-meta {
+      color: $text-tertiary;
+      font-size: 22rpx;
+    }
+  }
+}

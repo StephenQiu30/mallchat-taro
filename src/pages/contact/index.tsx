@@ -1,13 +1,45 @@
-import { View, Text, ScrollView } from '@tarojs/components'
-import { Avatar, Badge } from '@taroify/core'
-import { ArrowRight, Search as SearchIcon, FriendsOutlined, ChatOutlined, ArrowDown } from '@taroify/icons'
-import { useDidShow, setNavigationBarTitle } from '@tarojs/taro'
+import { ScrollView, Text, View } from '@tarojs/components'
+import { Search, Cell } from '@taroify/core'
+import { Arrow, FriendsOutlined, ChatOutlined } from '@taroify/icons'
+import Taro, { useDidShow, setNavigationBarTitle } from '@tarojs/taro'
 import { useDispatch } from 'react-redux'
-import { setActiveTab } from '../../store/slices/appSlice'
+import { setActiveTab } from '@/store/slices/appSlice'
+
+import './index.scss'
+
+const quickEntries = [
+  {
+    key: 'new-friends',
+    title: '新朋友',
+    desc: '好友申请与系统提醒',
+    icon: <FriendsOutlined size='20px' style={{ color: '#fa8c16' }} />,
+  },
+  {
+    key: 'group-notice',
+    title: '群通知',
+    desc: '群聊动态与提及提醒',
+    icon: <ChatOutlined size='20px' style={{ color: '#2563eb' }} />,
+    badge: '1',
+  },
+]
+
+const favoriteContacts = [
+  {
+    id: 'mom',
+    name: '老妈',
+    status: '刚才在线',
+    avatar: 'https://i.pravatar.cc/160?img=5',
+  },
+  {
+    id: 'liang',
+    name: '阿亮',
+    status: '手机在线',
+    avatar: 'https://i.pravatar.cc/160?img=32',
+  },
+]
 
 /**
- * 联系人列表页 - 专业重构版
- * 基于 Taroify UI 实现
+ * 联系人列表页
  */
 export default function ContactIndex() {
   const dispatch = useDispatch()
@@ -18,62 +50,95 @@ export default function ContactIndex() {
   })
 
   return (
-    <View className='flex-1 flex flex-col bg-gray-50'>
-      <ScrollView scrollY className='flex-1' enhanced showScrollbar={false}>
-        <View className='px-4 pb-6 pt-4'>
-          {/* 搜索框 */}
-          <View className='mb-4'>
-            <View className='bg-white h-10 rounded-xl flex items-center px-4 border border-gray-100 shadow-sm'>
-              <SearchIcon size='32rpx' className='text-gray-400 mr-2' />
-              <Text className='text-sm text-gray-400'>搜索联系人</Text>
-            </View>
+    <View className='mall-page contact-page'>
+      <ScrollView scrollY className='mall-page__scroll' enhanced showScrollbar={false}>
+        <View className='mall-page__content'>
+          <View className='contact-page__hero'>
+            <Text className='contact-page__title'>联系人</Text>
+            <Text className='contact-page__subtitle'>常用联系人、群提醒和协作入口</Text>
           </View>
 
-          {/* 功能入口卡片 */}
-          <View className='bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4'>
-            <View className='flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition-all'>
-              <View className='w-10 h-10 rounded-lg bg-orange-100 flex justify-center items-center text-orange-500'>
-                 <FriendsOutlined size='40rpx' />
-              </View>
-              <Text className='ml-3 font-semibold text-gray-800 flex-1'>新朋友</Text>
-              <ArrowRight className='text-gray-300' size='32rpx' />
-            </View>
-            <View className='flex items-center p-4 active:bg-gray-50 transition-all'>
-              <View className='w-10 h-10 rounded-lg bg-blue-100 flex justify-center items-center text-blue-500'>
-                 <ChatOutlined size='40rpx' />
-              </View>
-              <Text className='ml-3 font-semibold text-gray-800 flex-1'>群通知</Text>
-              <Badge content='1' className='mr-2' />
-              <ArrowRight className='text-gray-300' size='32rpx' />
-            </View>
+          <View className='mall-search-wrapper'>
+            <Search
+              placeholder='搜索联系人、标签和分组'
+            />
           </View>
 
-          {/* 联系人分组 */}
-          <View className='space-y-2'>
-            <Text className='text-[22rpx] font-bold text-gray-400 ml-1 uppercase tracking-wider mb-1 block'>我的好友</Text>
-            
-            <View className='bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden'>
-              <View className='flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition-all'>
-                <ArrowDown className='text-gray-400 w-4' size='32rpx' />
-                <Text className='ml-2 font-semibold text-gray-800 flex-1'>特别关心</Text>
-                <Text className='text-xs text-gray-400 font-medium'>1/1</Text>
-              </View>
-              
-              <View className='bg-gray-50/30 pl-10 pr-4 py-3 flex items-center border-b border-gray-50 active:bg-gray-100'>
-                <Avatar src='https://i.pravatar.cc/150?img=5' className='w-9 h-9 rounded-lg shadow-sm' />
-                <View className='ml-3 flex-1 min-w-0'>
-                  <Text className='text-sm font-semibold text-gray-800 block'>老妈</Text>
-                  <Text className='text-[20rpx] text-gray-400 font-medium'>[4G] 刚才在线</Text>
+          <View className='contact-page__quick-list'>
+            <Cell.Group style={{ borderRadius: '24rpx', overflow: 'hidden', backgroundColor: '#fff' }}>
+              {quickEntries.map((entry) => (
+                <Cell
+                  key={entry.key}
+                  title={
+                    <View style={{ display: 'flex', alignItems: 'center' }}>
+                      {entry.icon}
+                      <Text style={{ marginLeft: '20rpx' }}>{entry.title}</Text>
+                    </View>
+                  }
+                  brief={entry.desc}
+                  align='center'
+                  rightIcon={
+                    <View style={{ display: 'flex', alignItems: 'center' }}>
+                      {entry.badge && <View className='mall-badge' style={{ marginRight: '16rpx' }}>{entry.badge}</View>}
+                      <Arrow size='16px' style={{ color: '#bbb' }} />
+                    </View>
+                  }
+                />
+              ))}
+            </Cell.Group>
+          </View>
+
+          <Text className='mall-section-title' style={{ marginTop: '32rpx' }}>特别关心</Text>
+          <Cell.Group style={{ borderRadius: '24rpx', overflow: 'hidden', backgroundColor: '#fff' }}>
+            {favoriteContacts.map((contact) => (
+              <Cell
+                key={contact.id}
+                title={
+                  <View style={{ display: 'flex', alignItems: 'center' }}>
+                    <View className='contact-page__person-avatar-wrap'>
+                      <View className='contact-page__person-avatar' style={{ background: '#f0f2f5', width: '80rpx', height: '80rpx', borderRadius: '20rpx' }} />
+                      <View className='contact-page__person-online' />
+                    </View>
+                    <Text style={{ marginLeft: '20rpx' }}>{contact.name}</Text>
+                  </View>
+                }
+                brief={contact.status}
+                align='center'
+                rightIcon={<Arrow size='16px' style={{ color: '#bbb' }} />}
+              />
+            ))}
+          </Cell.Group>
+
+          <Text className='mall-section-title' style={{ marginTop: '32rpx' }}>分组预览</Text>
+          <Cell.Group style={{ borderRadius: '24rpx', overflow: 'hidden', backgroundColor: '#fff' }}>
+            <Cell 
+              title='我的好友' 
+              rightIcon={
+                <View style={{ display: 'flex', alignItems: 'center' }}>
+                  <Text style={{ fontSize: '24rpx', color: '#999', marginRight: '8rpx' }}>34 / 120 在线</Text>
+                  <Arrow size='16px' style={{ color: '#bbb' }} />
                 </View>
-              </View>
-
-              <View className='flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition-all'>
-                <ArrowRight className='text-gray-400 w-4' size='32rpx' />
-                <Text className='ml-2 font-semibold text-gray-800 flex-1'>主要联系人</Text>
-                <Text className='text-xs text-gray-400 font-medium'>12/45</Text>
-              </View>
-            </View>
-          </View>
+              } 
+            />
+            <Cell 
+              title='项目群聊' 
+              rightIcon={
+                <View style={{ display: 'flex', alignItems: 'center' }}>
+                  <Text style={{ fontSize: '24rpx', color: '#999', marginRight: '8rpx' }}>12 个活跃群组</Text>
+                  <Arrow size='16px' style={{ color: '#bbb' }} />
+                </View>
+              } 
+            />
+            <Cell 
+              title='黑名单' 
+              rightIcon={
+                <View style={{ display: 'flex', alignItems: 'center' }}>
+                  <Text style={{ fontSize: '24rpx', color: '#999', marginRight: '8rpx' }}>无</Text>
+                  <Arrow size='16px' style={{ color: '#bbb' }} />
+                </View>
+              } 
+            />
+          </Cell.Group>
         </View>
       </ScrollView>
     </View>

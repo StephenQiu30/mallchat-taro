@@ -1,13 +1,47 @@
-import { View, Text, ScrollView } from '@tarojs/components'
-import { Avatar } from '@taroify/core'
-import { ArrowRight, SettingOutlined, BalanceOutlined, StarOutlined, GemOutlined, ShoppingCartOutlined } from '@taroify/icons'
-import { useDidShow, setNavigationBarTitle } from '@tarojs/taro'
+import { ScrollView, Text, View } from '@tarojs/components'
+import { Avatar, Cell, Tag } from '@taroify/core'
+import { Arrow, GiftOutlined, StarOutlined, SettingOutlined, BalancePay, AppsOutlined } from '@taroify/icons'
+import Taro, { useDidShow, setNavigationBarTitle } from '@tarojs/taro'
 import { useDispatch } from 'react-redux'
-import { setActiveTab } from '../../store/slices/appSlice'
+import { setActiveTab } from '@/store/slices/appSlice'
+
+import './index.scss'
+
+const profileMenus = [
+  {
+    key: 'wallet',
+    title: '我的钱包',
+    desc: '账单、收支与会员权益',
+    icon: <BalancePay size='18px' style={{ color: '#faad14' }} />,
+  },
+  {
+    key: 'store',
+    title: '装扮商城',
+    desc: '主题皮肤与会话气泡',
+    icon: <GiftOutlined size='18px' style={{ color: '#eb2f96' }} />,
+  },
+  {
+    key: 'favorites',
+    title: '收藏中心',
+    desc: '保留重要消息与文件',
+    icon: <StarOutlined size='18px' style={{ color: '#52c41a' }} />,
+  },
+  {
+    key: 'mini-program',
+    title: '精选小程序',
+    desc: '最近访问与常用服务',
+    icon: <AppsOutlined size='18px' style={{ color: '#13c2c2' }} />,
+  },
+  {
+    key: 'settings',
+    title: '系统设置',
+    desc: '通知、隐私与布局偏好',
+    icon: <SettingOutlined size='18px' style={{ color: '#8c8c8c' }} />,
+  },
+]
 
 /**
- * 个人中心页 - 专业重构版
- * 基于 Taroify UI 实现
+ * 个人中心页
  */
 export default function ProfileIndex() {
   const dispatch = useDispatch()
@@ -18,69 +52,64 @@ export default function ProfileIndex() {
   })
 
   return (
-    <View className='flex-1 flex flex-col bg-gray-50 h-full relative'>
-      <ScrollView scrollY className='flex-1 relative z-10' enhanced showScrollbar={false}>
-        <View className='pb-10'>
-          
-          {/* 用户基础信息卡片 */}
-          <View className='p-4'>
-            <View className='bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center mb-4'>
-              <Avatar src='https://i.pravatar.cc/150?img=11' className='w-16 h-16 rounded-xl border-2 border-white shadow-sm' />
-              <View className='ml-4 flex-1'>
-                 <Text className='text-lg font-bold text-gray-900 block'>MallChat 用户</Text>
-                 <Text className='text-xs text-gray-400 mt-1 block'>账号 ID: 888888</Text>
+    <View className='mall-page profile-page'>
+      <ScrollView scrollY className='mall-page__scroll' enhanced showScrollbar={false}>
+        <View className='mall-page__content'>
+          <View className='profile-page__hero'>
+            <View className='profile-page__hero-top'>
+              <Avatar
+                size='large'
+                src='https://i.pravatar.cc/160?img=11'
+                style={{ borderRadius: '28rpx', boxShadow: 'var(--shadow-strong)' }}
+              />
+              <View className='profile-page__hero-main'>
+                <Text className='profile-page__name'>MallChat 用户</Text>
+                <View style={{ display: 'flex', alignItems: 'center', marginTop: '4rpx' }}>
+                  <Text className='profile-page__id'>账号: 888888</Text>
+                  <Tag color='primary' style={{ marginLeft: '12rpx' }}>PRO</Tag>
+                </View>
               </View>
-              <ArrowRight className='text-gray-300' size='32rpx' />
+              <Arrow size='18px' style={{ color: '#bbb' }} />
             </View>
 
-            {/* 个人数据统计 */}
-            <View className='bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex justify-around mb-4'>
-                 {[
-                   { label: '访客', value: '128' },
-                   { label: '状态', value: '45' },
-                   { label: '收藏', value: '12' }
-                 ].map((item, i) => (
-                   <View key={i} className='text-center flex-1'>
-                     <Text className='text-base font-bold text-gray-900 block'>{item.value}</Text>
-                     <Text className='text-[20rpx] text-gray-400 mt-0.5'>{item.label}</Text>
-                   </View>
-                 ))}
+            <View className='profile-page__stats'>
+              {[
+                { label: '访客', value: '128' },
+                { label: '点赞', value: '45' },
+                { label: '关注', value: '12' },
+              ].map((item) => (
+                <View key={item.label} className='profile-page__stat-card mall-surface'>
+                  <Text className='profile-page__stat-value'>{item.value}</Text>
+                  <Text className='profile-page__stat-label'>{item.label}</Text>
+                </View>
+              ))}
             </View>
 
-            {/* 功能列表 */}
-            <View className='space-y-4'>
-              <View className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
-                 <View className='flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition-all'>
-                    <BalanceOutlined size='40rpx' className='text-blue-500' />
-                    <Text className='ml-3 font-semibold text-gray-800 flex-1 transition-all'>我的钱包</Text>
-                    <ArrowRight className='text-gray-300' size='32rpx' />
-                 </View>
-                 <View className='flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition-all'>
-                    <GemOutlined size='40rpx' className='text-purple-500' />
-                    <Text className='ml-3 font-semibold text-gray-800 flex-1'>装扮商城</Text>
-                    <ArrowRight className='text-gray-300' size='32rpx' />
-                 </View>
-                 <View className='flex items-center p-4 active:bg-gray-50 transition-all'>
-                    <StarOutlined size='40rpx' className='text-yellow-500' />
-                    <Text className='ml-3 font-semibold text-gray-800 flex-1'>收藏中心</Text>
-                    <ArrowRight className='text-gray-300' size='32rpx' />
-                 </View>
-              </View>
-
-              <View className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
-                 <View className='flex items-center p-4 border-b border-gray-50 active:bg-gray-50 transition-all'>
-                    <ShoppingCartOutlined size='40rpx' className='text-orange-500' />
-                    <Text className='ml-3 font-semibold text-gray-800 flex-1'>精选小程序</Text>
-                    <ArrowRight className='text-gray-300' size='32rpx' />
-                 </View>
-                 <View className='flex items-center p-4 active:bg-gray-50 transition-all'>
-                    <SettingOutlined size='40rpx' className='text-gray-500' />
-                    <Text className='ml-3 font-semibold text-gray-800 flex-1'>系统设置</Text>
-                    <ArrowRight className='text-gray-300' size='32rpx' />
-                 </View>
-              </View>
+            <View className='profile-page__summary mall-surface'>
+              <Text className='profile-page__summary-title'>成长足迹</Text>
+              <Text className='profile-page__summary-text'>
+                最近 7 天内完成了 14 次沟通、3 次归档和 2 次协作体验。
+              </Text>
             </View>
           </View>
+
+          <Text className='mall-section-title' style={{ marginTop: '32rpx' }}>常用入口</Text>
+          <Cell.Group style={{ borderRadius: '24rpx', overflow: 'hidden', backgroundColor: '#fff' }}>
+            {profileMenus.map((item) => (
+              <Cell
+                key={item.key}
+                title={
+                  <View style={{ display: 'flex', alignItems: 'center' }}>
+                    {item.icon}
+                    <Text style={{ marginLeft: '20rpx' }}>{item.title}</Text>
+                  </View>
+                }
+                brief={item.desc}
+                align='center'
+                rightIcon={<Arrow size='16px' style={{ color: '#bbb' }} />}
+              />
+            ))}
+          </Cell.Group>
         </View>
       </ScrollView>
     </View>

@@ -1,0 +1,132 @@
+@use '@/styles/theme.scss' as *;
+
+/* MallChat Global Styles - Premium SCSS Version */
+page {
+  /* Design Tokens from SCSS Variables */
+  --brand-primary: #{$brand-primary};
+  --brand-secondary: #{$brand-secondary};
+  --brand-soft: #{$brand-soft};
+  
+  --status-success: #{$success};
+  --status-warning: #{$warning};
+  --status-error: #{$danger};
+  --danger: #{$danger};
+  
+  --text-primary: #{$text-primary};
+  --text-secondary: #{$text-secondary};
+  --text-tertiary: #{$text-tertiary};
+  
+  --page-bg: #{$page-bg};
+  --surface: #{$surface};
+  --surface-strong: #{$surface-strong};
+  --border-soft: #{$border-soft};
+  
+  --shadow-soft: #{$shadow-soft};
+  --shadow-strong: #{$shadow-strong};
+  
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+  --radius-xl: #{$radius-xl};
+  --radius-full: #{$radius-full};
+  
+  --font-sans: #{$font-sans};
+
+  /* Taroify Token Mapping */
+  --blue: var(--brand-primary);
+  --tabbar-height: 110rpx;
+  --tabbar-item-active-color: var(--brand-primary);
+  --tabbar-item-active-background-color: transparent;
+  --tabbar-item-inactive-color: var(--text-tertiary);
+  --tabbar-item-icon-size: 44rpx;
+  --tabbar-item-font-size: 22rpx;
+  --tabbar-item-line-height: 1;
+  --tabbar-item-margin-bottom: 4rpx;
+  
+  --search-padding: 20rpx 24rpx;
+  --search-background-color: transparent;
+  --search-content-background-color: var(--surface-strong);
+}
+
+page,
+#app {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--page-bg);
+  background: radial-gradient(circle at top right, #edf5ff 0%, #f7f9fc 42%, #eef2f8 100%);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+view,
+text,
+button,
+input,
+scroll-view,
+textarea,
+image {
+  box-sizing: border-box;
+}
+
+.mall-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  &__scroll {
+    flex: 1;
+    height: 100%;
+  }
+
+  &__content {
+    padding: 28rpx 24rpx 36rpx;
+  }
+}
+
+/* Common UI Components */
+.mall-surface {
+  background: var(--surface);
+  border: 2rpx solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.mall-section-title {
+  margin: 32rpx 0 18rpx;
+  color: var(--text-secondary);
+  font-size: 24rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  text-transform: uppercase;
+}
+
+.mall-avatar {
+  @include size(100%);
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.mall-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34rpx;
+  height: 34rpx;
+  padding: 0 10rpx;
+  border-radius: var(--radius-full);
+  background: var(--status-error);
+  color: #ffffff;
+  font-size: 20rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.is-pressed {
+  transform: scale(0.985);
+  transition: transform 0.1s ease;
+  opacity: 0.96;
+}
+

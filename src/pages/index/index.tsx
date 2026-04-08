@@ -1,68 +1,125 @@
-import { View, Text, ScrollView } from '@tarojs/components'
-import { Badge, Avatar } from '@taroify/core'
-import { Search as SearchIcon } from '@taroify/icons'
+import { ScrollView, Text, View } from '@tarojs/components'
+import { Search, Avatar } from '@taroify/core'
 import Taro, { useDidShow, setNavigationBarTitle } from '@tarojs/taro'
 import { useDispatch } from 'react-redux'
-import { setActiveTab } from '../../store/slices/appSlice'
-import { MOCK_CONVERSATIONS } from '../../services/mockData'
+import { setActiveTab } from '@/store/slices/appSlice'
+import { MOCK_CONVERSATIONS } from '@/services/mockData'
+
+import './index.scss'
 
 /**
- * 消息列表页 - 专业重构版
- * 1. 采用系统原生标题栏，移除自定义 Navbar
- * 2. 采用 TDesign 风格的卡片式布局
+ * 消息列表页
  */
 export default function MessageIndex() {
   const dispatch = useDispatch()
+  const highlightedConversation = MOCK_CONVERSATIONS[0]
+  const totalUnread = MOCK_CONVERSATIONS.reduce((sum, item) => sum + item.unread, 0)
+  const onlineCount = MOCK_CONVERSATIONS.filter((item) => item.online).length
 
   useDidShow(() => {
     dispatch(setActiveTab('message'))
-    setNavigationBarTitle({ title: '消息' })
+    setNavigationBarTitle({ title: 'MallChat' })
   })
 
   return (
-    <View className='flex-1 flex flex-col bg-gray-50'>
-      <ScrollView 
-        scrollY 
-        className='flex-1' 
-        enhanced 
+    <View className='mall-page message-page'>
+      <ScrollView
+        scrollY
+        className='mall-page__scroll'
+        enhanced
         showScrollbar={false}
       >
-        <View className='px-4 pb-6 pt-4'>
-          {/* 搜索框 - 扁平化平衡风格 */}
-          <View className='mb-4'>
-            <View className='bg-white h-10 rounded-xl flex items-center px-4 border border-gray-100 shadow-sm'>
-              <SearchIcon size='32rpx' className='text-gray-400 mr-2' />
-              <Text className='text-sm text-gray-400'>搜索常用联系人</Text>
+        <View className='mall-page__content'>
+          {/* Header Hero */}
+          <View className='message-page__hero'>
+            <View className='message-page__identity'>
+              <View className='message-page__hero-avatar'>
+                <Avatar
+                  size='large'
+                  src='https://i.pravatar.cc/160?img=1'
+                  style={{ borderRadius: '28rpx', boxShadow: 'var(--shadow-strong)' }}
+                />
+              </View>
+              <View className='message-page__identity-copy'>
+                <Text className='message-page__title'>消息中心</Text>
+                <Text className='message-page__subtitle'>重要会话、群聊提醒和工作沟通</Text>
+              </View>
+            </View>
+
+            <View className='message-page__stats'>
+              <View className='message-page__stat-card mall-surface'>
+                <Text className='message-page__stat-value'>{totalUnread}</Text>
+                <Text className='message-page__stat-label'>未读消息</Text>
+              </View>
+              <View className='message-page__stat-card mall-surface'>
+                <Text className='message-page__stat-value'>{onlineCount}</Text>
+                <Text className='message-page__stat-label'>在线联系</Text>
+              </View>
             </View>
           </View>
 
-          {/* 消息卡片列表 */}
-          <View className='space-y-2'>
+          {/* Taroify Search */}
+          <View className='mall-search-wrapper'>
+            <Search
+              placeholder='搜索联系人、群聊和文件'
+              style={{ background: 'transparent', padding: '16rpx 0' }}
+            />
+          </View>
+
+          {/* Featured Highlight */}
+          {highlightedConversation && (
+            <View
+              className='message-page__featured'
+              hoverClass='is-pressed'
+              onClick={() =>
+                Taro.navigateTo({
+                  url: `/pages/chat/index?id=${highlightedConversation.id}&name=${highlightedConversation.name}`,
+                })
+              }
+            >
+              <View className='message-page__featured-tag'>置顶会话</View>
+              <Text className='message-page__featured-title'>
+                {highlightedConversation.name}
+              </Text>
+              <Text className='message-page__featured-text'>
+                {highlightedConversation.text}
+              </Text>
+              <View className='message-page__featured-meta'>
+                <Text className='message-page__featured-time'>{highlightedConversation.time}</Text>
+                {highlightedConversation.unread > 0 && (
+                  <View className='mall-badge'>{highlightedConversation.unread}</View>
+                )}
+              </View>
+            </View>
+          )}
+
+          <Text className='mall-section-title'>最近消息</Text>
+          <View className='message-list'>
             {MOCK_CONVERSATIONS.map((msg) => (
-              <View 
-                key={msg.id} 
-                className='bg-white p-4 rounded-xl flex items-center active:bg-gray-100 transition-all border border-gray-50'
+              <View
+                key={msg.id}
+                className='message-card mall-surface'
+                hoverClass='is-pressed'
                 onClick={() => Taro.navigateTo({ url: `/pages/chat/index?id=${msg.id}&name=${msg.name}` })}
               >
-                <View className='relative shrink-0'>
-                  <Avatar 
-                    src={msg.avatar} 
-                    className='w-12 h-12 rounded-lg' 
+                <View className='message-card__avatar-wrap'>
+                  <Avatar
+                    size='medium'
+                    src={msg.avatar}
+                    className='message-card__avatar'
                   />
+                  {msg.online && <View className='message-card__online' />}
                   {msg.unread > 0 && (
-                    <Badge 
-                      content={msg.unread} 
-                      className='absolute -top-1 -right-1 border-2 border-white' 
-                    />
+                    <View className='message-card__badge mall-badge'>{msg.unread}</View>
                   )}
                 </View>
 
-                <View className='ml-4 flex-1 min-w-0'>
-                  <View className='flex justify-between items-center mb-1'>
-                    <Text className='text-base font-semibold text-gray-900 truncate'>{msg.name}</Text>
-                    <Text className='text-[20rpx] text-gray-400 font-medium'>{msg.time}</Text>
+                <View className='message-card__body'>
+                  <View className='message-card__header'>
+                    <Text className='message-card__name mall-text-ellipsis'>{msg.name}</Text>
+                    <Text className='message-card__time'>{msg.time}</Text>
                   </View>
-                  <Text className='text-sm text-gray-500 truncate block'>{msg.text}</Text>
+                  <Text className='message-card__text mall-text-ellipsis'>{msg.text}</Text>
                 </View>
               </View>
             ))}
