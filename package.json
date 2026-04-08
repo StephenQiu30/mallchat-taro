@@ -30,8 +30,7 @@
     "dev:rn": "npm run build:rn -- --watch",
     "dev:qq": "npm run build:qq -- --watch",
     "dev:jd": "npm run build:jd -- --watch",
-    "dev:harmony-hybrid": "npm run build:harmony-hybrid -- --watch",
-    "postinstall": "weapp-tw patch"
+    "dev:harmony-hybrid": "npm run build:harmony-hybrid -- --watch"
   },
   "browserslist": [
     "last 3 versions",

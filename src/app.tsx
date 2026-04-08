@@ -1,18 +1,17 @@
 import { PropsWithChildren } from 'react'
-import { RootProviders } from '@/layout/Providers'
-import { RootLayout } from '@/layout'
+import { Provider } from 'react-redux'
+import { store } from '@/store'
 
+// 核心样式
 import '@taroify/core/index.css'
 import '@taroify/icons/index.css'
 import './app.scss'
 
-function App({ children }: PropsWithChildren<any>) {
+function App({ children }: PropsWithChildren) {
   return (
-    <RootProviders>
-      <RootLayout>
-        {children}
-      </RootLayout>
-    </RootProviders>
+    <Provider store={store}>
+      {children}
+    </Provider>
   )
 }
 

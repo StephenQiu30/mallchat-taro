@@ -1,9 +1,9 @@
-import { ScrollView, Text, View } from '@tarojs/components'
-import { Search, Cell } from '@taroify/core'
-import { Arrow, FriendsOutlined, ChatOutlined } from '@taroify/icons'
-import Taro, { useDidShow, setNavigationBarTitle } from '@tarojs/taro'
+import { Input, Text, View } from '@tarojs/components'
+import { AddOutlined, Arrow, ArrowDown, Comment, Friends, Search } from '@taroify/icons'
+import { useDidShow } from '@tarojs/taro'
 import { useDispatch } from 'react-redux'
 import { setActiveTab } from '@/store/slices/appSlice'
+import { syncTabBar } from '@/utils/tabBar'
 
 import './index.scss'
 
@@ -11,136 +11,132 @@ const quickEntries = [
   {
     key: 'new-friends',
     title: '新朋友',
-    desc: '好友申请与系统提醒',
-    icon: <FriendsOutlined size='20px' style={{ color: '#fa8c16' }} />,
+    subtitle: '2 个申请待处理',
+    icon: <Friends size='20px' style={{ color: '#f97316' }} />,
+    tone: 'is-orange',
   },
   {
     key: 'group-notice',
     title: '群通知',
-    desc: '群聊动态与提及提醒',
-    icon: <ChatOutlined size='20px' style={{ color: '#2563eb' }} />,
+    subtitle: '1 条重要提醒',
+    icon: <Comment size='20px' style={{ color: '#2f6bff' }} />,
+    tone: 'is-blue',
     badge: '1',
   },
 ]
 
-const favoriteContacts = [
+const friendGroups = [
   {
-    id: 'mom',
-    name: '老妈',
-    status: '刚才在线',
-    avatar: 'https://i.pravatar.cc/160?img=5',
+    id: 'fav',
+    name: '特别关心',
+    count: '1/1',
+    expanded: true,
+    friends: [
+      { id: 'mom', name: '老妈', status: '4G在线', avatarLabel: '妈', avatarTone: 'rose' },
+    ],
   },
   {
-    id: 'liang',
-    name: '阿亮',
-    status: '手机在线',
-    avatar: 'https://i.pravatar.cc/160?img=32',
+    id: 'college',
+    name: '大学同学',
+    count: '12/45',
+    expanded: false,
+    friends: [],
+  },
+  {
+    id: 'work',
+    name: '工作伙伴',
+    count: '34/120',
+    expanded: false,
+    friends: [],
   },
 ]
 
-/**
- * 联系人列表页
- */
 export default function ContactIndex() {
   const dispatch = useDispatch()
 
   useDidShow(() => {
     dispatch(setActiveTab('contact'))
-    setNavigationBarTitle({ title: '联系人' })
+    syncTabBar(1)
   })
 
   return (
     <View className='mall-page contact-page'>
-      <ScrollView scrollY className='mall-page__scroll' enhanced showScrollbar={false}>
-        <View className='mall-page__content'>
-          <View className='contact-page__hero'>
-            <Text className='contact-page__title'>联系人</Text>
-            <Text className='contact-page__subtitle'>常用联系人、群提醒和协作入口</Text>
-          </View>
+      <View className='mall-floating-orb contact-page__orb contact-page__orb--top' />
+      <View className='mall-floating-orb contact-page__orb contact-page__orb--bottom' />
 
-          <View className='mall-search-wrapper'>
-            <Search
-              placeholder='搜索联系人、标签和分组'
-            />
-          </View>
-
-          <View className='contact-page__quick-list'>
-            <Cell.Group style={{ borderRadius: '24rpx', overflow: 'hidden', backgroundColor: '#fff' }}>
-              {quickEntries.map((entry) => (
-                <Cell
-                  key={entry.key}
-                  title={
-                    <View style={{ display: 'flex', alignItems: 'center' }}>
-                      {entry.icon}
-                      <Text style={{ marginLeft: '20rpx' }}>{entry.title}</Text>
-                    </View>
-                  }
-                  brief={entry.desc}
-                  align='center'
-                  rightIcon={
-                    <View style={{ display: 'flex', alignItems: 'center' }}>
-                      {entry.badge && <View className='mall-badge' style={{ marginRight: '16rpx' }}>{entry.badge}</View>}
-                      <Arrow size='16px' style={{ color: '#bbb' }} />
-                    </View>
-                  }
-                />
-              ))}
-            </Cell.Group>
-          </View>
-
-          <Text className='mall-section-title' style={{ marginTop: '32rpx' }}>特别关心</Text>
-          <Cell.Group style={{ borderRadius: '24rpx', overflow: 'hidden', backgroundColor: '#fff' }}>
-            {favoriteContacts.map((contact) => (
-              <Cell
-                key={contact.id}
-                title={
-                  <View style={{ display: 'flex', alignItems: 'center' }}>
-                    <View className='contact-page__person-avatar-wrap'>
-                      <View className='contact-page__person-avatar' style={{ background: '#f0f2f5', width: '80rpx', height: '80rpx', borderRadius: '20rpx' }} />
-                      <View className='contact-page__person-online' />
-                    </View>
-                    <Text style={{ marginLeft: '20rpx' }}>{contact.name}</Text>
-                  </View>
-                }
-                brief={contact.status}
-                align='center'
-                rightIcon={<Arrow size='16px' style={{ color: '#bbb' }} />}
-              />
-            ))}
-          </Cell.Group>
-
-          <Text className='mall-section-title' style={{ marginTop: '32rpx' }}>分组预览</Text>
-          <Cell.Group style={{ borderRadius: '24rpx', overflow: 'hidden', backgroundColor: '#fff' }}>
-            <Cell 
-              title='我的好友' 
-              rightIcon={
-                <View style={{ display: 'flex', alignItems: 'center' }}>
-                  <Text style={{ fontSize: '24rpx', color: '#999', marginRight: '8rpx' }}>34 / 120 在线</Text>
-                  <Arrow size='16px' style={{ color: '#bbb' }} />
-                </View>
-              } 
-            />
-            <Cell 
-              title='项目群聊' 
-              rightIcon={
-                <View style={{ display: 'flex', alignItems: 'center' }}>
-                  <Text style={{ fontSize: '24rpx', color: '#999', marginRight: '8rpx' }}>12 个活跃群组</Text>
-                  <Arrow size='16px' style={{ color: '#bbb' }} />
-                </View>
-              } 
-            />
-            <Cell 
-              title='黑名单' 
-              rightIcon={
-                <View style={{ display: 'flex', alignItems: 'center' }}>
-                  <Text style={{ fontSize: '24rpx', color: '#999', marginRight: '8rpx' }}>无</Text>
-                  <Arrow size='16px' style={{ color: '#bbb' }} />
-                </View>
-              } 
-            />
-          </Cell.Group>
+      <View className='contact-page__header'>
+        <View className='contact-page__header-spacer' />
+        <View className='contact-page__header-copy'>
+          <Text className='contact-page__page-title'>联系人</Text>
+          <Text className='contact-page__page-subtitle'>按分组快速找到常聊的人</Text>
         </View>
-      </ScrollView>
+        <View className='contact-page__add-btn'>
+          <AddOutlined size='20px' />
+        </View>
+      </View>
+
+      <View className='mall-page__body'>
+        <View className='mall-page__content'>
+          <View className='mall-search'>
+            <Search size='18px' style={{ color: '#8fa0b7' }} />
+            <Input
+              className='mall-search__input'
+              placeholder='搜索联系人'
+              placeholderStyle='color: #8fa0b7;'
+            />
+          </View>
+
+          <View className='contact-page__functional'>
+            {quickEntries.map((entry, index) => (
+              <View
+                key={entry.key}
+                className={`contact-page__func-item ${entry.tone} ${index < quickEntries.length - 1 ? 'has-border' : ''}`}
+                hoverClass='contact-page__func-item--pressed'
+                hoverStayTime={60}
+              >
+                <View className='contact-page__func-icon'>{entry.icon}</View>
+                <View className='contact-page__func-copy'>
+                  <Text className='contact-page__func-title'>{entry.title}</Text>
+                  <Text className='contact-page__func-subtitle'>{entry.subtitle}</Text>
+                </View>
+                <View className='contact-page__func-right'>
+                  {entry.badge && <View className='contact-page__badge'>{entry.badge}</View>}
+                  <Arrow size='14px' style={{ color: '#b4bfd1' }} />
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <Text className='contact-page__section-label'>我的好友</Text>
+          <View className='contact-page__groups'>
+            {friendGroups.map((group) => (
+              <View key={group.id} className='contact-page__group-card'>
+                <View className='contact-page__group-header'>
+                  {group.expanded ? (
+                    <ArrowDown size='14px' style={{ color: '#95a2b6' }} />
+                  ) : (
+                    <Arrow size='14px' style={{ color: '#95a2b6' }} />
+                  )}
+                  <Text className='contact-page__group-name'>{group.name}</Text>
+                  <Text className='contact-page__group-count'>{group.count}</Text>
+                </View>
+
+                {group.expanded && group.friends.map((friend) => (
+                  <View key={friend.id} className='contact-page__friend-item'>
+                    <View className={`mall-avatar mall-avatar--circle mall-avatar--${friend.avatarTone} contact-page__friend-avatar`}>
+                      <Text className='contact-page__friend-avatar-text'>{friend.avatarLabel}</Text>
+                    </View>
+                    <View className='contact-page__friend-info'>
+                      <Text className='contact-page__friend-name'>{friend.name}</Text>
+                      <Text className='contact-page__friend-status'>{friend.status}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>
     </View>
   )
 }

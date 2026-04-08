@@ -1,63 +1,30 @@
-@use '@/styles/theme.scss' as *;
-
-/* MallChat Global Styles - Premium SCSS Version */
-page {
-  /* Design Tokens from SCSS Variables */
-  --brand-primary: #{$brand-primary};
-  --brand-secondary: #{$brand-secondary};
-  --brand-soft: #{$brand-soft};
-  
-  --status-success: #{$success};
-  --status-warning: #{$warning};
-  --status-error: #{$danger};
-  --danger: #{$danger};
-  
-  --text-primary: #{$text-primary};
-  --text-secondary: #{$text-secondary};
-  --text-tertiary: #{$text-tertiary};
-  
-  --page-bg: #{$page-bg};
-  --surface: #{$surface};
-  --surface-strong: #{$surface-strong};
-  --border-soft: #{$border-soft};
-  
-  --shadow-soft: #{$shadow-soft};
-  --shadow-strong: #{$shadow-strong};
-  
-  --radius-sm: #{$radius-sm};
-  --radius-md: #{$radius-md};
-  --radius-lg: #{$radius-lg};
-  --radius-xl: #{$radius-xl};
-  --radius-full: #{$radius-full};
-  
-  --font-sans: #{$font-sans};
-
-  /* Taroify Token Mapping */
-  --blue: var(--brand-primary);
-  --tabbar-height: 110rpx;
-  --tabbar-item-active-color: var(--brand-primary);
-  --tabbar-item-active-background-color: transparent;
-  --tabbar-item-inactive-color: var(--text-tertiary);
-  --tabbar-item-icon-size: 44rpx;
-  --tabbar-item-font-size: 22rpx;
-  --tabbar-item-line-height: 1;
-  --tabbar-item-margin-bottom: 4rpx;
-  
-  --search-padding: 20rpx 24rpx;
-  --search-background-color: transparent;
-  --search-content-background-color: var(--surface-strong);
-}
-
 page,
 #app {
+  --mall-primary: #2f6bff;
+  --mall-primary-strong: #2553df;
+  --mall-primary-soft: #e9f0ff;
+  --mall-bg: #eef3f9;
+  --mall-surface: rgba(255, 255, 255, 0.88);
+  --mall-card: #ffffff;
+  --mall-border: rgba(207, 218, 235, 0.72);
+  --mall-text: #18253f;
+  --mall-muted: #7d8aa5;
+  --mall-muted-strong: #5d6b84;
+  --mall-danger: #f05467;
+  --mall-shadow: 0 18rpx 48rpx rgba(39, 64, 110, 0.1);
+  --mall-shadow-lg: 0 28rpx 72rpx rgba(39, 64, 110, 0.14);
+  --mall-radius-lg: 32rpx;
+  --mall-radius-md: 24rpx;
   width: 100%;
+  height: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--page-bg);
-  background: radial-gradient(circle at top right, #edf5ff 0%, #f7f9fc 42%, #eef2f8 100%);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at top right, rgba(92, 137, 255, 0.18), transparent 34%),
+    linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%);
+  color: var(--mall-text);
+  font-family: 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', sans-serif;
 }
 
 view,
@@ -71,62 +38,140 @@ image {
 }
 
 .mall-page {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  height: 100%;
+  min-height: 100vh;
+  overflow: visible;
 
   &__scroll {
     flex: 1;
-    height: 100%;
+    min-height: 0;
+  }
+
+  &__body {
+    min-height: 0;
+    padding: 24rpx 24rpx calc(156rpx + env(safe-area-inset-bottom));
   }
 
   &__content {
-    padding: 28rpx 24rpx 36rpx;
+    padding: 24rpx 24rpx calc(156rpx + env(safe-area-inset-bottom));
+  }
+
+  &__content--chat {
+    padding: 28rpx 24rpx 24rpx;
   }
 }
 
-/* Common UI Components */
-.mall-surface {
-  background: var(--surface);
-  border: 2rpx solid var(--border-soft);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-.mall-section-title {
-  margin: 32rpx 0 18rpx;
-  color: var(--text-secondary);
-  font-size: 24rpx;
-  font-weight: 600;
-  letter-spacing: 2rpx;
-  text-transform: uppercase;
+.no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.mall-text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mall-search {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  height: 84rpx;
+  padding: 0 24rpx;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1rpx solid var(--mall-border);
+  border-radius: 26rpx;
+  box-shadow:
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.9),
+    0 16rpx 38rpx rgba(31, 56, 103, 0.08);
+
+  &__input {
+    flex: 1;
+    height: 100%;
+    font-size: 26rpx;
+    color: var(--mall-text);
+  }
+}
+
+.mall-floating-orb {
+  position: absolute;
+  border-radius: 999rpx;
+  filter: blur(24rpx);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.mall-surface-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1rpx solid var(--mall-border);
+  border-radius: var(--mall-radius-lg);
+  box-shadow: var(--mall-shadow);
 }
 
 .mall-avatar {
-  @include size(100%);
-  border-radius: inherit;
-  overflow: hidden;
-}
-
-.mall-badge {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 34rpx;
-  height: 34rpx;
-  padding: 0 10rpx;
-  border-radius: var(--radius-full);
-  background: var(--status-error);
   color: #ffffff;
-  font-size: 20rpx;
   font-weight: 700;
-  line-height: 1;
+  letter-spacing: 1rpx;
+  box-shadow:
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.32),
+    0 12rpx 28rpx rgba(48, 70, 114, 0.14);
+
+  &--circle {
+    border-radius: 999rpx;
+  }
+
+  &--rounded {
+    border-radius: 26rpx;
+  }
+
+  &--sky {
+    background: linear-gradient(135deg, #61b5ff 0%, #3664ff 100%);
+  }
+
+  &--violet {
+    background: linear-gradient(135deg, #8c81ff 0%, #4c56db 100%);
+  }
+
+  &--mint {
+    background: linear-gradient(135deg, #59d5c0 0%, #179a8c 100%);
+  }
+
+  &--amber {
+    background: linear-gradient(135deg, #ffb45f 0%, #f17d2b 100%);
+  }
+
+  &--rose {
+    background: linear-gradient(135deg, #ff8ab0 0%, #ff5f7d 100%);
+  }
+
+  &--slate {
+    background: linear-gradient(135deg, #7f8daa 0%, #44516f 100%);
+  }
 }
 
-.is-pressed {
-  transform: scale(0.985);
-  transition: transform 0.1s ease;
-  opacity: 0.96;
+.mall-ios-indicator {
+  width: 180rpx;
+  height: 8rpx;
+  margin: 18rpx auto 0;
+  background: rgba(141, 154, 176, 0.34);
+  border-radius: 999rpx;
 }
 
+.text-highlight {
+  color: var(--mall-primary);
+  font-weight: 500;
+}
