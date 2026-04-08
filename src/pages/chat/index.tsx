@@ -1,27 +1,27 @@
-import { useState, useMemo } from 'react'
-import { View, Text, ScrollView, Input } from '@tarojs/components'
-import { Audio, SmileOutlined, Plus, Description } from '@taroify/icons'
-import { Avatar } from '@taroify/core'
+import { useState } from 'react'
+import { Image, Input, ScrollView, Text, View } from '@tarojs/components'
+import { Audio, SmileOutlined, NotesOutlined } from '@taroify/icons'
 import { useDidShow, useRouter, setNavigationBarTitle } from '@tarojs/taro'
-import { MOCK_CHATS } from '../../services/mockData'
+import { useDispatch } from 'react-redux'
+import { MOCK_CHATS } from '@/services/mockData'
+import { setActiveTab } from '@/store/slices/appSlice'
+
+import './index.scss'
 
 /**
- * 聊天详情页 - 专业重构版
- * 采用原生导航栏标题
+ * 聊天详情页
  */
 export default function ChatDetail() {
+  const dispatch = useDispatch()
   const router = useRouter()
   const { id, name } = router.params
-  
-  const initialMessages = useMemo(() => {
-    return MOCK_CHATS[id || '2'] || []
-  }, [id])
 
-  const [messages, setMessages] = useState(initialMessages)
+  const [messages, setMessages] = useState(() => MOCK_CHATS[id || '2'] || [])
   const [inputValue, setInputValue] = useState('')
   const [scrollIntoView, setScrollIntoView] = useState('')
 
   useDidShow(() => {
+    dispatch(setActiveTab('chat'))
     setNavigationBarTitle({ title: name || '聊天' })
     if (messages.length > 0) {
       setTimeout(() => {
@@ -52,70 +52,80 @@ export default function ChatDetail() {
   }
 
   return (
-    <View className='flex-1 flex flex-col bg-gray-50 h-full'>
-      {/* 消息区域 */}
-      <ScrollView 
-        scrollY 
-        className='flex-1 bg-[#F2F3F5]'
+    <View className='mall-page chat-page'>
+      <ScrollView
+        scrollY
+        className='chat-page__scroll'
         enhanced
         showScrollbar={false}
         scrollIntoView={scrollIntoView}
       >
-        <View className='p-4 space-y-6 pb-[240rpx]'>
+        <View className='chat-page__content'>
+          <View className='chat-page__notice'>
+            <Text className='chat-page__notice-text'>安全沟通中，仅当前会话可见</Text>
+          </View>
+
           {messages.map((msg) => (
-            <View 
+            <View
               id={`msg-${msg.id}`}
-              key={msg.id} 
-              className={`flex ${msg.senderId === 'me' ? 'flex-row-reverse' : 'flex-row'} items-start`}
+              key={msg.id}
+              className={`chat-message ${msg.senderId === 'me' ? 'chat-message--mine' : ''}`}
             >
-              <Avatar src={msg.avatar} className={`w-10 h-10 shadow-sm mt-1 ${msg.senderId === 'me' ? 'ml-3' : 'mr-3'}`} />
-              
-              <div className={`max-w-[70%] flex flex-col ${msg.senderId === 'me' ? 'items-end' : 'items-start'}`}>
+              <View className='chat-message__avatar'>
+                <Image className='mall-avatar' mode='aspectFill' src={msg.avatar} />
+              </View>
+
+              <View className='chat-message__body'>
+                <Text className='chat-message__time'>{msg.time}</Text>
                 {msg.type === 'text' && (
-                  <View className={`p-3 text-[30rpx] leading-relaxed shadow-sm border border-transparent ${
-                    msg.senderId === 'me' 
-                    ? 'bg-blue-600 text-white rounded-2xl' 
-                    : 'bg-white text-gray-800 border-gray-100 rounded-2xl'
-                  }`}>
-                    {msg.content}
+                  <View className={`chat-message__bubble ${msg.senderId === 'me' ? 'chat-message__bubble--mine' : ''}`}>
+                    <Text className={`chat-message__bubble-text ${msg.senderId === 'me' ? 'chat-message__bubble-text--mine' : ''}`}>
+                      {msg.content}
+                    </Text>
                   </View>
                 )}
 
                 {msg.type === 'file' && (
-                  <View className='bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center active:bg-gray-50 transition-all w-full'>
-                    <Description size='56rpx' className='text-yellow-500 mr-3 shrink-0' />
-                    <View className='flex-1 min-w-0'>
-                      <Text className='text-sm font-semibold text-gray-900 truncate block'>{msg.fileName}</Text>
-                      <Text className='text-[22rpx] text-gray-400 font-medium'>{msg.fileSize}</Text>
+                  <View className='chat-message__file'>
+                    <NotesOutlined size='54rpx' className='chat-message__file-icon' />
+                    <View className='chat-message__file-main'>
+                      <Text className='chat-message__file-name mall-text-ellipsis'>{msg.fileName}</Text>
+                      <Text className='chat-message__file-size'>{msg.fileSize}</Text>
                     </View>
                   </View>
                 )}
-              </div>
+              </View>
             </View>
           ))}
         </View>
       </ScrollView>
 
-      {/* 底部输入框区域 */}
-      <View className='bg-white border-t border-gray-100 px-4 py-3 pb-[safe-area-inset-bottom]'>
-         <View className='flex items-center space-x-3'>
-            <Audio size='44rpx' className='text-gray-500 active:text-blue-500 transition-colors' />
-            
-            <View className='flex-1 h-11 bg-gray-50 rounded-xl px-4 flex items-center border border-gray-100'>
-              <Input 
-                placeholder='输入消息...' 
-                className='w-full h-full text-[28rpx] text-gray-800'
-                value={inputValue}
-                onInput={(e) => setInputValue(e.detail.value)}
-                onConfirm={handleSend}
-                confirmType='send'
-                adjustPosition
-              />
-            </View>
+      <View className='chat-page__composer'>
+        <View className='chat-page__composer-inner'>
+          <View className='chat-page__composer-icon'>
+            <Audio size='42rpx' />
+          </View>
 
-            <SmileOutlined size='44rpx' className='text-gray-500 active:text-blue-500 transition-colors' />
-            <Plus size='44rpx' className='text-gray-500 active:text-blue-500 transition-colors' onClick={handleSend} />
-         </View>
+          <View className='chat-page__input-wrap'>
+            <Input
+              placeholder='输入消息...'
+              className='chat-page__input'
+              value={inputValue}
+              onInput={(e) => setInputValue(e.detail.value)}
+              onConfirm={handleSend}
+              confirmType='send'
+              adjustPosition
+            />
+          </View>
+
+          <View className='chat-page__composer-icon'>
+            <SmileOutlined size='42rpx' />
+          </View>
+
+          <View className='chat-page__send' hoverClass='is-pressed' onClick={handleSend}>
+            <Text className='chat-page__send-text'>发送</Text>
+          </View>
+        </View>
       </View>
     </View>
   )

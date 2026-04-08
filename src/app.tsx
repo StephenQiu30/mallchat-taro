@@ -2,7 +2,9 @@ import { PropsWithChildren } from 'react'
 import { RootProviders } from '@/layout/Providers'
 import { RootLayout } from '@/layout'
 
-import './app.css'
+import '@taroify/core/index.css'
+import '@taroify/icons/index.css'
+import './app.scss'
 
 function App({ children }: PropsWithChildren<any>) {
   return (

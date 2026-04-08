@@ -67,12 +67,11 @@
     "react-redux": "^9.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.4",
+    "@babel/core": "latest",
     "@babel/plugin-transform-class-properties": "7.25.9",
     "@babel/preset-react": "^7.24.1",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@tailwindcss/postcss": "^4.1.7",
     "@tarojs/cli": "4.1.11",
     "@tarojs/plugin-generator": "4.1.11",
     "@tarojs/vite-runner": "4.1.11",
@@ -92,12 +91,11 @@
     "postcss": "^8.5.6",
     "postcss-import": "^16.1.1",
     "react-refresh": "^0.14.0",
+    "sass": "^1.83.0",
     "stylelint": "^16.4.0",
     "stylelint-config-standard": "^38.0.0",
-    "tailwindcss": "^4.1.7",
     "terser": "^5.30.4",
     "typescript": "^5.4.5",
-    "vite": "^4.2.0",
-    "weapp-tailwindcss": "^4.1.7"
+    "vite": "^4.2.0"
   }
 }
