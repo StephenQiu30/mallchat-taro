@@ -1,43 +1,26 @@
-import React, { PropsWithChildren } from 'react'
+import { PropsWithChildren } from 'react'
 import { View } from '@tarojs/components'
-import Taro from '@tarojs/taro'
-import { RootProviders } from './Providers'
-import { SiteHeader } from './Header'
-import { AppFooter } from './Footer'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store'
+import { TabBar } from '@/layout/TabBar'
 
+/**
+ * 全局根布局
+ * 移除了自定义 Navbar 逻辑，采用系统原生标题栏
+ */
 export function RootLayout({ children }: PropsWithChildren) {
-  const router = Taro.getCurrentInstance().router
-  const path = router?.path || ''
-  const { statusBarHeight } = Taro.getSystemInfoSync()
-  
-  // 1. Determine current view type
-  const isMessagePage = path.includes('pages/index/index')
-  const isContactPage = path.includes('pages/contact/index')
-  const isProfilePage = path.includes('pages/profile/index')
-  const isTabbarPage = isMessagePage || isContactPage || isProfilePage
-
-  // 2. Adjust transparent status bar (Profile only)
-  const transparentStatusBar = isProfilePage
+  const activeTab = useSelector((state: RootState) => state.app.activeTab)
+  const isTabbarPage = ['message', 'contact', 'profile'].includes(activeTab)
 
   return (
-    <RootProviders>
-      <View className='base-layout h-screen flex flex-col overflow-hidden bg-[#F8FAFC] font-sans'>
-        {/* A. Status Bar Spacer (Dynamic Visibility) */}
-        {!transparentStatusBar && (
-          <View style={{ height: `${statusBarHeight}px` }} className='shrink-0 h-0 z-0 bg-inherit' />
-        )}
-
-        {/* B. Site Header */}
-        <SiteHeader />
-
-        {/* C. Page Content (Flex-1) */}
-        <View className='flex-1 relative overflow-hidden flex flex-col'>
-          {children}
-        </View>
-
-        {/* D. Global Footer (Tabbar) */}
-        {isTabbarPage && <AppFooter />}
+    <View className='h-full flex flex-col bg-gray-50 relative'>
+      {/* 内容主容器 */}
+      <View className='flex-1 relative flex flex-col overflow-y-auto'>
+        {children}
       </View>
-    </RootProviders>
+
+      {/* 底部导航栏 */}
+      {isTabbarPage && <TabBar />}
+    </View>
   )
 }

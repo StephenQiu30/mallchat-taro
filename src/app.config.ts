@@ -7,9 +7,9 @@ export default defineAppConfig({
   ],
   window: {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#F8FAFC',
+    navigationBarBackgroundColor: '#FFFFFF',
     navigationBarTitleText: 'MallChat',
     navigationBarTextStyle: 'black',
-    navigationStyle: 'custom'
+    navigationStyle: 'default'
   }
 })

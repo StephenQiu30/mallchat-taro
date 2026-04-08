@@ -1,51 +1,64 @@
-@import "tailwindcss";
-@import "@taroify/core/index.css";
-@import "weapp-tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* 全局自定义架构 (补全微型样式差异) */
+@import "@taroify/core/index.css";
+/* 不需要 @import "weapp-tailwindcss"，已通过 Vite 插件处理 */
+
+/* 基础样式变量 */
+:root {
+  --brand-blue: #0052D9;
+  --brand-blue-soft: #ECF2FE;
+  --bg-gray: #F3F4F6;
+  --text-main: #1D2129;
+  --text-desc: #86909C;
+  --font-sans: -apple-system, blinkmacsystemfont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+page {
+  background-color: var(--bg-gray);
+  height: 100%;
+  font-family: var(--font-sans);
+}
+
 @layer utilities {
   /* 隐藏滚动条 */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
   .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
+    -ms-overflow-style: none; /* IE/Edge */
     scrollbar-width: none;    /* Firefox */
   }
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;           /* Chrome, Safari, and Opera */
+
+  /* 气泡圆角定制 */
+  .rounded-bubble-left {
+    border-top-left-radius: 4rpx;
+  }
+  .rounded-bubble-right {
+    border-top-right-radius: 4rpx;
   }
 
-  /* 气泡指向圆角 */
-  .rounded-tr-none {
-    border-top-right-radius: 0;
-  }
-  .rounded-tl-none {
-    border-top-left-radius: 0;
-  }
-
-  /* 刘海屏安全区适配 */
+  /* 底部安全区适配 */
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
 
-/* Custom Design Tokens */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+/* 阴影与交互微效 */
+.card-shadow {
+  box-shadow: 0 4rpx 20rpx -4rpx rgba(0, 0, 0, 0.04);
 }
 
-.mesh-gradient {
-  background-color: #3B82F6;
-  background-image: 
-    radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-    radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-    radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+.item-active {
+  background-color: rgba(0, 0, 0, 0.02);
+  transform: scale(0.99);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.mesh-gradient-light {
-  background-color: #60A5FA;
-  background-image: 
-    radial-gradient(at 0% 0%, hsla(210,100%,70%,1) 0, transparent 50%), 
-    radial-gradient(at 100% 100%, hsla(270,100%,80%,1) 0, transparent 50%);
+.text-gradient {
+  background: linear-gradient(to right, #0052D9, #2983FF);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
