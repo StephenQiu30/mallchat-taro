@@ -1,5 +1,4 @@
 import path from 'path';
-import tailwindcss from "@tailwindcss/postcss";
 import { UnifiedViteWeappTailwindcssPlugin } from "weapp-tailwindcss/vite";
 import { defineConfig, type UserConfigExport } from '@tarojs/cli';
 import devConfig from './dev';
@@ -29,27 +28,19 @@ export default defineConfig<'vite'>(async (merge) => {
       options: {}
     },
     framework: 'react',
+    alias: {
+      '@': path.resolve(__dirname, '..', 'src'),
+    },
     compiler: {
       type: "vite",
-      vitePlugins: [{
-        name: 'postcss-config-loader-plugin',
-        config(config) {
-          // 加载 tailwindcss
-          if (typeof config.css?.postcss === 'object') {
-            config.css?.postcss.plugins?.unshift(tailwindcss());
-          }
-        }
-      }, UnifiedViteWeappTailwindcssPlugin({
-        // rem转rpx
-        rem2rpx: true,
-        // 除了小程序这些，其他平台都 disable
-        disabled: process.env.TARO_ENV === 'h5' || process.env.TARO_ENV === 'harmony' || process.env.TARO_ENV === 'rn',
-        // 由于 taro vite 默认会移除所有的 tailwindcss css 变量，所以一定要开启这个配置，进行css 变量的重新注入
-        injectAdditionalCssVarScope: true,
-        // @ts-ignore
-        cssEntries: [path.resolve(__dirname, '../src/app.css')]
-      })]
-
+      vitePlugins: [
+        UnifiedViteWeappTailwindcssPlugin({
+          rem2rpx: true,
+          disabled: process.env.TARO_ENV === 'h5' || process.env.TARO_ENV === 'harmony' || process.env.TARO_ENV === 'rn',
+          injectAdditionalCssVarScope: true,
+          cssEntries: [path.resolve(__dirname, '../src/app.css')]
+        })
+      ]
     },
     mini: {
       postcss: {

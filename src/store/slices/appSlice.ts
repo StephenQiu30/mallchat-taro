@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-export type TabType = 'message' | 'contact' | 'profile'
+export type TabType = 'message' | 'contact' | 'profile' | 'chat' | 'none'
 
 interface AppState {
   activeTab: TabType
 }
 
 const initialState: AppState = {
-  activeTab: 'message'
+  activeTab: 'message' // Default to message index
 }
 
 export const appSlice = createSlice({
