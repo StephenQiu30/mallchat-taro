@@ -1,117 +1,144 @@
-import { ScrollView, Text, View } from '@tarojs/components'
-import { Avatar, Cell, Tag } from '@taroify/core'
-import { Arrow, GiftOutlined, StarOutlined, SettingOutlined, BalancePay, AppsOutlined } from '@taroify/icons'
-import Taro, { useDidShow, setNavigationBarTitle } from '@tarojs/taro'
+import { Text, View } from '@tarojs/components'
+import { AppsOutlined, Arrow, BalancePay, Play, Qr, Setting, ShopOutlined, Star } from '@taroify/icons'
+import { useDidShow } from '@tarojs/taro'
 import { useDispatch } from 'react-redux'
 import { setActiveTab } from '@/store/slices/appSlice'
+import { syncTabBar } from '@/utils/tabBar'
 
 import './index.scss'
 
-const profileMenus = [
+const stats = [
+  { label: '空间访客', value: '128' },
+  { label: '好友动态', value: '45' },
+  { label: '我的收藏', value: '12' },
+]
+
+const primaryMenus = [
   {
     key: 'wallet',
     title: '我的钱包',
-    desc: '账单、收支与会员权益',
-    icon: <BalancePay size='18px' style={{ color: '#faad14' }} />,
+    desc: '¥ 88.00',
+    icon: <BalancePay size='20px' style={{ color: '#2f6bff' }} />,
+    tone: 'is-blue',
   },
   {
-    key: 'store',
-    title: '装扮商城',
-    desc: '主题皮肤与会话气泡',
-    icon: <GiftOutlined size='18px' style={{ color: '#eb2f96' }} />,
+    key: 'dress',
+    title: '个性装扮',
+    icon: <ShopOutlined size='20px' style={{ color: '#8b5cf6' }} />,
+    tone: 'is-violet',
   },
   {
-    key: 'favorites',
-    title: '收藏中心',
-    desc: '保留重要消息与文件',
-    icon: <StarOutlined size='18px' style={{ color: '#52c41a' }} />,
-  },
-  {
-    key: 'mini-program',
-    title: '精选小程序',
-    desc: '最近访问与常用服务',
-    icon: <AppsOutlined size='18px' style={{ color: '#13c2c2' }} />,
-  },
-  {
-    key: 'settings',
-    title: '系统设置',
-    desc: '通知、隐私与布局偏好',
-    icon: <SettingOutlined size='18px' style={{ color: '#8c8c8c' }} />,
+    key: 'favorite',
+    title: '我的收藏',
+    icon: <Star size='20px' style={{ color: '#f59e0b' }} />,
+    tone: 'is-amber',
   },
 ]
 
-/**
- * 个人中心页
- */
+const utilityMenus = [
+  {
+    key: 'game',
+    title: '游戏中心',
+    icon: <Play size='20px' style={{ color: '#22c55e' }} />,
+    tone: 'is-green',
+    dot: true,
+  },
+  {
+    key: 'mini-app',
+    title: '小程序',
+    icon: <AppsOutlined size='20px' style={{ color: '#f97316' }} />,
+    tone: 'is-orange',
+  },
+]
+
 export default function ProfileIndex() {
   const dispatch = useDispatch()
 
   useDidShow(() => {
     dispatch(setActiveTab('profile'))
-    setNavigationBarTitle({ title: '空间' })
+    syncTabBar(2)
   })
 
   return (
     <View className='mall-page profile-page'>
-      <ScrollView scrollY className='mall-page__scroll' enhanced showScrollbar={false}>
+      <View className='profile-page__bg-shell'>
+        <View className='profile-page__bg-orb profile-page__bg-orb--one' />
+        <View className='profile-page__bg-orb profile-page__bg-orb--two' />
+      </View>
+
+      <View className='profile-page__header'>
+        <View className='profile-page__header-spacer' />
+        <Text className='profile-page__page-title'>我的</Text>
+        <View className='profile-page__header-right'>
+          <Setting size='20px' />
+        </View>
+      </View>
+
+      <View className='mall-page__body'>
         <View className='mall-page__content'>
-          <View className='profile-page__hero'>
-            <View className='profile-page__hero-top'>
-              <Avatar
-                size='large'
-                src='https://i.pravatar.cc/160?img=11'
-                style={{ borderRadius: '28rpx', boxShadow: 'var(--shadow-strong)' }}
-              />
-              <View className='profile-page__hero-main'>
-                <Text className='profile-page__name'>MallChat 用户</Text>
-                <View style={{ display: 'flex', alignItems: 'center', marginTop: '4rpx' }}>
-                  <Text className='profile-page__id'>账号: 888888</Text>
-                  <Tag color='primary' style={{ marginLeft: '12rpx' }}>PRO</Tag>
+          <View className='profile-page__card'>
+            <View className='profile-page__user-info'>
+              <View className='mall-avatar mall-avatar--circle mall-avatar--slate profile-page__avatar'>
+                <Text className='profile-page__avatar-text'>我</Text>
+              </View>
+              <View className='profile-page__user-main'>
+                <View className='profile-page__user-row'>
+                  <Text className='profile-page__user-name'>前端攻城狮</Text>
+                  <View className='profile-page__status-pill'>
+                    <Text className='profile-page__status-text'>在线</Text>
+                  </View>
+                </View>
+                <View className='profile-page__user-id-wrap'>
+                  <Text className='profile-page__user-id'>账号: 123456789</Text>
+                  <Qr size='14px' style={{ color: '#99a7bd' }} />
                 </View>
               </View>
-              <Arrow size='18px' style={{ color: '#bbb' }} />
+              <Arrow size='16px' style={{ color: '#c2cad9' }} />
             </View>
 
-            <View className='profile-page__stats'>
-              {[
-                { label: '访客', value: '128' },
-                { label: '点赞', value: '45' },
-                { label: '关注', value: '12' },
-              ].map((item) => (
-                <View key={item.label} className='profile-page__stat-card mall-surface'>
-                  <Text className='profile-page__stat-value'>{item.value}</Text>
-                  <Text className='profile-page__stat-label'>{item.label}</Text>
+            <View className='profile-page__stats-row'>
+              {stats.map((item) => (
+                <View key={item.label} className='profile-page__stat-item'>
+                  <Text className='profile-page__stat-val'>{item.value}</Text>
+                  <Text className='profile-page__stat-lab'>{item.label}</Text>
                 </View>
               ))}
             </View>
-
-            <View className='profile-page__summary mall-surface'>
-              <Text className='profile-page__summary-title'>成长足迹</Text>
-              <Text className='profile-page__summary-text'>
-                最近 7 天内完成了 14 次沟通、3 次归档和 2 次协作体验。
-              </Text>
-            </View>
           </View>
 
-          <Text className='mall-section-title' style={{ marginTop: '32rpx' }}>常用入口</Text>
-          <Cell.Group style={{ borderRadius: '24rpx', overflow: 'hidden', backgroundColor: '#fff' }}>
-            {profileMenus.map((item) => (
-              <Cell
+          <View className='profile-page__menu-group'>
+            {primaryMenus.map((item, index) => (
+              <View
                 key={item.key}
-                title={
-                  <View style={{ display: 'flex', alignItems: 'center' }}>
-                    {item.icon}
-                    <Text style={{ marginLeft: '20rpx' }}>{item.title}</Text>
-                  </View>
-                }
-                brief={item.desc}
-                align='center'
-                rightIcon={<Arrow size='16px' style={{ color: '#bbb' }} />}
-              />
+                className={`profile-page__menu-item ${item.tone} ${index < primaryMenus.length - 1 ? 'has-border' : ''}`}
+                hoverClass='profile-page__menu-item--pressed'
+                hoverStayTime={60}
+              >
+                <View className='profile-page__menu-icon'>{item.icon}</View>
+                <Text className='profile-page__menu-title'>{item.title}</Text>
+                {item.desc && <Text className='profile-page__menu-desc'>{item.desc}</Text>}
+                <Arrow size='14px' style={{ color: '#b7c1d2' }} />
+              </View>
             ))}
-          </Cell.Group>
+          </View>
+
+          <View className='profile-page__menu-group'>
+            {utilityMenus.map((item, index) => (
+              <View
+                key={item.key}
+                className={`profile-page__menu-item ${item.tone} ${index < utilityMenus.length - 1 ? 'has-border' : ''}`}
+                hoverClass='profile-page__menu-item--pressed'
+                hoverStayTime={60}
+              >
+                <View className='profile-page__menu-icon'>{item.icon}</View>
+                <Text className='profile-page__menu-title'>{item.title}</Text>
+                {item.dot && <View className='profile-page__dot' />}
+                <Arrow size='14px' style={{ color: '#b7c1d2' }} />
+              </View>
+            ))}
+          </View>
         </View>
-      </ScrollView>
+      </View>
     </View>
   )
 }

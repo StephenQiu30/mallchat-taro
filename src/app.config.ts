@@ -10,25 +10,31 @@ export default defineAppConfig({
     navigationBarBackgroundColor: '#FFFFFF',
     navigationBarTitleText: 'MallChat',
     navigationBarTextStyle: 'black',
-    navigationStyle: 'default'
+    navigationStyle: 'custom'
   },
   tabBar: {
     custom: false,
-    color: '#94a3b8',
-    selectedColor: '#2563eb',
+    color: '#969799',
+    selectedColor: '#1989fa',
     backgroundColor: '#ffffff',
     list: [
       {
         pagePath: 'pages/index/index',
-        text: '消息'
+        text: '消息',
+        iconPath: 'assets/icons/tabbar-placeholder.png',
+        selectedIconPath: 'assets/icons/tabbar-placeholder.png'
       },
       {
         pagePath: 'pages/contact/index',
-        text: '联系人'
+        text: '联系人',
+        iconPath: 'assets/icons/tabbar-placeholder.png',
+        selectedIconPath: 'assets/icons/tabbar-placeholder.png'
       },
       {
         pagePath: 'pages/profile/index',
-        text: '我的'
+        text: '我的',
+        iconPath: 'assets/icons/tabbar-placeholder.png',
+        selectedIconPath: 'assets/icons/tabbar-placeholder.png'
       }
     ]
   }
