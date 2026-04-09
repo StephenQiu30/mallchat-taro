@@ -41,7 +41,6 @@
   "dependencies": {
     "@babel/runtime": "^7.24.4",
     "@reduxjs/toolkit": "^2.11.2",
-    "@taroify/core": "^0.9.2",
     "@taroify/icons": "^0.9.2",
     "@tarojs/components": "4.1.11",
     "@tarojs/helper": "4.1.11",

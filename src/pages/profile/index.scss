@@ -1,257 +1,92 @@
-.profile-page {
-  &__bg-shell {
-    position: absolute;
-    inset: 0 0 auto;
-    height: 360rpx;
-    background: linear-gradient(135deg, #4a8dff 0%, #2f6bff 52%, #2553df 100%);
-    border-bottom-left-radius: 72rpx;
-    border-bottom-right-radius: 72rpx;
-    overflow: hidden;
-  }
+/* Profile card */
+.profile-card {
+  margin: 24rpx 32rpx;
+  background: var(--ios-bg-primary);
+  border-radius: 28rpx;
+  padding: 36rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 
-  &__bg-orb {
-    position: absolute;
-    border-radius: 999rpx;
-    background: rgba(255, 255, 255, 0.14);
-    filter: blur(6rpx);
-
-    &--one {
-      top: 34rpx;
-      right: -36rpx;
-      width: 220rpx;
-      height: 220rpx;
-    }
-
-    &--two {
-      left: -50rpx;
-      bottom: -74rpx;
-      width: 260rpx;
-      height: 260rpx;
-      background: rgba(255, 255, 255, 0.1);
-    }
-  }
-
-  &__header {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    display: grid;
-    grid-template-columns: 72rpx 1fr 72rpx;
-    align-items: center;
-    padding: calc(22rpx + env(safe-area-inset-top)) 32rpx 18rpx;
-    color: #fff;
-  }
-
-  &__header-spacer {
-    width: 72rpx;
-    height: 72rpx;
-  }
-
-  &__page-title {
-    font-size: 34rpx;
-    font-weight: 700;
-    text-align: center;
-  }
-
-  &__header-right {
+  &__top {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 72rpx;
-    height: 72rpx;
-    margin-left: auto;
-    background: rgba(255, 255, 255, 0.18);
-    border: 1rpx solid rgba(255, 255, 255, 0.24);
-    border-radius: 24rpx;
-    backdrop-filter: blur(16rpx);
   }
 
-  .mall-page__content {
-    padding-top: 10rpx;
-  }
-
-  &__card {
+  &__avatar-wrap {
     position: relative;
-    margin-top: 12rpx;
-    padding: 34rpx;
-    background: rgba(255, 255, 255, 0.98);
-    border: 1rpx solid rgba(228, 235, 245, 0.96);
-    border-radius: 34rpx;
-    box-shadow: var(--mall-shadow-lg);
-    overflow: hidden;
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: -48rpx;
-      right: -10rpx;
-      width: 180rpx;
-      height: 180rpx;
-      background: linear-gradient(180deg, rgba(47, 107, 255, 0.08), rgba(47, 107, 255, 0));
-      border-radius: 999rpx;
-    }
-  }
-
-  &__user-info {
-    position: relative;
-    display: flex;
-    align-items: center;
-    z-index: 1;
-  }
-
-  &__avatar {
-    width: 116rpx;
-    height: 116rpx;
+    margin-right: 24rpx;
     flex-shrink: 0;
   }
 
-  &__avatar-text {
-    font-size: 38rpx;
+  &__avatar {
+    width: 112rpx;
+    height: 112rpx;
+    border-radius: 999rpx;
+    border: 4rpx solid #F0F0F0;
   }
 
-  &__user-main {
-    flex: 1;
-    min-width: 0;
-    margin-left: 22rpx;
-  }
-
-  &__user-row {
-    display: flex;
-    align-items: center;
-    gap: 14rpx;
-  }
-
-  &__user-name {
-    font-size: 38rpx;
-    font-weight: 700;
-    color: var(--mall-text);
-  }
-
-  &__status-pill {
-    padding: 8rpx 16rpx;
-    background: rgba(49, 196, 141, 0.12);
+  &__online-dot {
+    position: absolute;
+    bottom: 4rpx;
+    right: 4rpx;
+    width: 24rpx;
+    height: 24rpx;
+    background-color: #34C759;
+    border: 4rpx solid #fff;
     border-radius: 999rpx;
   }
 
-  &__status-text {
-    font-size: 20rpx;
-    font-weight: 600;
-    color: #1c9b6d;
+  &__main {
+    flex: 1;
+    min-width: 0;
   }
 
-  &__user-id-wrap {
+  &__name {
+    display: block;
+    font-size: 38rpx;
+    font-weight: 700;
+    color: var(--ios-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__id {
+    display: block;
+    margin-top: 8rpx;
+    font-size: 24rpx;
+    color: var(--ios-text-tertiary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__stats {
     display: flex;
-    align-items: center;
-    gap: 8rpx;
-    margin-top: 10rpx;
-  }
-
-  &__user-id {
-    font-size: 22rpx;
-    color: var(--mall-muted);
-  }
-
-  &__stats-row {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    margin-top: 28rpx;
-    padding-top: 24rpx;
-    border-top: 1rpx solid rgba(230, 235, 243, 0.88);
+    margin-top: 36rpx;
+    padding-top: 28rpx;
+    border-top: 1rpx solid #F0F0F0;
   }
 
   &__stat-item {
     flex: 1;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   &__stat-val {
-    display: block;
-    font-size: 34rpx;
+    font-size: 32rpx;
     font-weight: 700;
-    color: var(--mall-text);
+    color: var(--ios-text-primary);
   }
 
-  &__stat-lab {
-    display: block;
-    margin-top: 8rpx;
-    font-size: 21rpx;
-    color: var(--mall-muted);
+  &__stat-label {
+    font-size: 24rpx;
+    color: var(--ios-text-tertiary);
+    margin-top: 4rpx;
   }
+}
 
-  &__menu-group {
-    margin-top: 24rpx;
-    background: rgba(255, 255, 255, 0.96);
-    border: 1rpx solid var(--mall-border);
-    border-radius: 30rpx;
-    overflow: hidden;
-    box-shadow: var(--mall-shadow);
-  }
-
-  &__menu-item {
-    display: flex;
-    align-items: center;
-    padding: 22rpx 24rpx;
-    transition: transform 160ms ease, background-color 160ms ease;
-
-    &.has-border {
-      border-bottom: 1rpx solid rgba(230, 235, 243, 0.88);
-    }
-
-    &.is-blue .profile-page__menu-icon {
-      background: rgba(47, 107, 255, 0.12);
-    }
-
-    &.is-violet .profile-page__menu-icon {
-      background: rgba(139, 92, 246, 0.12);
-    }
-
-    &.is-amber .profile-page__menu-icon {
-      background: rgba(245, 158, 11, 0.14);
-    }
-
-    &.is-green .profile-page__menu-icon {
-      background: rgba(34, 197, 94, 0.12);
-    }
-
-    &.is-orange .profile-page__menu-icon {
-      background: rgba(249, 115, 22, 0.12);
-    }
-
-    &--pressed {
-      transform: scale(0.99);
-      background: rgba(245, 247, 251, 0.9);
-    }
-  }
-
-  &__menu-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 74rpx;
-    height: 74rpx;
-    border-radius: 24rpx;
-  }
-
-  &__menu-title {
-    flex: 1;
-    margin-left: 20rpx;
-    font-size: 28rpx;
-    font-weight: 700;
-    color: var(--mall-text);
-  }
-
-  &__menu-desc {
-    margin-right: 12rpx;
-    font-size: 22rpx;
-    color: var(--mall-muted);
-  }
-
-  &__dot {
-    width: 12rpx;
-    height: 12rpx;
-    margin-right: 14rpx;
-    background: #f05467;
-    border-radius: 999rpx;
-  }
+.profile-body {
+  padding: 0 32rpx;
 }

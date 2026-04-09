@@ -1,177 +1,116 @@
 page,
 #app {
-  --mall-primary: #2f6bff;
-  --mall-primary-strong: #2553df;
-  --mall-primary-soft: #e9f0ff;
-  --mall-bg: #eef3f9;
-  --mall-surface: rgba(255, 255, 255, 0.88);
-  --mall-card: #ffffff;
-  --mall-border: rgba(207, 218, 235, 0.72);
-  --mall-text: #18253f;
-  --mall-muted: #7d8aa5;
-  --mall-muted-strong: #5d6b84;
-  --mall-danger: #f05467;
-  --mall-shadow: 0 18rpx 48rpx rgba(39, 64, 110, 0.1);
-  --mall-shadow-lg: 0 28rpx 72rpx rgba(39, 64, 110, 0.14);
-  --mall-radius-lg: 32rpx;
-  --mall-radius-md: 24rpx;
-  width: 100%;
+  /* iOS High-Fidelity Design Tokens */
+  --ios-primary: #007AFF;        /* Apple Blue */
+  --ios-bg-primary: #FFFFFF;     /* Pure White */
+  --ios-bg-secondary: #F2F2F7;   /* Light Gray for background */
+  --ios-separator: rgba(60, 60, 67, 0.1);
+  --ios-text-primary: #000000;
+  --ios-text-secondary: rgba(60, 60, 67, 0.6);
+  --ios-text-tertiary: rgba(60, 60, 67, 0.3);
+
+  --mall-primary: var(--ios-primary);
+  --mall-bg: var(--ios-bg-secondary);
+  --mall-border: var(--ios-separator);
+  --mall-text: var(--ios-text-primary);
+  --mall-muted: var(--ios-text-tertiary);
+
+  /* Use 100% instead of 100vh for native nav bar mode */
   height: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background:
-    radial-gradient(circle at top right, rgba(92, 137, 255, 0.18), transparent 34%),
-    linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%);
-  color: var(--mall-text);
-  font-family: 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', sans-serif;
+  width: 100%;
+  background-color: var(--ios-bg-secondary);
+  color: var(--ios-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 view,
 text,
 button,
 input,
-scroll-view,
-textarea,
-image {
+scroll-view {
   box-sizing: border-box;
 }
 
+/* ====================================================
+   .mall-page — Root page container for every tab page.
+   Uses height:100% which chains from page -> #app -> .mall-page.
+   ==================================================== */
 .mall-page {
-  position: relative;
-  flex: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 100vh;
-  overflow: visible;
-
-  &__scroll {
-    flex: 1;
-    min-height: 0;
-  }
+  width: 100%;
+  background-color: var(--ios-bg-secondary);
+  position: relative;
+  overflow: hidden; /* Prevent page-level scroll */
 
   &__body {
-    min-height: 0;
-    padding: 24rpx 24rpx calc(156rpx + env(safe-area-inset-bottom));
-  }
-
-  &__content {
-    padding: 24rpx 24rpx calc(156rpx + env(safe-area-inset-bottom));
-  }
-
-  &__content--chat {
-    padding: 28rpx 24rpx 24rpx;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* In native tabBar mode, the page ends at the top of the tab bar.
+       We don't need extra padding-bottom. */
   }
 }
 
-.safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
+/* iOS Style Search Bar */
+.ios-search {
+  padding: 16rpx 32rpx;
+  background-color: transparent;
+  flex-shrink: 0;
 
-.no-scrollbar {
-  &::-webkit-scrollbar {
-    display: none;
+  &__inner {
+    display: flex;
+    align-items: center;
+    height: 72rpx;
+    padding: 0 24rpx;
+    background-color: var(--ios-bg-primary);
+    border-radius: 36rpx;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+    border: 1rpx solid rgba(0,0,0,0.02);
   }
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+  &__input {
+    flex: 1;
+    margin-left: 12rpx;
+    font-size: 28rpx;
+    color: var(--ios-text-primary);
+  }
 }
 
 .mall-text-ellipsis {
+  display: block; /* Required for ellipsis on Text components */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.mall-search {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  height: 84rpx;
-  padding: 0 24rpx;
-  background: rgba(255, 255, 255, 0.94);
-  border: 1rpx solid var(--mall-border);
-  border-radius: 26rpx;
-  box-shadow:
-    inset 0 1rpx 0 rgba(255, 255, 255, 0.9),
-    0 16rpx 38rpx rgba(31, 56, 103, 0.08);
-
-  &__input {
-    flex: 1;
-    height: 100%;
-    font-size: 26rpx;
-    color: var(--mall-text);
-  }
-}
-
-.mall-floating-orb {
-  position: absolute;
-  border-radius: 999rpx;
-  filter: blur(24rpx);
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.mall-surface-card {
-  background: rgba(255, 255, 255, 0.96);
-  border: 1rpx solid var(--mall-border);
-  border-radius: var(--mall-radius-lg);
-  box-shadow: var(--mall-shadow);
-}
-
+/* Reusable avatar */
 .mall-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  font-weight: 700;
-  letter-spacing: 1rpx;
-  box-shadow:
-    inset 0 1rpx 0 rgba(255, 255, 255, 0.32),
-    0 12rpx 28rpx rgba(48, 70, 114, 0.14);
+  background-color: var(--ios-bg-secondary);
+  color: #FFFFFF;
+  font-weight: 600;
+  overflow: hidden;
+  flex-shrink: 0;
 
   &--circle {
     border-radius: 999rpx;
   }
 
   &--rounded {
-    border-radius: 26rpx;
+    border-radius: 20rpx;
   }
 
-  &--sky {
-    background: linear-gradient(135deg, #61b5ff 0%, #3664ff 100%);
-  }
-
-  &--violet {
-    background: linear-gradient(135deg, #8c81ff 0%, #4c56db 100%);
-  }
-
-  &--mint {
-    background: linear-gradient(135deg, #59d5c0 0%, #179a8c 100%);
-  }
-
-  &--amber {
-    background: linear-gradient(135deg, #ffb45f 0%, #f17d2b 100%);
-  }
-
-  &--rose {
-    background: linear-gradient(135deg, #ff8ab0 0%, #ff5f7d 100%);
-  }
-
-  &--slate {
-    background: linear-gradient(135deg, #7f8daa 0%, #44516f 100%);
-  }
-}
-
-.mall-ios-indicator {
-  width: 180rpx;
-  height: 8rpx;
-  margin: 18rpx auto 0;
-  background: rgba(141, 154, 176, 0.34);
-  border-radius: 999rpx;
-}
-
-.text-highlight {
-  color: var(--mall-primary);
-  font-weight: 500;
+  &--cyan { background: linear-gradient(135deg, #34C759, #30D158); }
+  &--orange { background: linear-gradient(135deg, #FF9500, #FF9F0A); }
+  &--indigo { background: linear-gradient(135deg, #5856D6, #5E5CE6); }
+  &--blue { background: linear-gradient(135deg, #007AFF, #0A84FF); }
+  &--yellow { background: linear-gradient(135deg, #FFCC00, #FFD60A); }
+  &--red { background: linear-gradient(135deg, #FF3B30, #FF453A); }
+  &--gray { background-color: #8E8E93; }
+  &--sky { background: linear-gradient(135deg, #5aa4ff, #2f6bff); }
 }

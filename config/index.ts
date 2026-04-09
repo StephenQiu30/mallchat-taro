@@ -29,8 +29,6 @@ export default defineConfig<'vite'>(async (merge) => {
     framework: 'react',
     alias: {
       '@': path.resolve(__dirname, '..', 'src'),
-      // 使用 require.resolve 确保在 pnpm 环境下能准确找到字体文件
-      'fonts/number-keyboard': path.resolve(path.dirname(require.resolve('@taroify/core/package.json')), 'number-keyboard/fonts'),
     },
     // Taro 当前类型定义未覆盖这些兼容字段，这里保留运行时配置。
     sass: {

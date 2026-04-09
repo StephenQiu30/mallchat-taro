@@ -1,0 +1,51 @@
+.mall-header-wrap {
+  width: 100%;
+  background-color: rgba(242, 242, 247, 0.88);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.mall-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32rpx;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 20rpx;
+  }
+
+  &__avatar-box {
+    width: 72rpx;
+    height: 72rpx;
+    border-radius: 999rpx;
+    overflow: hidden;
+    background-color: #E5E7EB;
+    border: 1rpx solid rgba(0, 0, 0, 0.05);
+  }
+
+  &__avatar {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__title {
+    font-size: 40rpx;
+    font-weight: 700;
+    color: #000;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 16rpx;
+    /* Avoid WeChat capsule area */
+    margin-right: 180rpx;
+  }
+}
