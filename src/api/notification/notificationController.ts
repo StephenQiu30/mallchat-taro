@@ -1,8 +1,8 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from "@/services/request";
+import {request} from "@/services/request";
 
-/** 创建通知 管理员向特定目标发送通知 POST /notification/add */
+/** 批量发布通知 管理员向全员、特定角色或指定用户组批量下发实时通知 POST /notification/add */
 export async function addNotification(
   body: NotificationAPI.NotificationAddRequest,
   options?: { [key: string]: any }
@@ -155,7 +155,7 @@ export async function markNotificationRead(
   });
 }
 
-/** 全部标记已读 将当前用户的所有未读通知标记为已读 POST /notification/read/all */
+/** 全量已读 一键将当前用户名下的所有未读状态通知更新为已读状态 POST /notification/read/all */
 export async function markAllNotificationRead(options?: {
   [key: string]: any;
 }) {

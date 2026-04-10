@@ -65,6 +65,7 @@ declare namespace NotificationAPI {
   };
 
   type getNotificationVOByIdParams = {
+    /** 通知ID */
     id: number;
   };
 
@@ -245,10 +246,8 @@ declare namespace NotificationAPI {
     userRole?: string;
     /** 用户电话 */
     userPhone?: string;
-    /** GitHub 登录账号 */
-    githubLogin?: string;
-    /** GitHub 主页 */
-    githubUrl?: string;
+    /** 用户邮箱 */
+    userEmail?: string;
     /** 创建时间 */
     createTime?: string;
     /** 更新时间 */
