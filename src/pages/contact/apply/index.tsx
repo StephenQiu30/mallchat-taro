@@ -84,8 +84,8 @@ export default function FriendApplyIndex() {
               ))}
             </View>
           ) : applyList.length === 0 ? (
-            <Empty style={{ marginTop: '100rpx' }}>
-              <Empty.Image src='network' />
+            <Empty>
+              <Empty.Image src='default' />
               <Empty.Description>暂无好友申请</Empty.Description>
             </Empty>
           ) : (
@@ -93,7 +93,7 @@ export default function FriendApplyIndex() {
               <View key={item.id} className='apply-item'>
                 <Image
                   src={item.userAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${item.userId}`}
-                  className='apply-item__avatar'
+                  className='mall-avatar mall-avatar--rounded apply-item__avatar'
                 />
                 <View className='apply-item__main'>
                   <View className='apply-item__row'>

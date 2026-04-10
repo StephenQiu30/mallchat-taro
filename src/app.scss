@@ -1,60 +1,49 @@
-page,
-#app {
+/* MallChat Standardized Design System (Apple Inspired) */
+
+:root {
   /* iOS High-Fidelity Design Tokens */
-  --ios-primary: #007AFF;        /* Apple Blue */
-  --ios-bg-primary: #FFFFFF;     /* Pure White */
-  --ios-bg-secondary: #F2F2F7;   /* Light Gray for background */
-  --ios-separator: rgba(60, 60, 67, 0.1);
+  --ios-primary: #007AFF;
+  --ios-bg-primary: #FFFFFF;
+  --ios-bg-secondary: #F2F2F7;
   --ios-text-primary: #000000;
-  --ios-text-secondary: rgba(60, 60, 67, 0.6);
-  --ios-text-tertiary: rgba(60, 60, 67, 0.3);
-
-  --mall-primary: var(--ios-primary);
-  --mall-bg: var(--ios-bg-secondary);
-  --mall-border: var(--ios-separator);
-  --mall-text: var(--ios-text-primary);
-  --mall-muted: var(--ios-text-tertiary);
-
-  /* Use 100% instead of 100vh for native nav bar mode */
-  height: 100%;
-  width: 100%;
-  background-color: var(--ios-bg-secondary);
-  color: var(--ios-text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  --ios-text-secondary: #3C3C43;
+  --ios-text-tertiary: #8E8E93;
+  --ios-separator: rgba(60, 60, 67, 0.12); /* Standard Hairline */
+  --ios-card-bg: #FFFFFF;
+  
+  /* Safe Areas */
+  --safe-bottom: env(safe-area-inset-bottom);
 }
 
-view,
-text,
-button,
-input,
-scroll-view {
+page {
+  background-color: var(--ios-bg-secondary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+  color: var(--ios-text-primary);
+  -webkit-font-smoothing: antialiased;
+  height: 100%;
+}
+
+view, text, button, input, scroll-view {
   box-sizing: border-box;
 }
 
-/* ====================================================
-   .mall-page — Root page container for every tab page.
-   Uses height:100% which chains from page -> #app -> .mall-page.
-   ==================================================== */
+/* Base Layout */
 .mall-page {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100vh;
   width: 100%;
   background-color: var(--ios-bg-secondary);
   position: relative;
-  overflow: hidden; /* Prevent page-level scroll */
 
   &__body {
     flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    /* In native tabBar mode, the page ends at the top of the tab bar.
-       We don't need extra padding-bottom. */
+    display: flex;
+    flex-direction: column;
   }
 }
 
-/* iOS Style Search Bar */
+/* Clean Search Bar */
 .ios-search {
   padding: 16rpx 32rpx;
   background-color: transparent;
@@ -66,9 +55,8 @@ scroll-view {
     height: 72rpx;
     padding: 0 24rpx;
     background-color: var(--ios-bg-primary);
-    border-radius: 36rpx;
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-    border: 1rpx solid rgba(0,0,0,0.02);
+    border-radius: 20rpx; /* Match Card radius */
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.02);
   }
 
   &__input {
@@ -79,38 +67,203 @@ scroll-view {
   }
 }
 
-.mall-text-ellipsis {
-  display: block; /* Required for ellipsis on Text components */
+/* Card Style (Grouped List) */
+.ios-card-group {
+  margin: 16rpx 32rpx 32rpx;
+  background-color: var(--ios-card-bg);
+  border-radius: 20rpx;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.02);
 }
 
-/* Reusable avatar */
+.ios-card-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  position: relative;
+  transition: background-color 0.15s ease;
+
+  &:active, &--pressed {
+    background-color: #E5E5EA; /* Standard Apple touch feedback */
+  }
+
+  &__icon {
+    width: 64rpx;
+    height: 64rpx;
+    margin-right: 28rpx;
+    flex-shrink: 0;
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      left: 124rpx; /* Align with text start */
+      height: 1rpx;
+      background-color: var(--ios-separator);
+    }
+  }
+
+  /* Last item in group has no separator */
+  &:last-child .ios-card-item__content::after,
+  &.last .ios-card-item__content::after {
+    display: none;
+  }
+
+  &__title {
+    font-size: 32rpx;
+    color: var(--ios-text-primary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__sub {
+    font-size: 28rpx;
+    color: var(--ios-text-tertiary);
+    margin-right: 12rpx;
+  }
+}
+
+/* Standard List Item (Sessions/Friends) */
+.mall-list-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  background-color: var(--ios-bg-primary);
+  position: relative;
+  transition: background-color 0.15s ease;
+
+  &:active {
+    background-color: #F2F2F7;
+  }
+
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 144rpx; /* Default margin for avatar (96rpx + 24rpx padding + bit extra) */
+    height: 1rpx;
+    background-color: var(--ios-separator);
+  }
+}
+
+/* Avatar Components */
 .mall-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--ios-bg-secondary);
+  background-color: #E5E5EA;
   color: #FFFFFF;
   font-weight: 600;
   overflow: hidden;
   flex-shrink: 0;
 
-  &--circle {
-    border-radius: 999rpx;
-  }
+  &--circle { border-radius: 50%; }
+  &--rounded { border-radius: 16rpx; }
 
-  &--rounded {
-    border-radius: 20rpx;
-  }
-
-  &--cyan { background: linear-gradient(135deg, #34C759, #30D158); }
-  &--orange { background: linear-gradient(135deg, #FF9500, #FF9F0A); }
-  &--indigo { background: linear-gradient(135deg, #5856D6, #5E5CE6); }
+  /* iOS Preset Colors */
   &--blue { background: linear-gradient(135deg, #007AFF, #0A84FF); }
-  &--yellow { background: linear-gradient(135deg, #FFCC00, #FFD60A); }
+  &--orange { background: linear-gradient(135deg, #FF9500, #FF9F0A); }
+  &--green { background: linear-gradient(135deg, #34C759, #30D158); }
+  &--indigo { background: linear-gradient(135deg, #5856D6, #5E5CE6); }
   &--red { background: linear-gradient(135deg, #FF3B30, #FF453A); }
-  &--gray { background-color: #8E8E93; }
-  &--sky { background: linear-gradient(135deg, #5aa4ff, #2f6bff); }
+}
+
+/* Feedback Dot & Badge */
+.mall-badge {
+  background-color: #FF3B30;
+  color: #FFFFFF;
+  font-size: 20rpx;
+  font-weight: bold;
+  height: 36rpx;
+  min-width: 36rpx;
+  padding: 0 10rpx;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mall-dot {
+  width: 18rpx;
+  height: 18rpx;
+  background-color: #FF3B30;
+  border-radius: 50%;
+  border: 4rpx solid #FFFFFF; /* High contrast outline */
+}
+
+/* Empty State Polish */
+.taroify-empty {
+  background: transparent !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  width: 100% !important;
+  
+  &__image {
+    width: 240rpx !important;
+    height: 240rpx !important;
+    margin: 0 auto 24rpx !important;
+    display: block !important;
+    opacity: 0.5;
+  }
+
+  &__description {
+    font-size: 28rpx !important;
+    color: var(--ios-text-tertiary) !important;
+    text-align: center !important;
+    width: 100% !important;
+    display: block !important;
+  }
+}
+
+/* Chat Bubbles */
+.chat-bubble {
+  position: relative;
+  padding: 20rpx 28rpx;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  line-height: 1.5;
+  word-wrap: break-word;
+
+  &--mine {
+    background-color: var(--ios-primary);
+    color: #FFFFFF;
+    border-bottom-right-radius: 4rpx;
+  }
+
+  &--other {
+    background-color: var(--ios-bg-primary);
+    color: var(--ios-text-primary);
+    border-bottom-left-radius: 4rpx;
+    box-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Common pressable state */
+.mall-clickable {
+  transition: opacity 0.15s, transform 0.1s;
+  &:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+}
+
+.mall-text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

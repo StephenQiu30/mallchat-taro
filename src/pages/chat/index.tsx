@@ -138,7 +138,6 @@ export default function ChatDetail() {
             <View style={{ padding: '32rpx' }}>
               <Skeleton variant='rect' height='60rpx' width='60%' style={{ marginBottom: '32rpx', borderRadius: '12rpx' }} />
               <Skeleton variant='rect' height='60rpx' width='40%' style={{ alignSelf: 'flex-end', marginBottom: '32rpx', borderRadius: '12rpx' }} />
-              <Skeleton variant='rect' height='80rpx' width='70%' style={{ marginBottom: '32rpx', borderRadius: '12rpx' }} />
             </View>
           ) : messages.length === 0 ? (
             <View className='chat-page__empty'>
@@ -153,16 +152,17 @@ export default function ChatDetail() {
                   key={msg.id}
                   className={`chat-message ${isMe ? 'chat-message--mine' : ''}`}
                 >
-                  <View className={`mall-avatar mall-avatar--circle mall-avatar--${isMe ? 'blue' : 'gray'} chat-message__avatar`}>
+                  <View className='chat-message__avatar mall-avatar mall-avatar--rounded'>
                     <Image 
                       src={msg.fromUserAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${msg.fromUserId}`} 
-                      className='chat-message__avatar-img' 
+                      className='chat-message__avatar-img'
+                      mode='aspectFill'
                     />
                   </View>
 
                   <View className='chat-message__body'>
                     {!isMe && <Text className='chat-message__sender-name'>{msg.fromUserName}</Text>}
-                    <View className={`chat-bubble ${isMe ? 'chat-bubble--mine' : ''}`}>
+                    <View className={`chat-bubble ${isMe ? 'chat-bubble--mine' : 'chat-bubble--other'}`}>
                       <Text className='chat-bubble__text'>{msg.content}</Text>
                     </View>
                     <Text className='chat-message__time-inline'>{formatTime(msg.createTime)}</Text>
@@ -179,10 +179,6 @@ export default function ChatDetail() {
       {/* Input Composer */}
       <View className='chat-page__composer'>
         <View className='chat-page__composer-inner'>
-          <View className='chat-page__circle-btn' hoverClass='chat-page__circle-btn--pressed'>
-            <Audio size='20px' style={{ color: '#8E8E93' }} />
-          </View>
-
           <View className='chat-page__input-shell'>
             <Input
               className='chat-page__input-field'
@@ -199,16 +195,14 @@ export default function ChatDetail() {
           </View>
 
           <View className='chat-page__action-icons'>
-            <SmileOutlined size='22px' style={{ color: '#8E8E93' }} />
             <View
-              className={`chat-page__plus-btn ${hasText ? 'is-send' : ''} ${sending ? 'is-loading' : ''}`}
+              className={`chat-page__plus-btn ${hasText ? 'is-send' : ''}`}
               onClick={handleSend}
-              hoverClass='chat-page__plus-btn--pressed'
             >
               {hasText ? (
                 <Text className='chat-page__send-label'>{sending ? '...' : '发送'}</Text>
               ) : (
-                <Plus size='18px' style={{ color: '#fff' }} />
+                <Plus size='20px' style={{ color: '#666' }} />
               )}
             </View>
           </View>

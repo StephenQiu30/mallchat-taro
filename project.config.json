@@ -2,7 +2,7 @@
   "miniprogramRoot": "dist/",
   "projectname": "mallchat-taro",
   "description": "mallchat-taro",
-  "appid": "wx9f0864a2f55487a9",
+  "appid": "",
   "setting": {
     "urlCheck": true,
     "es6": true,

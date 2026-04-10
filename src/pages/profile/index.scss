@@ -1,92 +1,40 @@
-/* Profile card */
-.profile-card {
-  margin: 24rpx 32rpx;
-  background: var(--ios-bg-primary);
-  border-radius: 28rpx;
-  padding: 36rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+.profile-header {
+  display: flex;
+  align-items: center;
+  padding: 64rpx 32rpx;
+  background-color: var(--ios-bg-primary);
+  /* Gentle gradient for a premium feel */
+  background: linear-gradient(to bottom, #FFFFFF, #FAFAFA);
 
-  &__top {
-    display: flex;
-    align-items: center;
-  }
-
-  &__avatar-wrap {
-    position: relative;
-    margin-right: 24rpx;
-    flex-shrink: 0;
-  }
-
-  &__avatar {
-    width: 112rpx;
-    height: 112rpx;
-    border-radius: 999rpx;
-    border: 4rpx solid #F0F0F0;
-  }
-
-  &__online-dot {
-    position: absolute;
-    bottom: 4rpx;
-    right: 4rpx;
-    width: 24rpx;
-    height: 24rpx;
-    background-color: #34C759;
-    border: 4rpx solid #fff;
-    border-radius: 999rpx;
+  &__avatar-img {
+    width: 140rpx;
+    height: 140rpx;
+    margin-right: 32rpx;
+    background-color: #F2F2F7;
+    border: 2rpx solid rgba(0, 0, 0, 0.05); /* Subtle border for definition */
   }
 
   &__main {
     flex: 1;
-    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   &__name {
-    display: block;
-    font-size: 38rpx;
+    font-size: 44rpx;
     font-weight: 700;
     color: var(--ios-text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    margin-bottom: 12rpx;
+    letter-spacing: -0.5rpx;
   }
 
   &__id {
-    display: block;
-    margin-top: 8rpx;
-    font-size: 24rpx;
+    font-size: 28rpx;
     color: var(--ios-text-tertiary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__stats {
-    display: flex;
-    margin-top: 36rpx;
-    padding-top: 28rpx;
-    border-top: 1rpx solid #F0F0F0;
-  }
-
-  &__stat-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  &__stat-val {
-    font-size: 32rpx;
-    font-weight: 700;
-    color: var(--ios-text-primary);
-  }
-
-  &__stat-label {
-    font-size: 24rpx;
-    color: var(--ios-text-tertiary);
-    margin-top: 4rpx;
   }
 }
 
 .profile-body {
-  padding: 0 32rpx;
+  margin-top: 32rpx;
 }

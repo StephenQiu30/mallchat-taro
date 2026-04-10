@@ -1,25 +1,10 @@
-/* Message List — Card-based layout */
 .message-list {
-  padding: 16rpx 32rpx;
+  background-color: var(--ios-bg-primary);
 }
 
 .message-item {
-  display: flex;
-  align-items: center;
-  padding: 24rpx;
-  margin-bottom: 20rpx;
-  background-color: var(--ios-bg-primary);
-  border-radius: 28rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
-  transition: transform 150ms ease, box-shadow 150ms ease;
-
-  &--pressed {
-    transform: scale(0.98);
-    background-color: #F5F5F7;
-  }
-
   &--pinned {
-    background-color: rgba(0, 122, 255, 0.04);
+    background-color: #F2F8FF !important; /* Extremely subtle blue tint for pinned messages */
   }
 
   &__avatar-wrap {
@@ -28,84 +13,60 @@
     flex-shrink: 0;
   }
 
-  &__avatar {
+  &__avatar-img {
     width: 96rpx;
     height: 96rpx;
-  }
-
-  &__avatar-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 999rpx;
   }
 
   &__badge {
     position: absolute;
     top: -8rpx;
     right: -8rpx;
-    min-width: 36rpx;
-    height: 36rpx;
-    padding: 0 10rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #FF3B30;
-    color: #FFFFFF;
-    font-size: 20rpx;
-    font-weight: 700;
-    border: 4rpx solid var(--ios-bg-primary);
-    border-radius: 999rpx;
-  }
-
-  &__dot {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 20rpx;
-    height: 20rpx;
-    background-color: #FF3B30;
-    border: 3rpx solid var(--ios-bg-primary);
-    border-radius: 999rpx;
+    z-index: 10;
+    border: 3rpx solid #FFFFFF;
   }
 
   &__content {
     flex: 1;
     min-width: 0;
-    overflow: hidden; /* Ensure parent doesn't expand beyond flex area */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   &__row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8rpx;
+    margin-bottom: 4rpx;
   }
 
   &__name {
-    flex: 1;
     font-size: 32rpx;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--ios-text-primary);
   }
 
-  &__time {
+  &__pin-icon {
+    width: 24rpx;
+    height: 24rpx;
     margin-left: 12rpx;
+    background-color: var(--ios-text-tertiary);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21 21-6-6m6 6v-4.8m0 4.8h-4.8'/%3E%3Cpath d='M3 16.2V21m0 0h4.8M3 21l6-6'/%3E%3Cpath d='M21 7.8V3m0 0h-4.8M21 3l-6 6'/%3E%3Cpath d='M3 7.8V3m0 0h4.8M3 3l6 6'/%3E%3C/svg%3E") no-repeat center;
+    mask-size: contain;
+    opacity: 0.4;
+  }
+
+  &__time {
+    margin-left: 20rpx;
     font-size: 24rpx;
     color: var(--ios-text-tertiary);
     flex-shrink: 0;
   }
 
   &__text {
-    display: block;
     font-size: 28rpx;
-    line-height: 1.4;
     color: var(--ios-text-secondary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__highlight {
-    color: var(--ios-primary);
+    line-height: 1.4;
   }
 }

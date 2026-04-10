@@ -83,84 +83,68 @@ export default function ProfileIndex() {
   return (
     <View className='mall-page'>
       <View className='mall-page__body'>
-        <View className='profile-bg-header' />
-
-        {/* Profile card */}
-        <View className='profile-card' onClick={!isLoggedIn ? handleLogin : () => Taro.navigateTo({ url: '/pages/profile/edit/index' })}>
-          <View className='profile-card__top'>
-            <View className='profile-card__avatar-wrap'>
-              <Image 
-                src={userInfo?.userAvatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=guest'} 
-                className='profile-card__avatar' 
-              />
-              {isLoggedIn && <View className='profile-card__online-dot' />}
-            </View>
-            <View className='profile-card__main'>
-              <Text className='profile-card__name'>
-                {isLoggedIn ? (userInfo?.userName || '未设置昵称') : '点击登录'}
-              </Text>
-              <Text className='profile-card__id'>
-                {isLoggedIn ? `ID: ${userInfo?.id || '---'}` : '登录体验更多功能'}
-              </Text>
-            </View>
-            <Arrow size='20px' style={{ color: '#C7C7CC' }} />
+        {/* Profile Header */}
+        <View 
+          className='profile-header' 
+          onClick={!isLoggedIn ? handleLogin : () => Taro.navigateTo({ url: '/pages/profile/edit/index' })}
+        >
+          <Image 
+            src={userInfo?.userAvatar || 'https://api.dicebear.com/7.x/identicon/svg?seed=guest'} 
+            className='mall-avatar mall-avatar--rounded profile-header__avatar-img'
+            mode='aspectFill'
+          />
+          <View className='profile-header__main'>
+            <Text className='profile-header__name'>
+              {isLoggedIn ? (userInfo?.userName || '未设置昵称') : '点击登录'}
+            </Text>
+            <Text className='profile-header__id'>
+              {isLoggedIn ? `账号: ${userInfo?.id || '---'}` : '登录体验更多社交功能'}
+            </Text>
           </View>
-
-          <View className='profile-card__stats'>
-            <View className='profile-card__stat-item'>
-              <Text className='profile-card__stat-val'>0</Text>
-              <Text className='profile-card__stat-label'>空间访客</Text>
-            </View>
-            <View className='profile-card__stat-item'>
-              <Text className='profile-card__stat-val'>0</Text>
-              <Text className='profile-card__stat-label'>好友动态</Text>
-            </View>
-            <View className='profile-card__stat-item'>
-              <Text className='profile-card__stat-val'>0</Text>
-              <Text className='profile-card__stat-label'>我的收藏</Text>
-            </View>
-          </View>
+          <Arrow size='18px' style={{ color: '#C7C7CC' }} />
         </View>
 
         {/* Service list */}
-        <View className='profile-body'>
+        <View className='profile-body ios-body'>
           <View className='ios-card-group'>
             <View className='ios-card-item' hoverClass='ios-card-item--pressed'>
-              <GoldCoinOutlined size='24px' style={{ color: '#3B82F6', width: '48rpx', marginRight: '24rpx' }} />
+              <GoldCoinOutlined size='22px' style={{ color: '#3B82F6', marginRight: '24rpx' }} />
               <View className='ios-card-item__content'>
                 <Text className='ios-card-item__title'>我的钱包</Text>
-                <Text className='ios-card-item__sub'>¥ 0.00</Text>
-                <Arrow size='16px' style={{ color: '#C7C7CC' }} />
+                <View style={{ display: 'flex', alignItems: 'center' }}>
+                  <Text className='ios-card-item__sub'>¥ 0.00</Text>
+                  <Arrow size='14px' style={{ color: '#C7C7CC' }} />
+                </View>
               </View>
             </View>
             <View className='ios-card-item' hoverClass='ios-card-item--pressed'>
-              <StarOutlined size='24px' style={{ color: '#FBBF24', width: '48rpx', marginRight: '24rpx' }} />
+              <StarOutlined size='22px' style={{ color: '#FBBF24', marginRight: '24rpx' }} />
               <View className='ios-card-item__content last'>
                 <Text className='ios-card-item__title'>我的收藏</Text>
-                <Arrow size='16px' style={{ color: '#C7C7CC' }} />
+                <Arrow size='14px' style={{ color: '#C7C7CC' }} />
               </View>
             </View>
           </View>
 
           <View className='ios-card-group'>
             <View className='ios-card-item' hoverClass='ios-card-item--pressed'>
-              <AppsOutlined size='24px' style={{ color: '#F97316', width: '48rpx', marginRight: '24rpx' }} />
+              <AppsOutlined size='22px' style={{ color: '#F97316', marginRight: '24rpx' }} />
               <View className='ios-card-item__content last'>
-                <Text className='ios-card-item__title'>小程序</Text>
-                <Arrow size='16px' style={{ color: '#C7C7CC' }} />
+                <Text className='ios-card-item__title'>更多功能</Text>
+                <Arrow size='14px' style={{ color: '#C7C7CC' }} />
               </View>
             </View>
           </View>
 
           {isLoggedIn && (
-            <View className='ios-card-group' style={{ marginTop: '32rpx' }}>
+            <View className='ios-card-group' style={{ marginTop: '48rpx' }}>
               <View 
                 className='ios-card-item' 
                 hoverClass='ios-card-item--pressed'
                 onClick={handleLogout}
               >
                 <View className='ios-card-item__content last' style={{ justifyContent: 'center' }}>
-                  <Text className='ios-card-item__title' style={{ color: '#EF4444' }}>退出登录</Text>
+                  <Text className='ios-card-item__title' style={{ color: '#FF3B30', fontWeight: 'bold' }}>退出登录</Text>
                 </View>
               </View>
             </View>
