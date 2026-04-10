@@ -4,7 +4,7 @@ import { Search } from '@taroify/icons'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
-import { listMySessions } from '@/api/chat/chatSessionController'
+import { listMySessions, topSession, deleteSession } from '@/api/chat/chatSessionController'
 import { Skeleton, Empty } from '@taroify/core'
 
 import './index.scss'
@@ -16,8 +16,8 @@ export default function MessageIndex() {
 
   const fetchSessions = useCallback(async (isSilent = false) => {
     if (!isLoggedIn) {
+      // Not logged in — keep skeleton visible as placeholder
       setListData([])
-      setLoading(false)
       Taro.stopPullDownRefresh()
       return
     }
@@ -45,6 +45,53 @@ export default function MessageIndex() {
   usePullDownRefresh(() => {
     fetchSessions()
   })
+
+  // Long press handler — show ActionSheet for pin/delete
+  const handleLongPress = (session: ChatAPI.ChatSessionVO) => {
+    const isPinned = session.topStatus === 1
+    Taro.showActionSheet({
+      itemList: [isPinned ? '取消置顶' : '置顶', '删除会话'],
+      success: async (res) => {
+        if (res.tapIndex === 0) {
+          // Toggle pin
+          try {
+            const topRes = await topSession({
+              roomId: session.roomId!,
+              status: isPinned ? 0 : 1
+            })
+            if (topRes.code === 0) {
+              Taro.showToast({
+                title: isPinned ? '已取消置顶' : '已置顶',
+                icon: 'success'
+              })
+              fetchSessions(true)
+            }
+          } catch (err) {
+            console.error('Top session failed:', err)
+          }
+        } else if (res.tapIndex === 1) {
+          // Delete session
+          Taro.showModal({
+            title: '提示',
+            content: '确定删除该会话吗？',
+            success: async (modalRes) => {
+              if (modalRes.confirm) {
+                try {
+                  const delRes = await deleteSession({ id: session.roomId! })
+                  if (delRes.code === 0) {
+                    Taro.showToast({ title: '已删除', icon: 'success' })
+                    fetchSessions(true)
+                  }
+                } catch (err) {
+                  console.error('Delete session failed:', err)
+                }
+              }
+            }
+          })
+        }
+      }
+    })
+  }
 
   // Format time (e.g., from "2024-03-20 14:20:00" to "14:20" or "昨天")
   const formatTime = (timeStr?: string) => {
@@ -94,29 +141,19 @@ export default function MessageIndex() {
           ) : listData.length === 0 ? (
             <Empty style={{ marginTop: '100rpx' }}>
               <Empty.Image src='network' />
-              <Empty.Description>
-                {isLoggedIn ? '暂无消息' : '登录后查看消息'}
-              </Empty.Description>
-              {!isLoggedIn && (
-                <View 
-                  className='mall-btn mall-btn--primary' 
-                  style={{ marginTop: '32rpx' }}
-                  onClick={() => Taro.switchTab({ url: '/pages/profile/index' })}
-                >
-                  去登录
-                </View>
-              )}
+              <Empty.Description>暂无消息</Empty.Description>
             </Empty>
           ) : (
             listData.map((msg) => (
               <View
                 key={msg.roomId}
-                className='message-item'
+                className={`message-item ${msg.topStatus === 1 ? 'message-item--pinned' : ''}`}
                 hoverClass='message-item--pressed'
                 hoverStayTime={80}
                 onClick={() => Taro.navigateTo({ 
                   url: `/pages/chat/index?id=${msg.roomId}&name=${encodeURIComponent(msg.name || '')}` 
                 })}
+                onLongPress={() => handleLongPress(msg)}
               >
                 <View className='message-item__avatar-wrap'>
                   <Image 
@@ -147,4 +184,3 @@ export default function MessageIndex() {
     </View>
   )
 }
-

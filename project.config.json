@@ -2,7 +2,7 @@
   "miniprogramRoot": "dist/",
   "projectname": "mallchat-taro",
   "description": "mallchat-taro",
-  "appid": "wx727ffc238a09dd15",
+  "appid": "wx9f0864a2f55487a9",
   "setting": {
     "urlCheck": true,
     "es6": true,
@@ -35,5 +35,6 @@
     "ignore": [],
     "include": []
   },
-  "editorSetting": {}
+  "editorSetting": {},
+  "libVersion": "3.15.1"
 }

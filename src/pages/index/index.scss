@@ -18,6 +18,10 @@
     background-color: #F5F5F7;
   }
 
+  &--pinned {
+    background-color: rgba(0, 122, 255, 0.04);
+  }
+
   &__avatar-wrap {
     position: relative;
     margin-right: 24rpx;
