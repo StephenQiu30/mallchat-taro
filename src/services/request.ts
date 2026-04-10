@@ -1,8 +1,11 @@
 import JSONBig from 'json-bigint'
 import Taro from '@tarojs/taro'
+import { store } from '@/store'
+import { logoutAction } from '@/store/slices/userSlice'
+import { removeToken, removeUserInfo } from '@/utils/auth'
 
 const JSONBigStr = JSONBig({ storeAsString: true })
-const baseURL = process.env.TARO_APP_API_BASE_URL || 'http://localhost:8080/api'
+export const baseURL = process.env.TARO_APP_API_BASE_URL || 'http://localhost:8080/api'
 
 /**
  * 基础请求封装 (简化版)
@@ -17,14 +20,14 @@ export const request = <T>(url: string, config: any = {}): Promise<T> => {
     Taro.request({
       url: fullUrl,
       method: config.method || 'GET',
-      // Taro 会自动处理 GET 的 data (转为 query) 和 POST 的 data (转为 JSON)
+      // Taro 会自动 handle GET 的 data (转为 query) 和 POST 的 data (转为 JSON)
       data: config.data || config.params,
       header: {
         'Content-Type': 'application/json',
         'Authorization': token ? `Bearer ${token}` : '',
         ...config.headers,
       },
-      dataType: 'text', // 为了支持 JSON-BigInt
+      dataType: 'text', // 为支持 BIGINT
       success: (res) => {
         let data: any
         try {
@@ -35,10 +38,14 @@ export const request = <T>(url: string, config: any = {}): Promise<T> => {
 
         // 处理未登录 (HTTP 401 或 业务 40100)
         if (res.statusCode === 401 || (data && data.code === 40100)) {
-          Taro.removeStorageSync('token')
-          // 如果不是静默登录接口本身报错，则提示用户
+          // 清除持久化存储
+          removeToken()
+          removeUserInfo()
+          // 同步清除 Redux 状态
+          store.dispatch(logoutAction())
+          
           if (!url.includes('/user/login/ma')) {
-            Taro.showToast({ title: '登录已失效', icon: 'none' })
+            Taro.showToast({ title: '登录已失效，请重新登录', icon: 'none' })
           }
           return reject(data)
         }

@@ -11,7 +11,7 @@ import { setToken, setUserInfo, removeToken, removeUserInfo } from '@/utils/auth
 import './index.scss'
 import '../contact/index.scss'
 
-export default function ProfileIndex() {
+export default function ProfilePage() {
   const dispatch = useDispatch()
   const { userInfo, isLoggedIn } = useSelector((state: RootState) => state.user)
 
