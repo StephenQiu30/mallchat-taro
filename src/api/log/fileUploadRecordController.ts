@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from "@/services/request";
+import {request} from "@/services/request";
 
 /** 创建文件上传记录 记录文件上传信息 POST /log/file/upload/add */
 export async function addFileUploadRecord(

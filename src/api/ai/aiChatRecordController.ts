@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from "@/services/request";
+import {request} from "@/services/request";
 
 /** 删除对话记录 根据 ID 删除指定的对话记录，仅本人可删除 POST /ai/record/delete */
 export async function deleteAiChatRecord(

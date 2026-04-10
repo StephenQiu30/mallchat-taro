@@ -1,8 +1,8 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from "@/services/request";
+import {request} from "@/services/request";
 
-/** AI 对话 (标准) 发送消息并等待 AI 返回完整回答 POST /ai/chat */
+/** AI 对话 (标准) 发送问题并同步等待 AI 完整的文本回复 POST /ai/chat */
 export async function doAiChat(
   body: AiAPI.AiChatRequest,
   options?: { [key: string]: any }
@@ -17,7 +17,7 @@ export async function doAiChat(
   });
 }
 
-/** AI 对话 (流式) 发送消息并通过 SSE 获取 AI 逐字返回的内容 POST /ai/chat/stream */
+/** AI 对话 (流式) 发送问题并通过 SSE 获取 AI 实时、逐字下发的回答内容 POST /ai/chat/stream */
 export async function doStreamAiChat(
   body: AiAPI.AiChatRequest,
   options?: { [key: string]: any }

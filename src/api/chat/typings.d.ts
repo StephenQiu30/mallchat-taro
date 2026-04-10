@@ -66,6 +66,17 @@ declare namespace ChatAPI {
     friendUserId: number;
   };
 
+  type ChatFriendApplyQueryRequest = {
+    /** 当前页号 */
+    current?: number;
+    /** 页面大小 */
+    pageSize?: number;
+    /** 排序字段 */
+    sortField?: string;
+    /** 排序顺序（默认升序） */
+    sortOrder?: string;
+  };
+
   type ChatFriendApplyRequest = {
     /** 目标用户ID */
     targetId: number;
@@ -122,6 +133,8 @@ declare namespace ChatAPI {
     type: number;
     /** 消息扩展内容（JSON 字符串） */
     extra?: string;
+    /** 被回复的消息ID */
+    replyMsgId?: number;
   };
 
   type ChatMessageVO = {
@@ -141,6 +154,9 @@ declare namespace ChatAPI {
     type?: number;
     /** 消息扩展内容 */
     extra?: string;
+    replyMsg?: ReplyMsgVO;
+    /** 消息状态：0-正常，1-已撤回，2-已删除 */
+    status?: number;
     /** 发送时间 */
     createTime?: string;
   };
@@ -191,19 +207,14 @@ declare namespace ChatAPI {
     activeTime?: string;
   };
 
-  type deleteSessionParams = {
-    /** 房间ID */
-    roomId: number;
+  type DeleteRequest = {
+    /** id */
+    id: number;
   };
 
   type joinChatRoomParams = {
     /** 房间ID */
     roomId: number;
-  };
-
-  type listFriendApplyParams = {
-    current?: number;
-    size?: number;
   };
 
   type listHistoryMessagesParams = {
@@ -234,10 +245,21 @@ declare namespace ChatAPI {
     pages?: number;
   };
 
+  type ReplyMsgVO = {
+    /** 消息ID */
+    id?: number;
+    /** 发送者姓名 */
+    userName?: string;
+    /** 消息内容 */
+    content?: string;
+    /** 消息类型 */
+    type?: number;
+  };
+
   type topSessionParams = {
     /** 房间ID */
     roomId: number;
-    /** 置顶状态 */
+    /** 置顶状态：0-取消置顶, 1-置顶 */
     status: number;
   };
 }

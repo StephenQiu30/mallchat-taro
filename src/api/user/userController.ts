@@ -1,8 +1,8 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from "@/services/request";
+import {request} from "@/services/request";
 
-/** 此处后端没有提供注释 POST /user/add */
+/** 创建用户 管理员手动创建新用户 POST /user/add */
 export async function addUser(
   body: UserAPI.UserAddRequest,
   options?: { [key: string]: any }
@@ -17,7 +17,7 @@ export async function addUser(
   });
 }
 
-/** 此处后端没有提供注释 POST /user/delete */
+/** 删除用户 删除指定 ID 的用户（仅本人或管理员） POST /user/delete */
 export async function deleteUser(
   body: UserAPI.DeleteRequest,
   options?: { [key: string]: any }
@@ -32,7 +32,7 @@ export async function deleteUser(
   });
 }
 
-/** 此处后端没有提供注释 POST /user/edit */
+/** 编辑个人信息 当前登录用户编辑自己的个人资料 POST /user/edit */
 export async function editUser(
   body: UserAPI.UserEditRequest,
   options?: { [key: string]: any }
@@ -47,7 +47,7 @@ export async function editUser(
   });
 }
 
-/** 此处后端没有提供注释 GET /user/get */
+/** 根据ID获取用户 根据用户ID获取用户详细信息（仅管理员） GET /user/get */
 export async function getUserById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: UserAPI.getUserByIdParams,
@@ -70,7 +70,7 @@ export async function getLoginUser(options?: { [key: string]: any }) {
   });
 }
 
-/** 此处后端没有提供注释 GET /user/get/vo */
+/** 根据ID获取用户视图对象 根据用户ID获取用户脱敏后的视图对象 GET /user/get/vo */
 export async function getUserVoById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: UserAPI.getUserVOByIdParams,
@@ -85,7 +85,7 @@ export async function getUserVoById(
   });
 }
 
-/** 此处后端没有提供注释 GET /user/get/vo/batch */
+/** 批量获取用户视图对象 根据用户ID列表批量获取用户脱敏后的视图对象 GET /user/get/vo/batch */
 export async function getUserVoByIds(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: UserAPI.getUserVOByIdsParams,
@@ -108,7 +108,7 @@ export async function isAdmin(options?: { [key: string]: any }) {
   });
 }
 
-/** 此处后端没有提供注释 POST /user/list/page */
+/** 分页获取用户列表 管理员分页查询原始用户信息 POST /user/list/page */
 export async function listUserByPage(
   body: UserAPI.UserQueryRequest,
   options?: { [key: string]: any }
@@ -123,7 +123,7 @@ export async function listUserByPage(
   });
 }
 
-/** 此处后端没有提供注释 POST /user/list/page/vo */
+/** 分页获取用户封装列表 分页获取脱敏后的用户信息列表 POST /user/list/page/vo */
 export async function listUserVoByPage(
   body: UserAPI.UserQueryRequest,
   options?: { [key: string]: any }
@@ -138,20 +138,12 @@ export async function listUserVoByPage(
   });
 }
 
-/** 获取 GitHub 授权 URL 获取跳转到 GitHub 授权页面的 URL GET /user/login/github */
-export async function getGitHubAuthorizeUrl(options?: { [key: string]: any }) {
-  return request<UserAPI.BaseResponseString>("/user/login/github", {
-    method: "GET",
-    ...(options || {}),
-  });
-}
-
-/** GitHub 登录 通过 GitHub 授权码进行登录或注册 POST /user/login/github */
-export async function userLoginByGitHub(
-  body: UserAPI.GitHubLoginRequest,
+/** 微信 App 登录 通过微信 App code 进行登录或注册 POST /user/login/app */
+export async function userLoginByApp(
+  body: UserAPI.UserAppLoginRequest,
   options?: { [key: string]: any }
 ) {
-  return request<UserAPI.BaseResponseLoginUserVO>("/user/login/github", {
+  return request<UserAPI.BaseResponseLoginUserVO>("/user/login/app", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -161,45 +153,32 @@ export async function userLoginByGitHub(
   });
 }
 
-/** 此处后端没有提供注释 GET /user/login/github/callback */
-export async function gitHubLoginCallback(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: UserAPI.gitHubLoginCallbackParams,
+/** Apple 登录 通过 Apple 授权信息进行登录或注册 POST /user/login/apple */
+export async function userLoginByApple(
+  body: UserAPI.UserAppleLoginRequest,
   options?: { [key: string]: any }
 ) {
-  return request<UserAPI.BaseResponseLoginUserVO>(
-    "/user/login/github/callback",
-    {
-      method: "GET",
-      params: {
-        ...params,
-        request: undefined,
-        ...params["request"],
-      },
-      ...(options || {}),
-    }
-  );
-}
-
-/** 此处后端没有提供注释 GET /user/login/wx/qrcode */
-export async function getWxLoginQrCode(options?: { [key: string]: any }) {
-  return request<UserAPI.BaseResponseWxLoginResponse>("/user/login/wx/qrcode", {
-    method: "GET",
+  return request<UserAPI.BaseResponseLoginUserVO>("/user/login/apple", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: body,
     ...(options || {}),
   });
 }
 
-/** 检查微信登录状态 轮询检查微信扫码登录状态 GET /user/login/wx/status */
-export async function checkWxLoginStatus(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: UserAPI.checkWxLoginStatusParams,
+/** 微信小程序登录 通过微信小程序 code 进行登录或注册 POST /user/login/ma */
+export async function userLoginByMa(
+  body: UserAPI.UserMaLoginRequest,
   options?: { [key: string]: any }
 ) {
-  return request<UserAPI.BaseResponseLoginUserVO>("/user/login/wx/status", {
-    method: "GET",
-    params: {
-      ...params,
+  return request<UserAPI.BaseResponseLoginUserVO>("/user/login/ma", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
+    data: body,
     ...(options || {}),
   });
 }
@@ -212,7 +191,7 @@ export async function userLogout(options?: { [key: string]: any }) {
   });
 }
 
-/** 此处后端没有提供注释 POST /user/update */
+/** 更新用户 管理员后台更新用户信息 POST /user/update */
 export async function updateUser(
   body: UserAPI.UserUpdateRequest,
   options?: { [key: string]: any }

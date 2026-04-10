@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from "@/services/request";
+import {request} from "@/services/request";
 
 /** 创建用户登录日志 记录用户登录日志 POST /log/login/add */
 export async function addUserLoginLog(

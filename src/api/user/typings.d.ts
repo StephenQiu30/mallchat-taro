@@ -50,15 +50,6 @@ declare namespace UserAPI {
     message?: string;
   };
 
-  type BaseResponseString = {
-    /** 状态码 */
-    code?: number;
-    /** 数据 */
-    data?: string;
-    /** 消息 */
-    message?: string;
-  };
-
   type BaseResponseUser = {
     /** 状态码 */
     code?: number;
@@ -75,55 +66,24 @@ declare namespace UserAPI {
     message?: string;
   };
 
-  type BaseResponseWxLoginResponse = {
-    /** 状态码 */
-    code?: number;
-    data?: WxLoginResponse;
-    /** 消息 */
-    message?: string;
-  };
-
-  type checkParams = {
-    request: WxMpCheckRequest;
-  };
-
-  type checkWxLoginStatusParams = {
-    sceneId: string;
-  };
-
   type DeleteRequest = {
     /** id */
     id: number;
   };
 
   type getUserByIdParams = {
+    /** 用户ID */
     id: number;
   };
 
   type getUserVOByIdParams = {
+    /** 用户ID */
     id: number;
   };
 
   type getUserVOByIdsParams = {
+    /** 用户ID列表 */
     ids: number[];
-  };
-
-  type GitHubCallbackRequest = {
-    /** 授权码 */
-    code: string;
-    /** 防CSRF攻击的随机字符串 */
-    state: string;
-  };
-
-  type gitHubLoginCallbackParams = {
-    request: GitHubCallbackRequest;
-  };
-
-  type GitHubLoginRequest = {
-    /** 授权码 */
-    code?: string;
-    /** 防CSRF攻击的随机字符串 */
-    state?: string;
   };
 
   type LoginUserVO = {
@@ -137,12 +97,10 @@ declare namespace UserAPI {
     userRole?: string;
     /** 用户简介 */
     userProfile?: string;
-    /** GitHub用户名 */
-    githubLogin?: string;
-    /** GitHub主页 */
-    githubUrl?: string;
     /** 用户电话 */
     userPhone?: string;
+    /** 用户邮箱 */
+    userEmail?: string;
     /** 最后登录时间 */
     lastLoginTime?: string;
     /** 创建时间 */
@@ -199,18 +157,16 @@ declare namespace UserAPI {
     userRole?: string;
     /** 用户手机号 */
     userPhone?: string;
-    /** 微信公众号 OpenID */
-    mpOpenId?: string;
+    /** 用户邮箱 */
+    userEmail?: string;
+    /** 微信小程序 OpenID */
+    maOpenId?: string;
     /** 微信 UnionID */
     wxUnionId?: string;
-    /** 微信开放平台 OpenID */
+    /** 微信 App OpenID (开放平台 Mobile App) */
     wxOpenId?: string;
-    /** GitHub ID */
-    githubId?: string;
-    /** GitHub 账号 */
-    githubLogin?: string;
-    /** GitHub 主页 */
-    githubUrl?: string;
+    /** Apple ID */
+    appleId?: string;
     /** 最后登录时间 */
     lastLoginTime?: string;
     /** 最后登录IP */
@@ -230,6 +186,20 @@ declare namespace UserAPI {
     userAvatar?: string;
     /** 用户角色 */
     userRole?: string;
+    /** 用户邮箱 */
+    userEmail?: string;
+  };
+
+  type UserAppleLoginRequest = {
+    /** Apple Identity Token (JWT) */
+    identityToken: string;
+    /** Apple 用户标识 (User Identifier) */
+    userIdentifier: string;
+  };
+
+  type UserAppLoginRequest = {
+    /** 微信 App 登录 code */
+    code?: string;
   };
 
   type UserEditRequest = {
@@ -241,6 +211,13 @@ declare namespace UserAPI {
     userProfile?: string;
     /** 用户电话 */
     userPhone?: string;
+    /** 用户邮箱 */
+    userEmail?: string;
+  };
+
+  type UserMaLoginRequest = {
+    /** 微信小程序登录 code */
+    code?: string;
   };
 
   type UserQueryRequest = {
@@ -258,8 +235,6 @@ declare namespace UserAPI {
     notId?: number;
     /** 微信开放平台UnionID */
     wxUnionId?: string;
-    /** 公众号OpenID */
-    mpOpenId?: string;
     /** 用户昵称 */
     userName?: string;
     /** 用户角色 */
@@ -283,6 +258,8 @@ declare namespace UserAPI {
     userRole?: string;
     /** 用户电话 */
     userPhone?: string;
+    /** 用户邮箱 */
+    userEmail?: string;
   };
 
   type UserVO = {
@@ -298,31 +275,11 @@ declare namespace UserAPI {
     userRole?: string;
     /** 用户电话 */
     userPhone?: string;
-    /** GitHub 登录账号 */
-    githubLogin?: string;
-    /** GitHub 主页 */
-    githubUrl?: string;
+    /** 用户邮箱 */
+    userEmail?: string;
     /** 创建时间 */
     createTime?: string;
     /** 更新时间 */
     updateTime?: string;
-  };
-
-  type WxLoginResponse = {
-    /** 二维码 URL */
-    qrCodeUrl?: string;
-    /** 场景 ID */
-    sceneId?: string;
-  };
-
-  type WxMpCheckRequest = {
-    /** 时间戳 */
-    timestamp?: string;
-    /** 随机数 */
-    nonce?: string;
-    /** 签名 */
-    signature?: string;
-    /** 随机字符串 */
-    echostr?: string;
   };
 }
