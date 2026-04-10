@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { Input, ScrollView, Text, View, Image } from '@tarojs/components'
-import { Audio, NotesOutlined, Plus, SmileOutlined } from '@taroify/icons'
+import { Audio, Plus, SmileOutlined } from '@taroify/icons'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
-import { listHistoryMessages, sendMessage } from '@/api/chat/chatMessageController'
+import { listHistoryMessages, sendMessage, markMessageRead } from '@/api/chat/chatMessageController'
 import { Skeleton } from '@taroify/core'
 
 import './index.scss'
@@ -22,6 +22,22 @@ export default function ChatDetail() {
   
   const pollingTimer = useRef<NodeJS.Timeout>()
 
+  // Mark messages as read
+  const markRead = useCallback(async (msgs: ChatAPI.ChatMessageVO[]) => {
+    if (!roomId || msgs.length === 0) return
+    const lastMsg = msgs[msgs.length - 1]
+    if (lastMsg?.id) {
+      try {
+        await markMessageRead({
+          roomId: Number(roomId),
+          lastReadMessageId: lastMsg.id
+        })
+      } catch (err) {
+        // Silent fail for read receipt
+      }
+    }
+  }, [roomId])
+
   const fetchMessages = useCallback(async (isSilent = false) => {
     if (!roomId) return
     
@@ -32,20 +48,20 @@ export default function ChatDetail() {
         limit: 50
       })
       if (res.code === 0 && res.data) {
-        // Reverse because history might be desc, but we want asc for bubble display
-        // Actually, the API says "history", usually it returns latest first or specific order.
-        // If it's DESC, we reverse it. Based on common IM patterns, we want [oldest ... newest]
+        // Sort by time ascending for chat display [oldest ... newest]
         const sortedMsgs = [...(res.data || [])].sort((a, b) => 
           new Date(a.createTime || 0).getTime() - new Date(b.createTime || 0).getTime()
         )
         setMessages(sortedMsgs)
+        // Mark read after fetching
+        markRead(sortedMsgs)
       }
     } catch (err) {
       console.error('Fetch messages failed:', err)
     } finally {
       setLoading(false)
     }
-  }, [roomId])
+  }, [roomId, markRead])
 
   // Initial load and title setup
   useEffect(() => {

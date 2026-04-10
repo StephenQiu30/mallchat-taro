@@ -5,8 +5,7 @@ import Taro from '@tarojs/taro'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store'
 import { setUserInfoAction, setTokenAction, logoutAction } from '@/store/slices/userSlice'
-import { getLoginUser, userLogout } from '@/api/user/userController'
-import { userLoginByWxMp } from '@/api/user/custom'
+import { getLoginUser, userLogout, userLoginByMa } from '@/api/user/userController'
 import { setToken, setUserInfo, removeToken, removeUserInfo } from '@/utils/auth'
 
 import './index.scss'
@@ -40,7 +39,7 @@ export default function ProfileIndex() {
       Taro.showLoading({ title: '登录中...' })
       const { code } = await Taro.login()
       
-      const res = await userLoginByWxMp({ code })
+      const res = await userLoginByMa({ code })
       
       if (res.code === 0 && res.data) {
         const { token } = res.data
@@ -87,7 +86,7 @@ export default function ProfileIndex() {
         <View className='profile-bg-header' />
 
         {/* Profile card */}
-        <View className='profile-card' onClick={!isLoggedIn ? handleLogin : undefined}>
+        <View className='profile-card' onClick={!isLoggedIn ? handleLogin : () => Taro.navigateTo({ url: '/pages/profile/edit/index' })}>
           <View className='profile-card__top'>
             <View className='profile-card__avatar-wrap'>
               <Image 

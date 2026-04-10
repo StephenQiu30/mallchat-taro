@@ -3,7 +3,10 @@ export default defineAppConfig({
     'pages/index/index',
     'pages/contact/index',
     'pages/profile/index',
-    'pages/chat/index'
+    'pages/chat/index',
+    'pages/contact/apply/index',
+    'pages/contact/search/index',
+    'pages/profile/edit/index'
   ],
   window: {
     backgroundTextStyle: 'light',
