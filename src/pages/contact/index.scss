@@ -1,36 +1,36 @@
-.contact-body {
-  /* Group Header Style */
-  .contact-group-header {
-    display: block;
-    padding: 32rpx 32rpx 16rpx;
-    font-size: 26rpx;
-    color: var(--ios-text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.5rpx;
-  }
+.contact-divider {
+  padding: 16rpx 32rpx;
+  font-size: 26rpx;
+  color: var(--ios-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1rpx;
 }
 
-.friends-section {
-  background-color: var(--ios-bg-primary);
-  /* The mall-list-item inside will handle hairlines */
+.icon-box {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+
+  &.orange { background: var(--ios-orange); shadow: 0 4rpx 12rpx rgba(255, 149, 0, 0.3); }
+  &.blue { background: var(--ios-blue); shadow: 0 4rpx 12rpx rgba(0, 122, 255, 0.3); }
 }
 
-.friend-item {
-  &__avatar {
-    width: 80rpx;
-    height: 80rpx;
-    margin-right: 24rpx;
-    flex-shrink: 0;
-  }
+.mall-page__body {
+  flex: 1;
+  background-color: var(--ios-bg-secondary);
+  padding-bottom: 40rpx;
+}
 
-  &__main {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__name {
-    font-size: 32rpx;
-    color: var(--ios-text-primary);
-    font-weight: 400;
+/* Customizing taroify cell for contact items */
+.van-cell {
+  align-items: center !important;
+  padding: 24rpx 32rpx !important;
+  
+  &__title {
+    font-size: 32rpx !important;
   }
 }

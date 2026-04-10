@@ -1,40 +1,21 @@
-.profile-header {
-  display: flex;
-  align-items: center;
-  padding: 64rpx 32rpx;
-  background-color: var(--ios-bg-primary);
-  /* Gentle gradient for a premium feel */
-  background: linear-gradient(to bottom, #FFFFFF, #FAFAFA);
-
-  &__avatar-img {
-    width: 140rpx;
-    height: 140rpx;
-    margin-right: 32rpx;
-    background-color: #F2F2F7;
-    border: 2rpx solid rgba(0, 0, 0, 0.05); /* Subtle border for definition */
-  }
-
-  &__main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  &__name {
-    font-size: 44rpx;
-    font-weight: 700;
-    color: var(--ios-text-primary);
-    margin-bottom: 12rpx;
-    letter-spacing: -0.5rpx;
-  }
-
-  &__id {
-    font-size: 28rpx;
-    color: var(--ios-text-tertiary);
-  }
+.profile-footer {
+  text-align: center;
+  margin: 64rpx 0 120rpx;
+  color: var(--ios-text-tertiary);
+  font-size: 24rpx;
 }
 
-.profile-body {
-  margin-top: 32rpx;
+.mall-page__body {
+  flex: 1;
+  background-color: var(--ios-bg-secondary);
+}
+
+/* Customizing taroify cell for profile items */
+.van-cell {
+  align-items: center !important;
+  padding: 24rpx 32rpx !important;
+  
+  &__title {
+    font-size: 32rpx !important;
+  }
 }

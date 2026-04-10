@@ -3,6 +3,7 @@ import { Provider } from 'react-redux'
 import { store } from '@/store'
 
 // 核心样式
+import '@taroify/core/index.css'
 import '@taroify/icons/index.css'
 import './app.scss'
 

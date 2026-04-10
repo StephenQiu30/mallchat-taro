@@ -41,6 +41,7 @@ export default defineConfig<'vite'>(async (merge) => {
         css: {
           preprocessorOptions: {
             scss: {
+              api: 'modern-compiler',
               silenceDeprecations: ['legacy-js-api'],
             },
           },
@@ -67,6 +68,7 @@ export default defineConfig<'vite'>(async (merge) => {
         css: {
           preprocessorOptions: {
             scss: {
+              api: 'modern-compiler',
               silenceDeprecations: ['legacy-js-api'],
             },
           },
