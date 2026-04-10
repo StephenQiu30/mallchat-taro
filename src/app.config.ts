@@ -4,6 +4,8 @@ export default defineAppConfig({
     'pages/contact/index',
     'pages/profile/index',
     'pages/chat/index',
+    'pages/chat/ai/index',
+    'pages/notification/index',
     'pages/contact/apply/index',
     'pages/contact/search/index',
     'pages/profile/edit/index'

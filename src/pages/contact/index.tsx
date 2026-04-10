@@ -1,149 +1,122 @@
 import { useState, useCallback } from 'react'
-import { Input, Text, View, Image } from '@tarojs/components'
-import { Search, Manager, Arrow } from '@taroify/icons'
-import Taro, { useDidShow } from '@tarojs/taro'
+import { View, ScrollView } from '@tarojs/components'
+import { UserOutlined, Search as SearchIcon, Plus } from '@taroify/icons'
+import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listFriends } from '@/api/chat/chatFriendController'
-import { getOrCreatePrivateRoom } from '@/api/chat/chatRoomController'
-import { Skeleton, Empty } from '@taroify/core'
+import { Skeleton, Empty, Search, Cell, Avatar } from '@taroify/core'
 
 import './index.scss'
 
-export default function ContactIndex() {
+export default function ContactPage() {
   const { isLoggedIn } = useSelector((state: RootState) => state.user)
-  const [friends, setFriends] = useState<ChatAPI.ChatFriendUserVO[]>([])
+  const [listData, setListData] = useState<ChatAPI.ChatFriendUserVO[]>([])
   const [loading, setLoading] = useState(true)
 
-  const fetchFriends = useCallback(async () => {
+  const fetchFriends = useCallback(async (isSilent = false) => {
     if (!isLoggedIn) {
-      // Not logged in — keep skeleton visible as placeholder
-      setFriends([])
+      setListData([])
+      Taro.stopPullDownRefresh()
       return
     }
-    setLoading(true)
+    
+    if (!isSilent) setLoading(true)
     try {
       const res = await listFriends()
       if (res.code === 0 && res.data) {
-        setFriends(res.data)
+        setListData(res.data)
       }
     } catch (err) {
       console.error('Fetch friends failed:', err)
     } finally {
       setLoading(false)
+      Taro.stopPullDownRefresh()
     }
   }, [isLoggedIn])
 
   useDidShow(() => {
+    fetchFriends(listData.length > 0)
+  })
+
+  usePullDownRefresh(() => {
     fetchFriends()
   })
 
-  const handleFriendClick = async (friend: ChatAPI.ChatFriendUserVO) => {
-    try {
-      Taro.showLoading({ title: '加载中...' })
-      const res = await getOrCreatePrivateRoom({ peerUserId: friend.id! })
-      if (res.code === 0 && res.data) {
-        Taro.navigateTo({
-          url: `/pages/chat/index?id=${res.data}&name=${encodeURIComponent(friend.userName || '')}`
-        })
-      }
-    } catch (err) {
-      console.error('Get private room failed:', err)
-      Taro.showToast({ title: '打开聊天失败', icon: 'none' })
-    } finally {
-      Taro.hideLoading()
-    }
-  }
-
   return (
     <View className='mall-page'>
-      {/* Search */}
-      <View className='ios-search'>
-        <View className='ios-search__inner'>
-          <Search size='16px' style={{ color: '#8E8E93' }} />
-          <Input
-            className='ios-search__input'
-            placeholder='搜索联系人'
-            placeholderStyle='color: #8E8E93;'
+      <View className='ios-glass-header'>
+        <View className='search-container' style={{ display: 'flex', alignItems: 'center', gap: '16rpx' }}>
+          <View style={{ flex: 1 }}>
+            <Search 
+              placeholder='搜索联系人' 
+              style={{ 
+                '--search-background-color': '#E9E9EB',
+                '--search-padding': '8rpx 16rpx',
+                '--search-input-height': '72rpx'
+              }} 
+            />
+          </View>
+          <View className='icon-btn' style={{ width: '72rpx', height: '72rpx' }}>
+            <Plus size='20px' color='var(--ios-blue)' />
+          </View>
+        </View>
+      </View>
+
+      <ScrollView scrollY className='mall-page__body'>
+        {/* Entry Groups */}
+        <View className='ios-card-group'>
+          <Cell 
+            title='新的朋友' 
+            icon={<View className='icon-box orange'><UserOutlined color='#fff' /></View>} 
+            clickable
+            onClick={() => Taro.navigateTo({ url: '/pages/contact/apply/index' })}
+          />
+          <Cell 
+            title='搜索发现' 
+            icon={<View className='icon-box blue'><SearchIcon color='#fff' /></View>} 
+            clickable
+            onClick={() => Taro.navigateTo({ url: '/pages/contact/search/index' })}
           />
         </View>
-      </View>
 
-      <View className='mall-page__body'>
-        <View className='contact-body'>
-          {/* Function entries card */}
-          <View className='ios-card-group' style={{ marginTop: '16rpx' }}>
-            <View
-              className='ios-card-item'
-              hoverClass='ios-card-item--pressed'
-              onClick={() => Taro.navigateTo({ url: '/pages/contact/apply/index' })}
-            >
-              <View className='ios-card-item__icon mall-avatar mall-avatar--rounded mall-avatar--orange'>
-                <Manager size='22px' />
-              </View>
-              <View className='ios-card-item__content'>
-                <Text className='ios-card-item__title'>新朋友</Text>
-                <View style={{ display: 'flex', alignItems: 'center' }}>
-                  <View className='mall-dot' style={{ marginRight: '16rpx' }} />
-                  <Arrow size='16px' style={{ color: '#C7C7CC' }} />
+        <View className='ios-group-title'>所有联系人</View>
+
+        {loading && listData.length === 0 ? (
+          <View style={{ padding: '32rpx' }}>
+            {[1, 2, 3, 4, 5].map(i => (
+              <View key={i} style={{ display: 'flex', marginBottom: '32rpx', gap: '24rpx' }}>
+                <Skeleton variant='circle' width='80rpx' height='80rpx' />
+                <View style={{ flex: 1, paddingTop: '16rpx' }}>
+                  <Skeleton variant='rect' height='32rpx' width='40%' />
                 </View>
               </View>
-            </View>
-            <View
-              className='ios-card-item'
-              hoverClass='ios-card-item--pressed'
-              onClick={() => Taro.navigateTo({ url: '/pages/contact/search/index' })}
-            >
-              <View className='ios-card-item__icon mall-avatar mall-avatar--rounded mall-avatar--blue'>
-                <Search size='22px' />
-              </View>
-              <View className='ios-card-item__content last'>
-                <Text className='ios-card-item__title'>搜索用户</Text>
-                <Arrow size='16px' style={{ color: '#C7C7CC' }} />
-              </View>
-            </View>
+            ))}
           </View>
-
-          {/* Friends list */}
-          <Text className='contact-group-header'>我的好友</Text>
-          <View className='friends-section'>
-            {loading ? (
-              <View style={{ padding: '0 32rpx', backgroundColor: '#fff' }}>
-                {[1, 2, 3, 4].map(i => (
-                  <View key={i} style={{ display: 'flex', padding: '24rpx 0', gap: '24rpx', borderBottom: '1rpx solid #f0f0f0' }}>
-                    <Skeleton variant='rect' width='72rpx' height='72rpx' style={{ borderRadius: '12rpx' }} />
-                    <View style={{ flex: 1, paddingTop: '16rpx' }}>
-                      <Skeleton variant='rect' height='28rpx' width='40%' />
-                    </View>
-                  </View>
-                ))}
-              </View>
-            ) : friends.length === 0 ? (
-              <Empty>
-                <Empty.Image src='default' />
-                <Empty.Description>暂无好友</Empty.Description>
-              </Empty>
-            ) : (
-              friends.map((friend) => (
-                <View
-                  key={friend.id}
-                  className='mall-list-item'
-                  onClick={() => handleFriendClick(friend)}
-                >
-                  <Image
-                    src={friend.userAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${friend.id}`}
-                    className='mall-avatar mall-avatar--rounded friend-item__avatar'
-                    mode='aspectFill'
+        ) : listData.length === 0 ? (
+          <Empty style={{ marginTop: '10vh' }}>
+            <Empty.Description>暂无好友</Empty.Description>
+          </Empty>
+        ) : (
+          <View className='ios-card-group'>
+            {listData.map((friend, idx) => (
+              <Cell
+                key={friend.id}
+                title={friend.userName}
+                icon={
+                  <Avatar 
+                    className='mall-avatar'
+                    src={friend.userAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${friend.id}`} 
+                    style={{ width: '80rpx', height: '80rpx', marginRight: '24rpx' }}
                   />
-                  <View className='friend-item__main'>
-                    <Text className='friend-item__name mall-text-ellipsis'>{friend.userName || '未知用户'}</Text>
-                  </View>
-                </View>
-              ))
-            )}
+                }
+                clickable
+                style={{ borderBottom: idx === listData.length - 1 ? 'none' : '1rpx solid var(--ios-separator)' }}
+              />
+            ))}
           </View>
-        </View>
-      </View>
+        )}
+      </ScrollView>
     </View>
   )
 }
