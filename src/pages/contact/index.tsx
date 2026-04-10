@@ -72,18 +72,21 @@ export default function ContactIndex() {
       <View className='mall-page__body'>
         <View className='contact-body'>
           {/* Function entries card */}
-          <View className='ios-card-group'>
+          <View className='ios-card-group' style={{ marginTop: '16rpx' }}>
             <View
               className='ios-card-item'
               hoverClass='ios-card-item--pressed'
               onClick={() => Taro.navigateTo({ url: '/pages/contact/apply/index' })}
             >
-              <View className='ios-card-item__icon mall-avatar mall-avatar--orange'>
-                <Manager size='24px' />
+              <View className='ios-card-item__icon mall-avatar mall-avatar--rounded mall-avatar--orange'>
+                <Manager size='22px' />
               </View>
               <View className='ios-card-item__content'>
                 <Text className='ios-card-item__title'>新朋友</Text>
-                <Arrow size='16px' style={{ color: '#C7C7CC' }} />
+                <View style={{ display: 'flex', alignItems: 'center' }}>
+                  <View className='mall-dot' style={{ marginRight: '16rpx' }} />
+                  <Arrow size='16px' style={{ color: '#C7C7CC' }} />
+                </View>
               </View>
             </View>
             <View
@@ -91,8 +94,8 @@ export default function ContactIndex() {
               hoverClass='ios-card-item--pressed'
               onClick={() => Taro.navigateTo({ url: '/pages/contact/search/index' })}
             >
-              <View className='ios-card-item__icon mall-avatar mall-avatar--blue'>
-                <Search size='24px' />
+              <View className='ios-card-item__icon mall-avatar mall-avatar--rounded mall-avatar--blue'>
+                <Search size='22px' />
               </View>
               <View className='ios-card-item__content last'>
                 <Text className='ios-card-item__title'>搜索用户</Text>
@@ -103,37 +106,37 @@ export default function ContactIndex() {
 
           {/* Friends list */}
           <Text className='contact-group-header'>我的好友</Text>
-          <View className='ios-card-group'>
+          <View className='friends-section'>
             {loading ? (
-              <View style={{ padding: '16rpx 24rpx' }}>
+              <View style={{ padding: '0 32rpx', backgroundColor: '#fff' }}>
                 {[1, 2, 3, 4].map(i => (
-                  <View key={i} style={{ display: 'flex', padding: '16rpx 0', gap: '24rpx' }}>
-                    <Skeleton variant='circle' width='64rpx' height='64rpx' />
-                    <View style={{ flex: 1, paddingTop: '10rpx' }}>
-                      <Skeleton variant='rect' height='28rpx' width='50%' />
+                  <View key={i} style={{ display: 'flex', padding: '24rpx 0', gap: '24rpx', borderBottom: '1rpx solid #f0f0f0' }}>
+                    <Skeleton variant='rect' width='72rpx' height='72rpx' style={{ borderRadius: '12rpx' }} />
+                    <View style={{ flex: 1, paddingTop: '16rpx' }}>
+                      <Skeleton variant='rect' height='28rpx' width='40%' />
                     </View>
                   </View>
                 ))}
               </View>
             ) : friends.length === 0 ? (
-              <Empty style={{ padding: '48rpx 0' }}>
-                <Empty.Image src='network' />
+              <Empty>
+                <Empty.Image src='default' />
                 <Empty.Description>暂无好友</Empty.Description>
               </Empty>
             ) : (
               friends.map((friend) => (
                 <View
                   key={friend.id}
-                  className='friend-item'
-                  hoverClass='friend-item--pressed'
+                  className='mall-list-item'
                   onClick={() => handleFriendClick(friend)}
                 >
                   <Image
                     src={friend.userAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${friend.id}`}
-                    className='friend-item__avatar'
+                    className='mall-avatar mall-avatar--rounded friend-item__avatar'
+                    mode='aspectFill'
                   />
                   <View className='friend-item__main'>
-                    <Text className='friend-item__name'>{friend.userName || '未知用户'}</Text>
+                    <Text className='friend-item__name mall-text-ellipsis'>{friend.userName || '未知用户'}</Text>
                   </View>
                 </View>
               ))

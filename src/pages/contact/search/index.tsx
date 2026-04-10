@@ -111,9 +111,9 @@ export default function UserSearchIndex() {
               ))}
             </View>
           ) : searched && results.length === 0 ? (
-            <Empty style={{ marginTop: '100rpx' }}>
+            <Empty>
               <Empty.Image src='search' />
-              <Empty.Description>未找到匹配用户</Empty.Description>
+              <Empty.Description>未找到相关用户</Empty.Description>
             </Empty>
           ) : !searched ? (
             <View className='search-hint'>
@@ -129,7 +129,7 @@ export default function UserSearchIndex() {
               >
                 <Image
                   src={user.userAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${user.id}`}
-                  className='search-user-item__avatar'
+                  className='mall-avatar mall-avatar--rounded search-user-item__avatar'
                 />
                 <View className='search-user-item__main'>
                   <Text className='search-user-item__name'>{user.userName || '未知用户'}</Text>
