@@ -1,68 +1,108 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { Input, ScrollView, Text, View, Image } from '@tarojs/components'
 import { Audio, NotesOutlined, Plus, SmileOutlined } from '@taroify/icons'
-import { useRouter } from '@tarojs/taro'
-import { useDispatch } from 'react-redux'
-import { MOCK_CHATS, type ChatMessage } from '@/services/mockData'
-import { setActiveTab } from '@/store/slices/appSlice'
+import Taro, { useRouter } from '@tarojs/taro'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store'
+import { listHistoryMessages, sendMessage } from '@/api/chat/chatMessageController'
+import { Skeleton } from '@taroify/core'
 
 import './index.scss'
 
-function formatClockTime() {
-  const now = new Date()
-  const hour = String(now.getHours()).padStart(2, '0')
-  const minute = String(now.getMinutes()).padStart(2, '0')
-  return `${hour}:${minute}`
-}
-
 export default function ChatDetail() {
-  const dispatch = useDispatch()
   const router = useRouter()
-  const { id } = router.params
+  const { id: roomId, name: roomName } = router.params
+  const { userInfo } = useSelector((state: RootState) => state.user)
   
-  // Use the name from params if possible, though we rely on native header for title
-  const [messages, setMessages] = useState<ChatMessage[]>(() => MOCK_CHATS[id || '1'] || [])
+  const [messages, setMessages] = useState<ChatAPI.ChatMessageVO[]>([])
+  const [loading, setLoading] = useState(true)
   const [inputValue, setInputValue] = useState('')
   const [scrollIntoView, setScrollIntoView] = useState('')
+  const [sending, setSending] = useState(false)
+  
+  const pollingTimer = useRef<NodeJS.Timeout>()
 
-  useEffect(() => {
-    dispatch(setActiveTab('chat'))
-  }, [dispatch])
+  const fetchMessages = useCallback(async (isSilent = false) => {
+    if (!roomId) return
+    
+    if (!isSilent) setLoading(true)
+    try {
+      const res = await listHistoryMessages({
+        roomId: Number(roomId),
+        limit: 50
+      })
+      if (res.code === 0 && res.data) {
+        // Reverse because history might be desc, but we want asc for bubble display
+        // Actually, the API says "history", usually it returns latest first or specific order.
+        // If it's DESC, we reverse it. Based on common IM patterns, we want [oldest ... newest]
+        const sortedMsgs = [...(res.data || [])].sort((a, b) => 
+          new Date(a.createTime || 0).getTime() - new Date(b.createTime || 0).getTime()
+        )
+        setMessages(sortedMsgs)
+      }
+    } catch (err) {
+      console.error('Fetch messages failed:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [roomId])
 
+  // Initial load and title setup
   useEffect(() => {
-    const chatMsg = MOCK_CHATS[id || '1'] || []
-    setMessages(chatMsg)
-  }, [id])
+    if (roomName) {
+      Taro.setNavigationBarTitle({ title: decodeURIComponent(roomName) })
+    }
+    fetchMessages()
+    
+    // Simple polling for real-time feel in MVP
+    pollingTimer.current = setInterval(() => {
+      fetchMessages(true)
+    }, 5000)
+
+    return () => {
+      if (pollingTimer.current) clearInterval(pollingTimer.current)
+    }
+  }, [roomId, roomName, fetchMessages])
 
   // Scroll to bottom when messages change
   useEffect(() => {
     if (messages.length > 0) {
       const lastId = messages[messages.length - 1].id
-      // Delay slightly to ensure DOM is ready
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         setScrollIntoView(`msg-${lastId}`)
-      }, 100)
-      return () => clearTimeout(timer)
+      }, 200)
     }
   }, [messages])
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const text = inputValue.trim()
-    if (!text) return
+    if (!text || sending || !roomId) return
 
-    const newMsg: ChatMessage = {
-      id: `new-${Date.now()}`,
-      senderId: 'me',
-      senderName: '我',
-      avatarLabel: '我',
-      avatarTone: 'sky',
-      content: text,
-      time: formatClockTime(),
-      type: 'text',
+    setSending(true)
+    try {
+      const res = await sendMessage({
+        roomId: Number(roomId),
+        content: text,
+        type: 1 // 1-Text
+      })
+      
+      if (res.code === 0) {
+        setInputValue('')
+        // Refresh messages immediately
+        await fetchMessages(true)
+      }
+    } catch (err) {
+      console.error('Send message failed:', err)
+      Taro.showToast({ title: '发送失败', icon: 'none' })
+    } finally {
+      setSending(false)
     }
+  }
 
-    setMessages(prev => [...prev, newMsg])
-    setInputValue('')
+  const formatTime = (timeStr?: string) => {
+    if (!timeStr) return ''
+    const date = new Date(timeStr.replace(/-/g, '/'))
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
   }
 
   const hasText = inputValue.trim().length > 0
@@ -78,48 +118,43 @@ export default function ChatDetail() {
         scrollIntoView={scrollIntoView}
       >
         <View className='chat-page__content'>
-          <View className='chat-page__timestamp'>
-            <Text className='chat-page__timestamp-text'>{messages[0]?.time || '刚刚'}</Text>
-          </View>
+          {loading && messages.length === 0 ? (
+            <View style={{ padding: '32rpx' }}>
+              <Skeleton variant='rect' height='60rpx' width='60%' style={{ marginBottom: '32rpx', borderRadius: '12rpx' }} />
+              <Skeleton variant='rect' height='60rpx' width='40%' style={{ alignSelf: 'flex-end', marginBottom: '32rpx', borderRadius: '12rpx' }} />
+              <Skeleton variant='rect' height='80rpx' width='70%' style={{ marginBottom: '32rpx', borderRadius: '12rpx' }} />
+            </View>
+          ) : messages.length === 0 ? (
+            <View className='chat-page__empty'>
+              <Text className='chat-page__empty-text'>暂无消息，开始聊天吧</Text>
+            </View>
+          ) : (
+            messages.map((msg) => {
+              const isMe = msg.fromUserId === userInfo?.id
+              return (
+                <View
+                  id={`msg-${msg.id}`}
+                  key={msg.id}
+                  className={`chat-message ${isMe ? 'chat-message--mine' : ''}`}
+                >
+                  <View className={`mall-avatar mall-avatar--circle mall-avatar--${isMe ? 'blue' : 'gray'} chat-message__avatar`}>
+                    <Image 
+                      src={msg.fromUserAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${msg.fromUserId}`} 
+                      className='chat-message__avatar-img' 
+                    />
+                  </View>
 
-          {messages.map((msg) => {
-            const isMe = msg.senderId === 'me'
-            return (
-              <View
-                id={`msg-${msg.id}`}
-                key={msg.id}
-                className={`chat-message ${isMe ? 'chat-message--mine' : ''}`}
-              >
-                <View className={`mall-avatar mall-avatar--circle mall-avatar--${isMe ? 'blue' : msg.avatarTone} chat-message__avatar`}>
-                  {isMe ? (
-                    <Image src='https://i.pravatar.cc/150?img=11' className='chat-message__avatar-img' />
-                  ) : (
-                    <Text className='chat-message__avatar-text'>{msg.avatarLabel}</Text>
-                  )}
-                </View>
-
-                <View className='chat-message__body'>
-                  {msg.type === 'text' && (
+                  <View className='chat-message__body'>
+                    {!isMe && <Text className='chat-message__sender-name'>{msg.fromUserName}</Text>}
                     <View className={`chat-bubble ${isMe ? 'chat-bubble--mine' : ''}`}>
                       <Text className='chat-bubble__text'>{msg.content}</Text>
                     </View>
-                  )}
-
-                  {msg.type === 'file' && (
-                    <View className='chat-file-card' hoverClass='chat-file-card--pressed'>
-                      <View className='chat-file-card__icon'>
-                        <NotesOutlined size='28px' style={{ color: '#f59e0b' }} />
-                      </View>
-                      <View className='chat-file-card__main'>
-                        <Text className='chat-file-card__name mall-text-ellipsis'>{msg.fileName}</Text>
-                        <Text className='chat-file-card__size'>{msg.fileSize}</Text>
-                      </View>
-                    </View>
-                  )}
+                    <Text className='chat-message__time-inline'>{formatTime(msg.createTime)}</Text>
+                  </View>
                 </View>
-              </View>
-            )
-          })}
+              )
+            })
+          )}
           {/* Bottom spacer for scroll area */}
           <View style={{ height: '32rpx' }} />
         </View>
@@ -143,18 +178,19 @@ export default function ChatDetail() {
               confirmType='send'
               adjustPosition
               cursorSpacing={20}
+              disabled={sending}
             />
           </View>
 
           <View className='chat-page__action-icons'>
             <SmileOutlined size='22px' style={{ color: '#8E8E93' }} />
             <View
-              className={`chat-page__plus-btn ${hasText ? 'is-send' : ''}`}
+              className={`chat-page__plus-btn ${hasText ? 'is-send' : ''} ${sending ? 'is-loading' : ''}`}
               onClick={handleSend}
               hoverClass='chat-page__plus-btn--pressed'
             >
               {hasText ? (
-                <Text className='chat-page__send-label'>发送</Text>
+                <Text className='chat-page__send-label'>{sending ? '...' : '发送'}</Text>
               ) : (
                 <Plus size='18px' style={{ color: '#fff' }} />
               )}
