@@ -6,7 +6,8 @@ import Taro, { useRouter } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listHistoryMessages, sendMessage, markMessageRead, recallMessage } from '@/api/chat/chatMessageController'
-import { Skeleton, Empty, Avatar, Button } from '@taroify/core'
+import { Avatar, Button } from '@taroify/core'
+import ListStatus from '@/components/ListStatus'
 
 import './index.scss'
 
@@ -105,6 +106,7 @@ export default function ChatDetail() {
     try {
       const res = await sendMessage({
         roomId: Number(roomId),
+        clientMsgId: `local-${Date.now()}`,
         content: text,
         type: 1
       })
@@ -181,7 +183,7 @@ export default function ChatDetail() {
   }
 
   return (
-    <View className='mall-page'>
+    <View className='mall-page chat-page'>
       <ScrollView
         scrollY
         enhanced
@@ -189,73 +191,64 @@ export default function ChatDetail() {
         className='mall-page__body'
         scrollIntoView={scrollIntoView}
       >
-        <View style={{ padding: '32rpx' }}>
+        <View className='mall-page__content mall-page__content--composer chat-page__content'>
           {!isLoggedIn ? (
-            <Empty style={{ marginTop: '20vh' }}>
-              <Empty.Description>登录后查看聊天内容</Empty.Description>
-            </Empty>
+            <ListStatus kind='login' description='登录后查看聊天内容' />
           ) : !roomId ? (
-            <Empty style={{ marginTop: '20vh' }}>
-              <Empty.Description>未找到当前会话</Empty.Description>
-            </Empty>
+            <ListStatus kind='empty' description='未找到当前会话' />
           ) : loading && messages.length === 0 ? (
-            <View>
-              <Skeleton avatar title row={1} loading style={{ marginBottom: '32rpx' }} />
-              <Skeleton avatar title row={1} loading style={{ marginBottom: '32rpx' }} />
-            </View>
+            <ListStatus kind='loading' description='' skeletonRows={3} />
           ) : messages.length === 0 ? (
-            <Empty style={{ marginTop: '20vh' }}>
-              <Empty.Description>暂无消息，开始聊天吧</Empty.Description>
-            </Empty>
+            <ListStatus kind='empty' description='暂无消息，开始聊天吧' />
           ) : (
             messages.map((msg, index) => {
               const isMe = msg.fromUserId === userInfo?.id
               const prevMsg = messages[index - 1]
               const showUser = !prevMsg || prevMsg.fromUserId !== msg.fromUserId
+              const showTime = showUser || !prevMsg || formatTime(prevMsg.createTime) !== formatTime(msg.createTime)
               
               return (
-                <View
-                  id={`msg-${msg.id}`}
-                  key={msg.id}
-                  className={`chat-message ${isMe ? 'chat-message--mine' : ''} ${!showUser ? 'chat-message--collapsed' : ''}`}
-                  onLongPress={() => handleMessageLongPress(msg, isMe)}
-                >
-                  {showUser && !isMe && (
-                    <Avatar 
-                      className='mall-avatar'
-                      src={msg.fromUserAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${msg.fromUserId}`} 
-                      style={{ width: '72rpx', height: '72rpx', flexShrink: 0, marginTop: '12rpx' }}
-                    />
-                  )}
-                  {(!showUser || isMe) && !isMe && <View style={{ width: '72rpx' }} />}
-
-                  <View className='chat-message__body' style={{ margin: isMe ? '0 0 0 0' : '0 0 0 16rpx', maxWidth: '75%' }}>
-                    {!isMe && showUser && <Text style={{ fontSize: '22rpx', color: 'var(--ios-text-tertiary)', marginBottom: '4rpx', marginLeft: '12rpx' }}>{msg.fromUserName}</Text>}
-                    <View 
-                      className={`chat-bubble ${isMe ? 'chat-bubble--mine' : 'chat-bubble--other'}`}
-                    >
-                      {renderMessageContent(msg, isMe)}
-                    </View>
-                    {showUser && (
-                      <View style={{ marginTop: '8rpx', display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
-                        <Text style={{ fontSize: '20rpx', color: 'var(--ios-text-tertiary)' }}>{formatTime(msg.createTime)}</Text>
-                      </View>
+                <View key={msg.id}>
+                  {showTime ? <View className='chat-message__time-divider'>{formatTime(msg.createTime)}</View> : null}
+                  <View
+                    id={`msg-${msg.id}`}
+                    className={`chat-message ${isMe ? 'chat-message--mine' : ''} ${!showUser ? 'chat-message--collapsed' : ''}`}
+                    onLongPress={() => handleMessageLongPress(msg, isMe)}
+                  >
+                    {showUser && !isMe && (
+                      <Avatar
+                        className='mall-avatar mall-avatar--circle'
+                        src={msg.fromUserAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${msg.fromUserId}`}
+                        style={{ width: '72rpx', height: '72rpx', flexShrink: 0, marginTop: '10rpx' }}
+                      />
                     )}
-                  </View>
+                    {(!showUser || isMe) && !isMe && <View className='chat-message__ghost-avatar' />}
 
-                  {showUser && isMe && (
-                    <Avatar 
-                      className='mall-avatar'
-                      src={msg.fromUserAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${msg.fromUserId}`} 
-                      style={{ width: '72rpx', height: '72rpx', flexShrink: 0, marginTop: '12rpx', marginLeft: '16rpx' }}
-                    />
-                  )}
-                  {(!showUser || !isMe) && isMe && <View style={{ width: '72rpx', marginLeft: '16rpx' }} />}
+                    <View className='chat-message__body'>
+                      {!isMe && showUser ? <Text className='chat-message__author'>{msg.fromUserName}</Text> : null}
+                      <View className={`chat-bubble ${isMe ? 'chat-bubble--mine' : 'chat-bubble--other'}`}>
+                        {renderMessageContent(msg, isMe)}
+                      </View>
+                      {showUser ? (
+                        <View className={`chat-message__meta ${isMe ? 'chat-message__meta--mine' : ''}`}>
+                          <Text>{formatTime(msg.createTime)}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+
+                    {showUser && isMe && (
+                      <Avatar
+                        className='mall-avatar mall-avatar--circle'
+                        src={msg.fromUserAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${msg.fromUserId}`}
+                        style={{ width: '72rpx', height: '72rpx', flexShrink: 0, marginTop: '10rpx', marginLeft: '16rpx' }}
+                      />
+                    )}
+                    {(!showUser || !isMe) && isMe && <View className='chat-message__ghost-avatar chat-message__ghost-avatar--mine' />}
+                  </View>
                 </View>
               )
             })
           )}
-          <View style={{ height: '32rpx' }} />
         </View>
       </ScrollView>
 

@@ -1,18 +1,22 @@
 import { useState, useCallback } from 'react'
 import type { CSSProperties } from 'react'
-import { View, ScrollView } from '@tarojs/components'
+import { View } from '@tarojs/components'
 import { Comment } from '@taroify/icons'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listMySessions, topSession, deleteSession } from '@/api/chat/chatSessionController'
 import { refreshNotificationBadge } from '@/utils/notification'
-import { Skeleton, Empty, Search, Cell, Avatar, Badge, Button } from '@taroify/core'
+import { Search, Avatar, Badge } from '@taroify/core'
+import PageShell from '@/components/PageShell'
+import ActionPill from '@/components/ActionPill'
+import ListStatus from '@/components/ListStatus'
 
 import './index.scss'
 
 const searchStyle = {
-  '--search-background-color': '#E9E9EB',
+  '--search-background-color': '#F3F4F6',
+  '--search-content-background-color': '#FFFFFF',
   '--search-padding': '8rpx 16rpx',
   '--search-input-height': '72rpx',
 } as CSSProperties
@@ -119,98 +123,68 @@ export default function MessageIndex() {
   })
 
   return (
-    <View className='mall-page'>
-      <View className='ios-glass-header'>
-        <View className='search-container' style={{ display: 'flex', alignItems: 'center', gap: '16rpx' }}>
-          <View style={{ flex: 1 }}>
-            <Search 
-              placeholder='搜索聊天记录' 
-              value={keyword}
-              onChange={(event) => setKeyword(event.detail.value)}
-              onClear={() => setKeyword('')}
-              style={searchStyle}
-            />
-          </View>
-          <View className='icon-btn' onClick={() => Taro.navigateTo({ url: '/pages/chat/ai/index' })} style={{ width: '72rpx', height: '72rpx' }}>
-            <Comment size='20px' color='var(--ios-blue)' />
-          </View>
+    <PageShell
+      header={(
+        <View className='mall-page-toolbar'>
+          <Search
+            placeholder='搜索聊天记录'
+            value={keyword}
+            onChange={(event) => setKeyword(event.detail.value)}
+            onClear={() => setKeyword('')}
+            style={searchStyle}
+          />
+          <ActionPill
+            icon={<Comment size='18px' color='#0A84FF' />}
+            text='AI 助手'
+            onClick={() => Taro.navigateTo({ url: '/pages/chat/ai/index' })}
+          />
         </View>
-      </View>
-
-      <ScrollView scrollY className='mall-page__body'>
-        {!isLoggedIn ? (
-          <Empty style={{ marginTop: '20vh' }}>
-            <Empty.Description>登录后查看你的会话列表</Empty.Description>
-            <Button
-              color='primary'
-              shape='round'
-              size='small'
-              style={{ marginTop: '24rpx' }}
-              onClick={() => Taro.switchTab({ url: '/pages/profile/index' })}
+      )}
+      contentClassName='mall-page__content--top-gap'
+    >
+      {!isLoggedIn ? (
+        <ListStatus kind='login' description='登录后查看你的会话列表' />
+      ) : loading && listData.length === 0 ? (
+        <ListStatus kind='loading' description='' skeletonRows={5} />
+      ) : filteredSessions.length === 0 ? (
+        <ListStatus kind='empty' description={keyword.trim() ? '未找到相关会话' : '开启你的第一条消息'} />
+      ) : (
+        <View className='mall-card-list'>
+          {filteredSessions.map((session) => (
+            <View
+              key={session.roomId}
+              className={`mall-card-item mall-card-item--active ${session.topStatus === 1 ? 'mall-card-item--highlight session-card--pinned' : ''}`}
+              onClick={() => Taro.navigateTo({
+                url: `/pages/chat/index?id=${session.roomId}&name=${encodeURIComponent(session.name || '')}`
+              })}
+              onLongPress={() => handleLongPress(session)}
             >
-              去登录
-            </Button>
-          </Empty>
-        ) : loading && listData.length === 0 ? (
-          <View style={{ padding: '32rpx' }}>
-            {[1, 2, 3, 4, 5].map(i => (
-              <View key={i} style={{ marginBottom: '32rpx' }}>
-                <Skeleton avatar title row={2} loading />
+              <View className='session-card__avatar'>
+                <Avatar
+                  className='mall-avatar'
+                  src={session.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${session.roomId}`}
+                  style={{ width: '104rpx', height: '104rpx' }}
+                />
+                {(session.unreadCount || 0) > 0 ? (
+                  <Badge
+                    className='session-card__badge'
+                    content={(session.unreadCount || 0) > 99 ? '99+' : session.unreadCount}
+                  />
+                ) : null}
               </View>
-            ))}
-          </View>
-        ) : filteredSessions.length === 0 ? (
-          <Empty style={{ marginTop: '20vh' }}>
-            <Empty.Image src='default' />
-            <Empty.Description>{keyword.trim() ? '未找到相关会话' : '开启你的第一条消息'}</Empty.Description>
-          </Empty>
-        ) : (
-          <Cell.Group>
-            {filteredSessions.map((session) => (
-              <Cell
-                key={session.roomId}
-                clickable
-                onClick={() => Taro.navigateTo({ 
-                  url: `/pages/chat/index?id=${session.roomId}&name=${encodeURIComponent(session.name || '')}` 
-                })}
-                onLongPress={() => handleLongPress(session)}
-                title={session.name}
-                brief={session.lastMessage || '暂无内容'}
-                icon={
-                  <View className='session-avatar-wrap'>
-                    <Avatar 
-                      className='mall-avatar'
-                      src={session.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${session.roomId}`} 
-                      style={{ width: '100rpx', height: '100rpx' }}
-                    />
-                    {(session.unreadCount || 0) > 0 && (
-                      <Badge 
-                        content={(session.unreadCount || 0) > 99 ? '99+' : session.unreadCount} 
-                        style={{ 
-                          position: 'absolute', 
-                          top: '-4rpx', 
-                          right: '-4rpx',
-                          backgroundColor: 'var(--ios-red)',
-                          border: '4rpx solid #fff'
-                        }} 
-                      />
-                    )}
-                  </View>
-                }
-                titleStyle={{ fontWeight: 500 }}
-                style={{
-                  backgroundColor: session.topStatus === 1 ? 'var(--ios-bg-secondary)' : '#fff',
-                  padding: '28rpx 32rpx'
-                }}
-              >
-                <View className='session-extra'>
-                  <View className='session-time'>{formatTime(session.activeTime)}</View>
+
+              <View className='mall-card-item__content'>
+                <View className='mall-card-item__row'>
+                  <View className='mall-card-item__title mall-text-ellipsis'>{session.name || '未命名会话'}</View>
+                  <View className='mall-card-item__meta'>{formatTime(session.activeTime)}</View>
                 </View>
-              </Cell>
-            ))}
-          </Cell.Group>
-        )}
-      </ScrollView>
-    </View>
+                <View className='mall-card-item__desc mall-text-clamp-2'>{session.lastMessage || '暂无内容'}</View>
+                {session.topStatus === 1 ? <View className='mall-card-item__hint'>置顶</View> : null}
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+    </PageShell>
   )
 }

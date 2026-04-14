@@ -1,0 +1,12 @@
+.mall-page-shell {
+  position: relative;
+}
+
+.mall-page-shell__header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--ios-glass-bg);
+  backdrop-filter: var(--ios-blur);
+  border-bottom: 1rpx solid rgba(84, 104, 129, 0.08);
+}

@@ -1,17 +1,22 @@
 import { useState, useCallback } from 'react'
 import type { CSSProperties } from 'react'
-import { View, ScrollView } from '@tarojs/components'
+import { View } from '@tarojs/components'
 import { UserOutlined, Search as SearchIcon, Plus } from '@taroify/icons'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listFriends } from '@/api/chat/chatFriendController'
-import { Skeleton, Empty, Search, Cell, Avatar, Button } from '@taroify/core'
+import { Search, Cell, Avatar } from '@taroify/core'
+import PageShell from '@/components/PageShell'
+import ActionPill from '@/components/ActionPill'
+import InsetCard from '@/components/InsetCard'
+import ListStatus from '@/components/ListStatus'
 
 import './index.scss'
 
 const searchStyle = {
-  '--search-background-color': '#E9E9EB',
+  '--search-background-color': '#F3F4F6',
+  '--search-content-background-color': '#FFFFFF',
   '--search-padding': '8rpx 16rpx',
   '--search-input-height': '72rpx',
 } as CSSProperties
@@ -57,92 +62,68 @@ export default function ContactPage() {
   })
 
   return (
-    <View className='mall-page'>
-      <View className='ios-glass-header'>
-        <View className='search-container' style={{ display: 'flex', alignItems: 'center', gap: '16rpx' }}>
-          <View style={{ flex: 1 }}>
-            <Search 
-              placeholder='搜索联系人' 
-              value={keyword}
-              onChange={(event) => setKeyword(event.detail.value)}
-              onClear={() => setKeyword('')}
-              style={searchStyle}
+    <PageShell
+      header={(
+        <View className='mall-page-toolbar'>
+          <Search
+            placeholder='搜索联系人'
+            value={keyword}
+            onChange={(event) => setKeyword(event.detail.value)}
+            onClear={() => setKeyword('')}
+            style={searchStyle}
+          />
+          <ActionPill
+            icon={<Plus size='18px' color='#0A84FF' />}
+            text='添加'
+            onClick={() => Taro.navigateTo({ url: '/pages/contact/search/index' })}
+          />
+        </View>
+      )}
+      contentClassName='mall-page__content--top-gap'
+    >
+      <InsetCard className='contact-card'>
+        <Cell
+          title='新的朋友'
+          icon={<View className='contact-icon-box'><UserOutlined color='#0A84FF' /></View>}
+          clickable
+          onClick={() => Taro.navigateTo({ url: '/pages/contact/apply/index' })}
+        />
+        <Cell
+          title='搜索发现'
+          icon={<View className='contact-icon-box'><SearchIcon color='#0A84FF' /></View>}
+          clickable
+          onClick={() => Taro.navigateTo({ url: '/pages/contact/search/index' })}
+        />
+      </InsetCard>
+
+      <View className='mall-section-title'>所有联系人</View>
+
+      {!isLoggedIn ? (
+        <ListStatus kind='login' description='登录后查看联系人列表' />
+      ) : loading && listData.length === 0 ? (
+        <ListStatus kind='loading' description='' skeletonRows={5} />
+      ) : filteredFriends.length === 0 ? (
+        <ListStatus kind='empty' description={keyword.trim() ? '未找到相关联系人' : '暂无好友'} />
+      ) : (
+        <InsetCard className='contact-card'>
+          {filteredFriends.map((friend, idx) => (
+            <Cell
+              key={friend.id}
+              title={friend.userName}
+              brief={friend.onlineStatus === 1 ? '在线中，发起新的对话' : '保持联系，开始新的对话'}
+              icon={
+                <Avatar
+                  className='mall-avatar'
+                  src={friend.userAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${friend.id}`}
+                  style={{ width: '84rpx', height: '84rpx', marginRight: '20rpx' }}
+                />
+              }
+              clickable
+              style={{ borderBottom: idx === filteredFriends.length - 1 ? 'none' : '1rpx solid var(--ios-separator)' }}
             />
-          </View>
-          <View
-            className='icon-btn'
-            style={{ width: '72rpx', height: '72rpx' }}
-            onClick={() => Taro.navigateTo({ url: '/pages/contact/search/index' })}
-          >
-            <Plus size='20px' color='var(--ios-blue)' />
-          </View>
-        </View>
-      </View>
-
-      <ScrollView scrollY className='mall-page__body'>
-        {/* Entry Groups */}
-        <View className='ios-card-group'>
-          <Cell 
-            title='新的朋友' 
-            icon={<View className='icon-box orange'><UserOutlined color='#fff' /></View>} 
-            clickable
-            onClick={() => Taro.navigateTo({ url: '/pages/contact/apply/index' })}
-          />
-          <Cell 
-            title='搜索发现' 
-            icon={<View className='icon-box blue'><SearchIcon color='#fff' /></View>} 
-            clickable
-            onClick={() => Taro.navigateTo({ url: '/pages/contact/search/index' })}
-          />
-        </View>
-
-        <View className='ios-group-title'>所有联系人</View>
-
-        {!isLoggedIn ? (
-          <Empty style={{ marginTop: '20vh' }}>
-            <Empty.Description>登录后查看联系人列表</Empty.Description>
-            <Button
-              color='primary'
-              shape='round'
-              size='small'
-              style={{ marginTop: '24rpx' }}
-              onClick={() => Taro.switchTab({ url: '/pages/profile/index' })}
-            >
-              去登录
-            </Button>
-          </Empty>
-        ) : loading && listData.length === 0 ? (
-          <View style={{ padding: '32rpx' }}>
-            {[1, 2, 3, 4, 5].map(i => (
-              <View key={i} style={{ marginBottom: '32rpx' }}>
-                <Skeleton avatar title row={1} loading />
-              </View>
-            ))}
-          </View>
-        ) : filteredFriends.length === 0 ? (
-          <Empty style={{ marginTop: '10vh' }}>
-            <Empty.Description>{keyword.trim() ? '未找到相关联系人' : '暂无好友'}</Empty.Description>
-          </Empty>
-        ) : (
-          <View className='ios-card-group'>
-            {filteredFriends.map((friend, idx) => (
-              <Cell
-                key={friend.id}
-                title={friend.userName}
-                icon={
-                  <Avatar 
-                    className='mall-avatar'
-                    src={friend.userAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${friend.id}`} 
-                    style={{ width: '80rpx', height: '80rpx', marginRight: '24rpx' }}
-                  />
-                }
-                clickable
-                style={{ borderBottom: idx === filteredFriends.length - 1 ? 'none' : '1rpx solid var(--ios-separator)' }}
-              />
-            ))}
-          </View>
-        )}
-      </ScrollView>
-    </View>
+          ))}
+        </InsetCard>
+      )}
+    </PageShell>
   )
 }

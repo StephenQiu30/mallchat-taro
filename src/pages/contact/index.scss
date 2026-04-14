@@ -1,12 +1,8 @@
-.contact-divider {
-  padding: 16rpx 32rpx;
-  font-size: 26rpx;
-  color: var(--ios-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 1rpx;
+.contact-card {
+  margin-bottom: 24rpx;
 }
 
-.icon-box {
+.contact-icon-box {
   width: 60rpx;
   height: 60rpx;
   border-radius: 16rpx;
@@ -14,23 +10,6 @@
   align-items: center;
   justify-content: center;
   margin-right: 24rpx;
-
-  &.orange { background: var(--ios-orange); shadow: 0 4rpx 12rpx rgba(255, 149, 0, 0.3); }
-  &.blue { background: var(--ios-blue); shadow: 0 4rpx 12rpx rgba(0, 122, 255, 0.3); }
-}
-
-.mall-page__body {
-  flex: 1;
-  background-color: var(--ios-bg-secondary);
-  padding-bottom: 40rpx;
-}
-
-/* Customizing taroify cell for contact items */
-.van-cell {
-  align-items: center !important;
-  padding: 24rpx 32rpx !important;
-  
-  &__title {
-    font-size: 32rpx !important;
-  }
+  background: #F5F7FA;
+  border: 1rpx solid rgba(17, 24, 39, 0.05);
 }
