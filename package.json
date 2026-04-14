@@ -58,7 +58,6 @@
     "@tarojs/runtime": "4.1.11",
     "@tarojs/shared": "4.1.11",
     "@tarojs/taro": "4.1.11",
-    "axios": "^1.14.0",
     "axios-taro-adapter": "^0.0.3",
     "json-bigint": "^1.0.0",
     "react": "^18.0.0",

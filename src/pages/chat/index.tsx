@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Input, ScrollView, Text, View } from '@tarojs/components'
+import type { CSSProperties } from 'react'
+import { Input, ScrollView, Text, View, Image } from '@tarojs/components'
 import { Plus, Photo, DescriptionOutlined } from '@taroify/icons'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
@@ -9,10 +10,14 @@ import { Skeleton, Empty, Avatar, Button } from '@taroify/core'
 
 import './index.scss'
 
+const primaryButtonStyle = {
+  '--button-primary-background-color': 'var(--ios-blue)',
+} as CSSProperties
+
 export default function ChatDetail() {
   const router = useRouter()
   const { id: roomId, name: roomName } = router.params
-  const { userInfo } = useSelector((state: RootState) => state.user)
+  const { userInfo, isLoggedIn } = useSelector((state: RootState) => state.user)
   
   const [messages, setMessages] = useState<ChatAPI.ChatMessageVO[]>([])
   const [loading, setLoading] = useState(true)
@@ -38,7 +43,11 @@ export default function ChatDetail() {
   }, [roomId])
 
   const fetchMessages = useCallback(async (isSilent = false) => {
-    if (!roomId) return
+    if (!roomId || !isLoggedIn) {
+      setMessages([])
+      setLoading(false)
+      return
+    }
     
     if (!isSilent) setLoading(true)
     try {
@@ -51,21 +60,25 @@ export default function ChatDetail() {
           new Date(a.createTime || 0).getTime() - new Date(b.createTime || 0).getTime()
         )
         setMessages(sortedMsgs)
-        markRead(sortedMsgs)
+        await markRead(sortedMsgs)
       }
     } catch (err) {
       console.error('Fetch messages failed:', err)
     } finally {
       setLoading(false)
     }
-  }, [roomId, markRead])
+  }, [roomId, isLoggedIn, markRead])
 
   useEffect(() => {
     if (roomName) {
       Taro.setNavigationBarTitle({ title: decodeURIComponent(roomName) })
     }
     fetchMessages()
-    
+
+    if (!roomId || !isLoggedIn) {
+      return
+    }
+
     pollingTimer.current = setInterval(() => {
       fetchMessages(true)
     }, 5000)
@@ -73,7 +86,7 @@ export default function ChatDetail() {
     return () => {
       if (pollingTimer.current) clearInterval(pollingTimer.current)
     }
-  }, [roomId, roomName, fetchMessages])
+  }, [roomId, roomName, isLoggedIn, fetchMessages])
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -86,7 +99,7 @@ export default function ChatDetail() {
 
   const handleSend = async () => {
     const text = inputValue.trim()
-    if (!text || sending || !roomId) return
+    if (!text || sending || !roomId || !isLoggedIn) return
 
     setSending(true)
     try {
@@ -120,6 +133,27 @@ export default function ChatDetail() {
     }
   }
 
+  const canRecallMessage = (msg: ChatAPI.ChatMessageVO, isMe: boolean) => {
+    if (!isMe || msg.status === 1 || !msg.createTime) {
+      return false
+    }
+
+    return Date.now() - new Date(msg.createTime).getTime() <= 2 * 60 * 1000
+  }
+
+  const handleMessageLongPress = (msg: ChatAPI.ChatMessageVO, isMe: boolean) => {
+    if (!isMe || msg.status === 1) {
+      return
+    }
+
+    if (!canRecallMessage(msg, isMe)) {
+      Taro.showToast({ title: '仅支持 2 分钟内撤回', icon: 'none' })
+      return
+    }
+
+    handleRecall(msg.id!)
+  }
+
   const formatTime = (timeStr?: string) => {
     if (!timeStr) return ''
     const date = new Date(timeStr.replace(/-/g, '/'))
@@ -133,7 +167,7 @@ export default function ChatDetail() {
 
     switch (msg.type) {
       case 2:
-        return <Taro.Image src={msg.content || ''} mode='widthFix' style={{ width: '100%', borderRadius: '24rpx' }} showMenuByLongpress />
+        return <Image src={msg.content || ''} mode='widthFix' style={{ width: '100%', borderRadius: '24rpx' }} showMenuByLongpress />
       case 3:
         return (
           <View style={{ display: 'flex', alignItems: 'center', gap: '16rpx' }}>
@@ -156,10 +190,18 @@ export default function ChatDetail() {
         scrollIntoView={scrollIntoView}
       >
         <View style={{ padding: '32rpx' }}>
-          {loading && messages.length === 0 ? (
+          {!isLoggedIn ? (
+            <Empty style={{ marginTop: '20vh' }}>
+              <Empty.Description>登录后查看聊天内容</Empty.Description>
+            </Empty>
+          ) : !roomId ? (
+            <Empty style={{ marginTop: '20vh' }}>
+              <Empty.Description>未找到当前会话</Empty.Description>
+            </Empty>
+          ) : loading && messages.length === 0 ? (
             <View>
-              <Skeleton variant='rect' height='80rpx' width='60%' style={{ marginBottom: '32rpx', borderRadius: '12rpx' }} />
-              <Skeleton variant='rect' height='80rpx' width='40%' style={{ alignSelf: 'flex-end', marginBottom: '32rpx', borderRadius: '12rpx' }} />
+              <Skeleton avatar title row={1} loading style={{ marginBottom: '32rpx' }} />
+              <Skeleton avatar title row={1} loading style={{ marginBottom: '32rpx' }} />
             </View>
           ) : messages.length === 0 ? (
             <Empty style={{ marginTop: '20vh' }}>
@@ -176,7 +218,7 @@ export default function ChatDetail() {
                   id={`msg-${msg.id}`}
                   key={msg.id}
                   className={`chat-message ${isMe ? 'chat-message--mine' : ''} ${!showUser ? 'chat-message--collapsed' : ''}`}
-                  onLongPress={() => isMe && msg.status !== 1 && handleRecall(msg.id!)}
+                  onLongPress={() => handleMessageLongPress(msg, isMe)}
                 >
                   {showUser && !isMe && (
                     <Avatar 
@@ -228,13 +270,15 @@ export default function ChatDetail() {
               onConfirm={handleSend}
               confirmType='send'
               adjustPosition
-              disabled={sending}
+              disabled={sending || !isLoggedIn || !roomId}
             />
           </View>
 
           <View className='chat-page__actions'>
             {inputValue.trim() ? (
-              <Button color='primary' size='small' shape='round' onClick={handleSend} loading={sending} style={{ '--button-primary-background-color': 'var(--ios-blue)' }}>发送</Button>
+              <Button color='primary' size='small' shape='round' onClick={handleSend} loading={sending} style={primaryButtonStyle}>
+                发送
+              </Button>
             ) : (
               <View className='action-icons'>
                 <Photo size='24px' color='var(--ios-text-tertiary)' />

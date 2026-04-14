@@ -215,6 +215,18 @@ declare namespace UserAPI {
     userEmail?: string;
   };
 
+  type UserEmailCodeRequest = {
+    /** 邮箱 */
+    email?: string;
+  };
+
+  type UserEmailLoginRequest = {
+    /** 邮箱 */
+    email?: string;
+    /** 验证码 */
+    code?: string;
+  };
+
   type UserMaLoginRequest = {
     /** 微信小程序登录 code */
     code?: string;

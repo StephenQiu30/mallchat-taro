@@ -246,6 +246,8 @@ declare namespace LogAPI {
     clientIp?: string;
     /** 归属地 */
     location?: string;
+    /** 浏览器标识 */
+    userAgent?: string;
   };
 
   type OperationLogQueryRequest = {

@@ -62,7 +62,7 @@ export default defineConfig<'vite'>(async (merge) => {
           }
         }
       }
-    },
+    } as any,
     h5: {
       viteOptions: {
         css: {
@@ -97,7 +97,7 @@ export default defineConfig<'vite'>(async (merge) => {
         }
       },
       legacy: true
-    },
+    } as any,
     rn: {
       appName: 'taroDemo',
       postcss: {

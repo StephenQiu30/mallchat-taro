@@ -1,16 +1,26 @@
 import { useState, useCallback } from 'react'
 import { Text, View, Image } from '@tarojs/components'
-import Taro, { useDidShow } from '@tarojs/taro'
+import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store'
 import { listFriendApply, approveFriend } from '@/api/chat/chatFriendApplyController'
-import { Skeleton, Empty } from '@taroify/core'
+import { Skeleton, Empty, Button } from '@taroify/core'
 
 import './index.scss'
 
 export default function FriendApplyIndex() {
+  const { isLoggedIn } = useSelector((state: RootState) => state.user)
   const [applyList, setApplyList] = useState<ChatAPI.ChatFriendApplyVO[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchApplyList = useCallback(async () => {
+    if (!isLoggedIn) {
+      setApplyList([])
+      setLoading(false)
+      Taro.stopPullDownRefresh()
+      return
+    }
+
     setLoading(true)
     try {
       const res = await listFriendApply({ current: 1, pageSize: 50 })
@@ -21,10 +31,15 @@ export default function FriendApplyIndex() {
       console.error('Fetch friend apply failed:', err)
     } finally {
       setLoading(false)
+      Taro.stopPullDownRefresh()
     }
-  }, [])
+  }, [isLoggedIn])
 
   useDidShow(() => {
+    fetchApplyList()
+  })
+
+  usePullDownRefresh(() => {
     fetchApplyList()
   })
 
@@ -33,11 +48,13 @@ export default function FriendApplyIndex() {
       Taro.showLoading({ title: status === 2 ? '同意中...' : '拒绝中...' })
       const res = await approveFriend({ applyId, status })
       if (res.code === 0) {
+        setApplyList((prev) => prev.map((item) => (
+          item.id === applyId ? { ...item, status } : item
+        )))
         Taro.showToast({
           title: status === 2 ? '已同意' : '已拒绝',
           icon: 'success'
         })
-        // Refresh list
         fetchApplyList()
       }
     } catch (err) {
@@ -71,15 +88,24 @@ export default function FriendApplyIndex() {
     <View className='mall-page'>
       <View className='mall-page__body'>
         <View className='apply-list'>
-          {loading && applyList.length === 0 ? (
+          {!isLoggedIn ? (
+            <Empty style={{ marginTop: '20vh' }}>
+              <Empty.Description>登录后查看好友申请</Empty.Description>
+              <Button
+                color='primary'
+                shape='round'
+                size='small'
+                style={{ marginTop: '24rpx' }}
+                onClick={() => Taro.switchTab({ url: '/pages/profile/index' })}
+              >
+                去登录
+              </Button>
+            </Empty>
+          ) : loading && applyList.length === 0 ? (
             <View style={{ padding: '0 32rpx' }}>
               {[1, 2, 3, 4].map(i => (
-                <View key={i} style={{ display: 'flex', padding: '24rpx 0', gap: '24rpx' }}>
-                  <Skeleton variant='circle' width='96rpx' height='96rpx' />
-                  <View style={{ flex: 1, paddingTop: '10rpx' }}>
-                    <Skeleton variant='rect' height='32rpx' width='40%' style={{ marginBottom: '16rpx' }} />
-                    <Skeleton variant='rect' height='24rpx' width='60%' />
-                  </View>
+                <View key={i} style={{ padding: '24rpx 0' }}>
+                  <Skeleton avatar title row={2} loading />
                 </View>
               ))}
             </View>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Input, ScrollView, Text, View } from '@tarojs/components'
-import { Comment, Plus } from '@taroify/icons'
+import { Comment } from '@taroify/icons'
 import Taro from '@tarojs/taro'
 import { doAiChat, listModels } from '@/api/ai/aiChatController'
 import { listMyAiChatRecordVoByPage } from '@/api/ai/aiChatRecordController'
@@ -43,12 +43,16 @@ export default function AiAssistantPage() {
     try {
       const res = await listModels()
       if (res.code === 0 && res.data) {
-        setModels(res.data)
+        const nextModels = res.data.filter((item) => !!item.name)
+        setModels(nextModels)
+        if (!currentModel && nextModels[0]?.name) {
+          setCurrentModel(nextModels[0].name)
+        }
       }
     } catch (e) {
       console.error('Fetch models failed:', e)
     }
-  }, [])
+  }, [currentModel])
 
   useEffect(() => {
     Taro.setNavigationBarTitle({ title: 'AI 助理' })
@@ -118,7 +122,15 @@ export default function AiAssistantPage() {
             <View style={{ fontSize: '28rpx', color: '#999', marginTop: '8rpx' }}>有什么我可以帮你的吗？</View>
           </View>
 
-          {messages.map((msg) => (
+          {loading && messages.length === 0 ? (
+            <View>
+              {[1, 2].map((item) => (
+                <View key={item} style={{ marginBottom: '32rpx' }}>
+                  <Skeleton avatar title row={2} loading />
+                </View>
+              ))}
+            </View>
+          ) : messages.map((msg) => (
             <View key={msg.id} id={`msg-${msg.id}`} style={{ marginBottom: '32rpx' }}>
               {msg.message && (
                 <View className='ai-bubble-row user'>
@@ -162,7 +174,7 @@ export default function AiAssistantPage() {
         <Picker
           onCancel={() => setShowPicker(false)}
           onConfirm={(values) => {
-            setCurrentModel(values[0])
+            setCurrentModel(Array.isArray(values) ? values[0] : values)
             setShowPicker(false)
           }}
         >
@@ -173,7 +185,9 @@ export default function AiAssistantPage() {
           </Picker.Toolbar>
           <Picker.Column>
             {models.map(m => (
-              <Picker.Option key={m.modelType}>{m.modelType}</Picker.Option>
+              <Picker.Option key={m.name} value={m.name}>
+                {m.name}
+              </Picker.Option>
             ))}
           </Picker.Column>
         </Picker>

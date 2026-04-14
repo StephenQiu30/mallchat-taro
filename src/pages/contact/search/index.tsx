@@ -6,19 +6,27 @@ import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listUserVoByPage } from '@/api/user/userController'
 import { applyFriend } from '@/api/chat/chatFriendApplyController'
-import { Skeleton, Empty } from '@taroify/core'
+import { Skeleton, Empty, Button } from '@taroify/core'
 
 import './index.scss'
 
 export default function UserSearchIndex() {
-  const { userInfo } = useSelector((state: RootState) => state.user)
+  const { userInfo, isLoggedIn } = useSelector((state: RootState) => state.user)
   const [searchText, setSearchText] = useState('')
   const [results, setResults] = useState<UserAPI.UserVO[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
+  const [pendingIds, setPendingIds] = useState<number[]>([])
+  const [applyingId, setApplyingId] = useState<number>()
   const debounceTimer = useRef<NodeJS.Timeout>()
 
   const doSearch = useCallback(async (keyword: string) => {
+    if (!isLoggedIn) {
+      setResults([])
+      setSearched(false)
+      return
+    }
+
     if (!keyword.trim()) {
       setResults([])
       setSearched(false)
@@ -41,11 +49,16 @@ export default function UserSearchIndex() {
     } finally {
       setLoading(false)
     }
-  }, [userInfo?.id])
+  }, [isLoggedIn, userInfo?.id])
 
   const handleInput = (e) => {
     const val = e.detail.value
     setSearchText(val)
+
+    if (!isLoggedIn) {
+      return
+    }
+
     // Debounce 500ms
     if (debounceTimer.current) clearTimeout(debounceTimer.current)
     debounceTimer.current = setTimeout(() => {
@@ -53,30 +66,44 @@ export default function UserSearchIndex() {
     }, 500)
   }
 
-  const handleAddFriend = (user: UserAPI.UserVO) => {
-    Taro.showModal({
+  const handleAddFriend = async (user: UserAPI.UserVO) => {
+    if (!isLoggedIn) {
+      Taro.showToast({ title: '请先登录', icon: 'none' })
+      Taro.switchTab({ url: '/pages/profile/index' })
+      return
+    }
+
+    if (!user.id || pendingIds.includes(user.id) || applyingId === user.id) {
+      return
+    }
+
+    const res = await Taro.showModal({
       title: `添加 ${user.userName || '用户'}`,
-      placeholderText: '你好，我想加你为好友',
+      content: '确认发送好友申请吗？',
       editable: true,
-      success: async (res) => {
-        if (res.confirm) {
-          try {
-            Taro.showLoading({ title: '发送中...' })
-            const applyRes = await applyFriend({
-              targetId: user.id!,
-              msg: res.content || '你好，我想加你为好友'
-            })
-            if (applyRes.code === 0) {
-              Taro.showToast({ title: '申请已发送', icon: 'success' })
-            }
-          } catch (err) {
-            console.error('Apply friend failed:', err)
-          } finally {
-            Taro.hideLoading()
-          }
-        }
+    } as any) as Taro.showModal.SuccessCallbackResult & { content?: string }
+
+    if (!res.confirm) {
+      return
+    }
+
+    try {
+      setApplyingId(user.id)
+      Taro.showLoading({ title: '发送中...' })
+      const applyRes = await applyFriend({
+        targetId: user.id,
+        msg: res.content?.trim() || '你好，我想加你为好友',
+      })
+      if (applyRes.code === 0) {
+        setPendingIds((prev) => [...prev, user.id!])
+        Taro.showToast({ title: '申请已发送', icon: 'success' })
       }
-    })
+    } catch (err) {
+      console.error('Apply friend failed:', err)
+    } finally {
+      setApplyingId(undefined)
+      Taro.hideLoading()
+    }
   }
 
   return (
@@ -91,22 +118,32 @@ export default function UserSearchIndex() {
             placeholderStyle='color: #8E8E93;'
             value={searchText}
             onInput={handleInput}
-            focus
+            focus={isLoggedIn}
+            disabled={!isLoggedIn}
           />
         </View>
       </View>
 
       <View className='mall-page__body'>
         <View className='search-results'>
-          {loading ? (
+          {!isLoggedIn ? (
+            <Empty style={{ marginTop: '20vh' }}>
+              <Empty.Description>登录后搜索并添加好友</Empty.Description>
+              <Button
+                color='primary'
+                shape='round'
+                size='small'
+                style={{ marginTop: '24rpx' }}
+                onClick={() => Taro.switchTab({ url: '/pages/profile/index' })}
+              >
+                去登录
+              </Button>
+            </Empty>
+          ) : loading ? (
             <View style={{ padding: '0 32rpx' }}>
               {[1, 2, 3].map(i => (
-                <View key={i} style={{ display: 'flex', padding: '24rpx 0', gap: '24rpx' }}>
-                  <Skeleton variant='circle' width='96rpx' height='96rpx' />
-                  <View style={{ flex: 1, paddingTop: '10rpx' }}>
-                    <Skeleton variant='rect' height='32rpx' width='40%' style={{ marginBottom: '16rpx' }} />
-                    <Skeleton variant='rect' height='24rpx' width='60%' />
-                  </View>
+                <View key={i} style={{ padding: '24rpx 0' }}>
+                  <Skeleton avatar title row={2} loading />
                 </View>
               ))}
             </View>
@@ -121,12 +158,7 @@ export default function UserSearchIndex() {
             </View>
           ) : (
             results.map((user) => (
-              <View
-                key={user.id}
-                className='search-user-item'
-                hoverClass='search-user-item--pressed'
-                hoverStayTime={80}
-              >
+              <View key={user.id} className='search-user-item' hoverClass='search-user-item--pressed' hoverStayTime={80}>
                 <Image
                   src={user.userAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${user.id}`}
                   className='mall-avatar mall-avatar--rounded search-user-item__avatar'
@@ -138,11 +170,17 @@ export default function UserSearchIndex() {
                   )}
                 </View>
                 <View
-                  className='search-user-item__add-btn'
-                  hoverClass='search-user-item__add-btn--pressed'
+                  className={`search-user-item__add-btn ${pendingIds.includes(user.id || 0) ? 'search-user-item__add-btn--disabled' : ''}`}
+                  hoverClass={pendingIds.includes(user.id || 0) ? undefined : 'search-user-item__add-btn--pressed'}
                   onClick={() => handleAddFriend(user)}
                 >
-                  <Text className='search-user-item__add-label'>添加</Text>
+                  <Text className='search-user-item__add-label'>
+                    {pendingIds.includes(user.id || 0)
+                      ? '已申请'
+                      : applyingId === user.id
+                        ? '发送中'
+                        : '添加'}
+                  </Text>
                 </View>
               </View>
             ))

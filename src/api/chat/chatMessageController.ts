@@ -57,7 +57,7 @@ export async function sendMessage(
   body: ChatAPI.ChatMessageSendRequest,
   options?: { [key: string]: any }
 ) {
-  return request<ChatAPI.BaseResponseLong>("/chat/message/send", {
+  return request<ChatAPI.BaseResponseChatMessageVO>("/chat/message/send", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
