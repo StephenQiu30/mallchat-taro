@@ -1,12 +1,16 @@
 import { useState, useCallback } from 'react'
-import { View, ScrollView } from '@tarojs/components'
+import { View } from '@tarojs/components'
 import { Bell, Passed } from '@taroify/icons'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listMyNotificationVoByPage, markAllNotificationRead, markNotificationRead } from '@/api/notification/notificationController'
 import { refreshNotificationBadge } from '@/utils/notification'
-import { Skeleton, Empty, Cell, Avatar, Badge, Button } from '@taroify/core'
+import { Avatar, Badge } from '@taroify/core'
+import PageShell from '@/components/PageShell'
+import LargeTitleHeader from '@/components/LargeTitleHeader'
+import ActionPill from '@/components/ActionPill'
+import ListStatus from '@/components/ListStatus'
 
 import './index.scss'
 
@@ -100,86 +104,64 @@ export default function NotificationPage() {
 
   const getIconColor = (type?: string) => {
     switch (type) {
-      case 'system': return '#FF9500'
-      case 'broadcast': return '#FF3B30'
-      default: return '#007AFF'
+      case 'system': return '#E9EEF5'
+      case 'broadcast': return '#F3F4F6'
+      default: return '#EEF4FB'
     }
   }
 
   return (
-    <View className='mall-page'>
-      <View className='page-header'>
-        <View className='page-header__title'>通知</View>
-        <View className='page-header__actions'>
-          <View 
-            onClick={handleMarkAllRead} 
-            style={{ display: 'flex', alignItems: 'center', gap: '8rpx', opacity: markingAll ? 0.5 : 1 }}
-          >
-            <Passed size='18px' color='#333' />
-            <View style={{ fontSize: '28rpx', color: '#333' }}>全部已读</View>
-          </View>
-        </View>
-      </View>
-
-      <ScrollView scrollY className='mall-page__body'>
-        {!isLoggedIn ? (
-          <Empty style={{ marginTop: '20vh' }}>
-            <Empty.Description>登录后查看通知</Empty.Description>
-            <Button
-              color='primary'
-              shape='round'
-              size='small'
-              style={{ marginTop: '24rpx' }}
-              onClick={() => Taro.switchTab({ url: '/pages/profile/index' })}
+    <PageShell
+      header={(
+        <LargeTitleHeader
+          title='通知'
+          actions={(
+            <ActionPill
+              icon={<Passed size='16px' color={list.every(item => item.isRead === 1) ? '#98A2B3' : '#0A84FF'} />}
+              text='全部已读'
+              variant='subtle'
+              onClick={handleMarkAllRead}
+            />
+          )}
+        />
+      )}
+      contentClassName='mall-page__content--top-gap'
+    >
+      {!isLoggedIn ? (
+        <ListStatus kind='login' description='登录后查看通知' />
+      ) : loading && list.length === 0 ? (
+        <ListStatus kind='loading' description='' skeletonRows={4} />
+      ) : list.length === 0 ? (
+        <ListStatus kind='empty' description='暂无通知' />
+      ) : (
+        <View className='mall-card-list'>
+          {list.map((item) => (
+            <View
+              key={item.id}
+              className={`mall-card-item mall-card-item--active notification-card ${item.isRead === 1 ? 'notification-card--read' : ''}`}
+              onClick={() => handleItemClick(item)}
             >
-              去登录
-            </Button>
-          </Empty>
-        ) : loading && list.length === 0 ? (
-          <View style={{ padding: '32rpx' }}>
-            {[1, 2, 3, 4].map(i => (
-              <View key={i} style={{ marginBottom: '32rpx' }}>
-                <Skeleton avatar title row={2} loading />
+              <View className='notification-card__avatar'>
+                <Avatar
+                  className='mall-avatar mall-avatar--circle'
+                  style={{ backgroundColor: getIconColor(item.type), width: '88rpx', height: '88rpx' }}
+                >
+                  <Bell size='20px' color={item.type === 'broadcast' ? '#FF3B30' : '#0A84FF'} />
+                </Avatar>
+                {item.isRead === 0 ? <Badge dot className='notification-card__dot' /> : null}
               </View>
-            ))}
-          </View>
-        ) : list.length === 0 ? (
-          <Empty style={{ marginTop: '20vh' }}>
-            <Empty.Description>暂无通知</Empty.Description>
-          </Empty>
-        ) : (
-          <Cell.Group>
-            {list.map((item) => (
-              <Cell 
-                key={item.id} 
-                clickable
-                onClick={() => handleItemClick(item)}
-                title={item.title || '系统通知'}
-                brief={item.content}
-                icon={
-                  <View style={{ position: 'relative', marginRight: '24rpx', opacity: item.isRead === 1 ? 0.6 : 1 }}>
-                    <Avatar 
-                      shape='circle' 
-                      style={{ backgroundColor: getIconColor(item.type), width: '80rpx', height: '80rpx' }}
-                    >
-                      <Bell size='20px' color='#fff' />
-                    </Avatar>
-                    {item.isRead === 0 && <Badge dot style={{ position: 'absolute', top: 0, right: 0 }} />}
-                  </View>
-                }
-                style={{
-                  alignItems: 'flex-start',
-                  padding: '24rpx 32rpx'
-                }}
-              >
-                <View style={{ fontSize: '24rpx', color: '#999', marginTop: '4rpx' }}>
-                  {formatTime(item.createTime)}
+              <View className='mall-card-item__content'>
+                <View className='mall-card-item__row'>
+                  <View className='mall-card-item__title mall-text-ellipsis'>{item.title || '系统通知'}</View>
+                  <View className='mall-card-item__meta'>{formatTime(item.createTime)}</View>
                 </View>
-              </Cell>
-            ))}
-          </Cell.Group>
-        )}
-      </ScrollView>
-    </View>
+                <View className='mall-card-item__desc mall-text-clamp-2'>{item.content || '暂无通知内容'}</View>
+                {item.type ? <View className='notification-card__tag'>{item.type}</View> : null}
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+    </PageShell>
   )
 }

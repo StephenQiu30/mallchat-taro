@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import type { CSSProperties } from 'react'
-import { View, ScrollView } from '@tarojs/components'
+import { View } from '@tarojs/components'
 import { Arrow, StarOutlined, GoldCoinOutlined, SettingOutlined, Bell, UserOutlined } from '@taroify/icons'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useSelector, useDispatch } from 'react-redux'
@@ -10,11 +10,15 @@ import { getLoginUser, userLogout, userLoginByMa } from '@/api/user/userControll
 import { setToken, setUserInfo, removeToken, removeUserInfo } from '@/utils/auth'
 import { refreshNotificationBadge } from '@/utils/notification'
 import { Cell, Avatar, Badge, Search } from '@taroify/core'
+import PageShell from '@/components/PageShell'
+import InsetCard from '@/components/InsetCard'
+import ActionPill from '@/components/ActionPill'
 
 import './index.scss'
 
 const searchStyle = {
-  '--search-background-color': '#E9E9EB',
+  '--search-background-color': '#F3F4F6',
+  '--search-content-background-color': '#FFFFFF',
   '--search-padding': '8rpx 16rpx',
   '--search-input-height': '72rpx',
 } as CSSProperties
@@ -105,100 +109,101 @@ export default function ProfilePage() {
   }
 
   return (
-    <View className='mall-page'>
-      <View className='ios-glass-header'>
-        <View className='search-container' style={{ display: 'flex', alignItems: 'center', gap: '16rpx' }}>
-          <View style={{ flex: 1 }}>
-            <Search 
-              placeholder='搜索系统设置（暂未开放）'
-              readonly
-              disabled
-              style={searchStyle}
-            />
+    <PageShell
+      header={(
+        <View className='mall-page-toolbar mall-page-toolbar--search-only'>
+          <Search
+            placeholder='搜索系统设置（暂未开放）'
+            readonly
+            disabled
+            style={searchStyle}
+          />
+        </View>
+      )}
+      contentClassName='mall-page__content--top-gap'
+    >
+      <View className='profile-hero' onClick={!isLoggedIn ? handleLogin : () => Taro.navigateTo({ url: '/pages/profile/edit/index' })}>
+        <Avatar
+          className='mall-avatar profile-hero__avatar'
+          src={userInfo?.userAvatar || 'https://api.dicebear.com/7.x/identicon/svg?seed=guest'}
+          style={{ width: '96rpx', height: '96rpx' }}
+        >
+          <UserOutlined />
+        </Avatar>
+        <View className='profile-hero__body'>
+          <View className='profile-hero__name'>{isLoggedIn ? (userInfo?.userName || '设置昵称') : '点击登录'}</View>
+          <View className='profile-hero__meta'>{isLoggedIn ? `ID: ${userInfo?.id}` : '微信快捷登录'}</View>
+          <View className='profile-hero__desc'>
+            {isLoggedIn ? (userInfo?.userProfile || '账号与资料设置') : '登录体验更多社交功能'}
           </View>
+        </View>
+        <View className='profile-hero__actions'>
+          {isLoggedIn ? (
+            <ActionPill
+              text='编辑'
+              variant='subtle'
+              onClick={() => Taro.navigateTo({ url: '/pages/profile/edit/index' })}
+            />
+          ) : null}
+          <Arrow color='#98A2B3' />
         </View>
       </View>
 
-      <ScrollView scrollY className='mall-page__body'>
-        {/* User Profile Header Card */}
-        <View className='ios-card-group' style={{ marginTop: '32rpx' }}>
+      <View className='mall-section-title'>资产与收藏</View>
+      <InsetCard className='profile-card'>
+        <Cell
+          title='我的钱包'
+          icon={<View className='profile-icon-box'><GoldCoinOutlined color='#0A84FF' /></View>}
+          rightIcon={<Arrow />}
+          style={{ opacity: 0.58 }}
+        >
+          ¥ 0.00
+        </Cell>
+        <Cell
+          title='我的收藏'
+          icon={<View className='profile-icon-box'><StarOutlined color='#0A84FF' /></View>}
+          rightIcon={<Arrow />}
+          style={{ opacity: 0.58 }}
+        >
+          暂未开放
+        </Cell>
+      </InsetCard>
+
+      <View className='mall-section-title'>系统服务</View>
+      <InsetCard className='profile-card'>
+        <Cell
+          title='通知中心'
+          icon={<View className='profile-icon-box profile-icon-box--active'><Bell color='#0A84FF' /></View>}
+          onClick={() => Taro.navigateTo({ url: '/pages/notification/index' })}
+          rightIcon={<Arrow />}
+          clickable
+        >
+          {unreadNote > 0 ? <Badge content={unreadNote > 99 ? '99+' : unreadNote} /> : null}
+        </Cell>
+        <Cell
+          title='通用设置'
+          icon={<View className='profile-icon-box'><SettingOutlined color='#0A84FF' /></View>}
+          rightIcon={<Arrow />}
+          style={{ opacity: 0.58 }}
+        >
+          暂未开放
+        </Cell>
+      </InsetCard>
+
+      {isLoggedIn ? (
+        <InsetCard className='profile-card'>
           <Cell
+            title='退出登录'
+            onClick={handleLogout}
+            style={{ color: 'var(--ios-red)', textAlign: 'center', justifyContent: 'center' }}
             clickable
-            onClick={!isLoggedIn ? handleLogin : () => Taro.navigateTo({ url: '/pages/profile/edit/index' })}
-            title={isLoggedIn ? (userInfo?.userName || '设置昵称') : '点击登录'}
-            brief={isLoggedIn ? (userInfo?.userProfile || `ID: ${userInfo?.id}`) : '登录体验更多社交功能'}
-            icon={
-              <Avatar 
-                className='mall-avatar'
-                src={userInfo?.userAvatar || 'https://api.dicebear.com/7.x/identicon/svg?seed=guest'} 
-                style={{ width: '120rpx', height: '120rpx', marginRight: '28rpx' }}
-              >
-                <UserOutlined />
-              </Avatar>
-            }
-            rightIcon={<Arrow />}
-            style={{ padding: '40rpx 32rpx' }}
           />
-        </View>
+        </InsetCard>
+      ) : null}
 
-        {/* Function Groups */}
-        <View className='ios-group-title'>资产与收藏</View>
-        <View className='ios-card-group'>
-          <Cell 
-            title='我的钱包' 
-            icon={<View className='icon-box blue'><GoldCoinOutlined color='#fff' /></View>} 
-            rightIcon={<Arrow />}
-            style={{ opacity: 0.5 }}
-          >
-            ¥ 0.00
-          </Cell>
-          <Cell 
-            title='我的收藏' 
-            icon={<View className='icon-box orange'><StarOutlined color='#fff' /></View>} 
-            rightIcon={<Arrow />}
-            style={{ opacity: 0.5 }}
-          >
-            暂未开放
-          </Cell>
-        </View>
-
-        <View className='ios-group-title'>系统服务</View>
-        <View className='ios-card-group'>
-          <Cell 
-            title='通知中心' 
-            icon={<View className='icon-box red'><Bell color='#fff' /></View>} 
-            onClick={() => Taro.navigateTo({ url: '/pages/notification/index' })}
-            rightIcon={<Arrow />}
-            clickable
-          >
-            {unreadNote > 0 ? <Badge content={unreadNote > 99 ? '99+' : unreadNote} /> : null}
-          </Cell>
-          <Cell 
-            title='通用设置' 
-            icon={<View className='icon-box indigo'><SettingOutlined color='#fff' /></View>} 
-            rightIcon={<Arrow />}
-            style={{ opacity: 0.5 }}
-          >
-            暂未开放
-          </Cell>
-        </View>
-
-        {isLoggedIn && (
-          <View className='ios-card-group'>
-            <Cell 
-              title='退出登录' 
-              onClick={handleLogout}
-              style={{ color: 'var(--ios-red)', textAlign: 'center' }}
-              clickable
-            />
-          </View>
-        )}
-
-        <View className='profile-footer'>
-          <View>MallChat v1.0.0 Alpha</View>
-          <View style={{ marginTop: '8rpx', opacity: 0.6 }}>Design Inspired by Apple iOS</View>
-        </View>
-      </ScrollView>
-    </View>
+      <View className='profile-footer'>
+        <View>MallChat v1.0.0 Alpha</View>
+      </View>
+    </PageShell>
   )
 }
