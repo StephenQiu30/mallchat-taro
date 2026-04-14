@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import type { CSSProperties } from 'react'
 import { View, ScrollView } from '@tarojs/components'
 import { Arrow, StarOutlined, GoldCoinOutlined, SettingOutlined, Bell, UserOutlined } from '@taroify/icons'
 import Taro, { useDidShow } from '@tarojs/taro'
@@ -6,11 +7,17 @@ import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store'
 import { setUserInfoAction, setTokenAction, logoutAction } from '@/store/slices/userSlice'
 import { getLoginUser, userLogout, userLoginByMa } from '@/api/user/userController'
-import { getNotificationUnreadCount } from '@/api/notification/notificationController'
 import { setToken, setUserInfo, removeToken, removeUserInfo } from '@/utils/auth'
+import { refreshNotificationBadge } from '@/utils/notification'
 import { Cell, Avatar, Badge, Search } from '@taroify/core'
 
 import './index.scss'
+
+const searchStyle = {
+  '--search-background-color': '#E9E9EB',
+  '--search-padding': '8rpx 16rpx',
+  '--search-input-height': '72rpx',
+} as CSSProperties
 
 export default function ProfilePage() {
   const dispatch = useDispatch()
@@ -30,18 +37,14 @@ export default function ProfilePage() {
   }
 
   const fetchUnread = useCallback(async () => {
-    if (!isLoggedIn) return
+    if (!isLoggedIn) {
+      setUnreadNote(0)
+      await Taro.removeTabBarBadge({ index: 2 })
+      return
+    }
     try {
-      const res = await getNotificationUnreadCount()
-      if (res.code === 0 && res.data !== undefined) {
-        const count = Number(res.data)
-        setUnreadNote(count)
-        if (count > 0) {
-          Taro.setTabBarBadge({ index: 2, text: count > 99 ? '99+' : String(count) })
-        } else {
-          Taro.removeTabBarBadge({ index: 2 })
-        }
-      }
+      const count = await refreshNotificationBadge()
+      setUnreadNote(count)
     } catch (e) {
       console.error('Fetch unread count failed:', e)
     }
@@ -93,7 +96,8 @@ export default function ProfilePage() {
           removeToken()
           removeUserInfo()
           dispatch(logoutAction())
-          Taro.removeTabBarBadge({ index: 2 })
+          setUnreadNote(0)
+          await Taro.removeTabBarBadge({ index: 2 })
           Taro.reLaunch({ url: '/pages/index/index' })
         }
       }
@@ -106,12 +110,10 @@ export default function ProfilePage() {
         <View className='search-container' style={{ display: 'flex', alignItems: 'center', gap: '16rpx' }}>
           <View style={{ flex: 1 }}>
             <Search 
-              placeholder='搜索系统设置' 
-              style={{ 
-                '--search-background-color': '#E9E9EB',
-                '--search-padding': '8rpx 16rpx',
-                '--search-input-height': '72rpx'
-              }} 
+              placeholder='搜索系统设置（暂未开放）'
+              readonly
+              disabled
+              style={searchStyle}
             />
           </View>
         </View>
@@ -124,7 +126,7 @@ export default function ProfilePage() {
             clickable
             onClick={!isLoggedIn ? handleLogin : () => Taro.navigateTo({ url: '/pages/profile/edit/index' })}
             title={isLoggedIn ? (userInfo?.userName || '设置昵称') : '点击登录'}
-            label={isLoggedIn ? (userInfo?.userProfile || `ID: ${userInfo?.id}`) : '登录体验更多社交功能'}
+            brief={isLoggedIn ? (userInfo?.userProfile || `ID: ${userInfo?.id}`) : '登录体验更多社交功能'}
             icon={
               <Avatar 
                 className='mall-avatar'
@@ -145,16 +147,19 @@ export default function ProfilePage() {
           <Cell 
             title='我的钱包' 
             icon={<View className='icon-box blue'><GoldCoinOutlined color='#fff' /></View>} 
-            extra='¥ 0.00' 
             rightIcon={<Arrow />}
-            clickable
-          />
+            style={{ opacity: 0.5 }}
+          >
+            ¥ 0.00
+          </Cell>
           <Cell 
             title='我的收藏' 
             icon={<View className='icon-box orange'><StarOutlined color='#fff' /></View>} 
             rightIcon={<Arrow />}
-            clickable
-          />
+            style={{ opacity: 0.5 }}
+          >
+            暂未开放
+          </Cell>
         </View>
 
         <View className='ios-group-title'>系统服务</View>
@@ -163,16 +168,19 @@ export default function ProfilePage() {
             title='通知中心' 
             icon={<View className='icon-box red'><Bell color='#fff' /></View>} 
             onClick={() => Taro.navigateTo({ url: '/pages/notification/index' })}
-            extra={unreadNote > 0 ? <Badge content={unreadNote > 99 ? '99+' : unreadNote} /> : null}
             rightIcon={<Arrow />}
             clickable
-          />
+          >
+            {unreadNote > 0 ? <Badge content={unreadNote > 99 ? '99+' : unreadNote} /> : null}
+          </Cell>
           <Cell 
             title='通用设置' 
             icon={<View className='icon-box indigo'><SettingOutlined color='#fff' /></View>} 
             rightIcon={<Arrow />}
-            clickable
-          />
+            style={{ opacity: 0.5 }}
+          >
+            暂未开放
+          </Cell>
         </View>
 
         {isLoggedIn && (

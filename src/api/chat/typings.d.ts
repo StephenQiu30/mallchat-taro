@@ -8,6 +8,22 @@ declare namespace ChatAPI {
     message?: string;
   };
 
+  type BaseResponseChatMessageVO = {
+    /** 状态码 */
+    code?: number;
+    data?: ChatMessageVO;
+    /** 消息 */
+    message?: string;
+  };
+
+  type BaseResponseChatRoomVO = {
+    /** 状态码 */
+    code?: number;
+    data?: ChatRoomVO;
+    /** 消息 */
+    message?: string;
+  };
+
   type BaseResponseListChatFriendUserVO = {
     /** 状态码 */
     code?: number;
@@ -22,6 +38,15 @@ declare namespace ChatAPI {
     code?: number;
     /** 数据 */
     data?: ChatMessageVO[];
+    /** 消息 */
+    message?: string;
+  };
+
+  type BaseResponseListChatRoomMemberVO = {
+    /** 状态码 */
+    code?: number;
+    /** 数据 */
+    data?: ChatRoomMemberVO[];
     /** 消息 */
     message?: string;
   };
@@ -115,6 +140,8 @@ declare namespace ChatAPI {
     userName?: string;
     /** 头像 */
     userAvatar?: string;
+    /** 在线状态：0-离线，1-在线 */
+    onlineStatus?: number;
   };
 
   type ChatMessageReadRequest = {
@@ -127,8 +154,10 @@ declare namespace ChatAPI {
   type ChatMessageSendRequest = {
     /** 房间ID */
     roomId: number;
-    /** 消息内容 */
-    content: string;
+    /** 客户端消息ID，用于幂等控制 */
+    clientMsgId: string;
+    /** 消息内容，文本消息必填；图片/文件消息可为空 */
+    content?: string;
     /** 消息类型：1-文本，2-图片，3-文件 */
     type: number;
     /** 消息扩展内容（JSON 字符串） */
@@ -144,6 +173,8 @@ declare namespace ChatAPI {
     roomId?: number;
     /** 发送者ID */
     fromUserId?: number;
+    /** 客户端消息ID */
+    clientMsgId?: string;
     /** 发送者姓名 */
     fromUserName?: string;
     /** 发送者头像 */
@@ -169,10 +200,38 @@ declare namespace ChatAPI {
   type ChatRoomAddRequest = {
     /** 房间名称 */
     name: string;
-    /** 房间类型：1-群聊，2-私聊 */
-    type: number;
     /** 房间头像 */
     avatar?: string;
+    /** 群公告 */
+    announcement?: string;
+    /** 初始群成员ID列表 */
+    memberIds?: number[];
+  };
+
+  type ChatRoomInviteRequest = {
+    /** 房间ID */
+    roomId: number;
+    /** 待邀请成员ID列表 */
+    memberIds: number[];
+  };
+
+  type ChatRoomMemberVO = {
+    /** 成员ID */
+    id?: number;
+    /** 房间ID */
+    roomId?: number;
+    /** 用户ID */
+    userId?: number;
+    /** 用户名称 */
+    userName?: string;
+    /** 用户头像 */
+    userAvatar?: string;
+    /** 角色：1-普通成员，2-管理员，3-群主 */
+    role?: number;
+    /** 最后已读消息ID */
+    lastReadMessageId?: number;
+    /** 加入时间 */
+    createTime?: string;
   };
 
   type ChatRoomVO = {
@@ -184,6 +243,12 @@ declare namespace ChatAPI {
     type?: number;
     /** 房间头像 */
     avatar?: string;
+    /** 房间拥有者ID */
+    ownerUserId?: number;
+    /** 成员数量 */
+    memberCount?: number;
+    /** 群公告 */
+    announcement?: string;
     /** 创建时间 */
     createTime?: string;
   };
@@ -205,11 +270,23 @@ declare namespace ChatAPI {
     topStatus?: number;
     /** 最后活跃时间 */
     activeTime?: string;
+    /** 在线状态：0-离线，1-在线 */
+    onlineStatus?: number;
   };
 
   type DeleteRequest = {
     /** id */
     id: number;
+  };
+
+  type dismissRoomParams = {
+    /** 房间ID */
+    roomId: number;
+  };
+
+  type getRoomDetailParams = {
+    /** 房间ID */
+    roomId: number;
   };
 
   type joinChatRoomParams = {
@@ -224,6 +301,11 @@ declare namespace ChatAPI {
     lastMessageId?: number;
     /** 加载消息数量 */
     limit?: number;
+  };
+
+  type listRoomMembersParams = {
+    /** 房间ID */
+    roomId: number;
   };
 
   type OrderItem = {
@@ -243,6 +325,11 @@ declare namespace ChatAPI {
     maxLimit?: number;
     countId?: string;
     pages?: number;
+  };
+
+  type quitRoomParams = {
+    /** 房间ID */
+    roomId: number;
   };
 
   type ReplyMsgVO = {

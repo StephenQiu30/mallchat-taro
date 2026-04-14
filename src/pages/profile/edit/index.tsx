@@ -6,8 +6,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store'
 import { editUser, getLoginUser } from '@/api/user/userController'
 import { setUserInfoAction } from '@/store/slices/userSlice'
-import { setUserInfo, getToken } from '@/utils/auth'
-import { baseURL } from '@/services/request'
+import { setUserInfo } from '@/utils/auth'
+import { uploadFileByBizType } from '@/utils/upload'
 
 import './index.scss'
 
@@ -36,6 +36,20 @@ export default function ProfileEditPage() {
 
   const handleSave = async () => {
     if (saving || uploading) return
+
+    const trimmedPhone = userPhone.trim()
+    const trimmedEmail = userEmail.trim()
+
+    if (trimmedPhone && !/^1\d{10}$/.test(trimmedPhone)) {
+      Taro.showToast({ title: '请输入正确的手机号', icon: 'none' })
+      return
+    }
+
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      Taro.showToast({ title: '请输入正确的邮箱', icon: 'none' })
+      return
+    }
+
     setSaving(true)
     try {
       Taro.showLoading({ title: '保存中...' })
@@ -43,8 +57,8 @@ export default function ProfileEditPage() {
         userName: userName.trim() || undefined,
         userAvatar: userAvatar || undefined,
         userProfile: userProfile.trim() || undefined,
-        userPhone: userPhone.trim() || undefined,
-        userEmail: userEmail.trim() || undefined,
+        userPhone: trimmedPhone || undefined,
+        userEmail: trimmedEmail || undefined,
       })
       if (res.code === 0) {
         // Refresh user info from server
@@ -80,40 +94,22 @@ export default function ProfileEditPage() {
 
       setUploading(true)
       Taro.showLoading({ title: '上传中...' })
-
-      const token = getToken()
-      
-      Taro.uploadFile({
-        url: `${baseURL}/file/upload?bizType=user_avatar`,
-        filePath: tempFilePath,
-        name: 'file',
-        header: {
-          'Authorization': token ? `Bearer ${token}` : '',
-        },
-        success: (uploadRes) => {
-          try {
-            const data = JSON.parse(uploadRes.data) as FileAPI.BaseResponseFileVO
-            if (data.code === 0 && data.data?.url) {
-              setUserAvatar(data.data.url)
-              Taro.showToast({ title: '上传成功', icon: 'success' })
-            } else {
-              Taro.showToast({ title: data.message || '上传失败', icon: 'none' })
-            }
-          } catch (e) {
-            Taro.showToast({ title: '解析返回数据失败', icon: 'none' })
-          }
-        },
-        fail: (err) => {
-          console.error('Upload failed:', err)
-          Taro.showToast({ title: '网络请求失败', icon: 'none' })
-        },
-        complete: () => {
-          setUploading(false)
-          Taro.hideLoading()
-        }
-      })
+      const file = await uploadFileByBizType('user_avatar', tempFilePath)
+      if (file.url) {
+        setUserAvatar(file.url)
+        Taro.showToast({ title: '上传成功', icon: 'success' })
+      } else {
+        Taro.showToast({ title: '上传失败', icon: 'none' })
+      }
     } catch (err) {
+      if (String(err).toLowerCase().includes('cancel')) {
+        return
+      }
       console.error('Choose image failed:', err)
+      Taro.showToast({ title: '上传失败', icon: 'none' })
+    } finally {
+      setUploading(false)
+      Taro.hideLoading()
     }
   }
 

@@ -1,48 +1,44 @@
 import { useState, useCallback } from 'react'
+import type { CSSProperties } from 'react'
 import { View, ScrollView } from '@tarojs/components'
 import { Comment } from '@taroify/icons'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listMySessions, topSession, deleteSession } from '@/api/chat/chatSessionController'
-import { getNotificationUnreadCount } from '@/api/notification/notificationController'
-import { Skeleton, Empty, Search, Cell, Avatar, Badge } from '@taroify/core'
+import { refreshNotificationBadge } from '@/utils/notification'
+import { Skeleton, Empty, Search, Cell, Avatar, Badge, Button } from '@taroify/core'
 
 import './index.scss'
+
+const searchStyle = {
+  '--search-background-color': '#E9E9EB',
+  '--search-padding': '8rpx 16rpx',
+  '--search-input-height': '72rpx',
+} as CSSProperties
 
 export default function MessageIndex() {
   const { isLoggedIn } = useSelector((state: RootState) => state.user)
   const [listData, setListData] = useState<ChatAPI.ChatSessionVO[]>([])
-  const [unreadNote, setUnreadNote] = useState(0) // Still used for Tabbar sync
+  const [keyword, setKeyword] = useState('')
   const [loading, setLoading] = useState(true)
 
   const fetchSessions = useCallback(async (isSilent = false) => {
     if (!isLoggedIn) {
       setListData([])
-      setUnreadNote(0)
+      setLoading(false)
       Taro.stopPullDownRefresh()
       return
     }
     
     if (!isSilent) setLoading(true)
     try {
-      const [sessionRes, noteRes] = await Promise.all([
-        listMySessions(),
-        getNotificationUnreadCount()
-      ])
+      const sessionRes = await listMySessions()
       
       if (sessionRes.code === 0 && sessionRes.data) {
         setListData(sessionRes.data)
       }
-      if (noteRes.code === 0 && noteRes.data !== undefined) {
-        const count = Number(noteRes.data)
-        setUnreadNote(count)
-        if (count > 0) {
-          Taro.setTabBarBadge({ index: 2, text: count > 99 ? '99+' : String(count) })
-        } else {
-          Taro.removeTabBarBadge({ index: 2 })
-        }
-      }
+      await refreshNotificationBadge()
     } catch (err) {
       console.error('Fetch home data failed:', err)
     } finally {
@@ -117,6 +113,11 @@ export default function MessageIndex() {
     }
   }
 
+  const filteredSessions = listData.filter((session) => {
+    const target = `${session.name || ''} ${session.lastMessage || ''}`.toLowerCase()
+    return target.includes(keyword.trim().toLowerCase())
+  })
+
   return (
     <View className='mall-page'>
       <View className='ios-glass-header'>
@@ -124,11 +125,10 @@ export default function MessageIndex() {
           <View style={{ flex: 1 }}>
             <Search 
               placeholder='搜索聊天记录' 
-              style={{ 
-                '--search-background-color': '#E9E9EB',
-                '--search-padding': '8rpx 16rpx',
-                '--search-input-height': '72rpx'
-              }} 
+              value={keyword}
+              onChange={(event) => setKeyword(event.detail.value)}
+              onClear={() => setKeyword('')}
+              style={searchStyle}
             />
           </View>
           <View className='icon-btn' onClick={() => Taro.navigateTo({ url: '/pages/chat/ai/index' })} style={{ width: '72rpx', height: '72rpx' }}>
@@ -138,26 +138,35 @@ export default function MessageIndex() {
       </View>
 
       <ScrollView scrollY className='mall-page__body'>
-        {loading && listData.length === 0 ? (
+        {!isLoggedIn ? (
+          <Empty style={{ marginTop: '20vh' }}>
+            <Empty.Description>登录后查看你的会话列表</Empty.Description>
+            <Button
+              color='primary'
+              shape='round'
+              size='small'
+              style={{ marginTop: '24rpx' }}
+              onClick={() => Taro.switchTab({ url: '/pages/profile/index' })}
+            >
+              去登录
+            </Button>
+          </Empty>
+        ) : loading && listData.length === 0 ? (
           <View style={{ padding: '32rpx' }}>
             {[1, 2, 3, 4, 5].map(i => (
-              <View key={i} style={{ display: 'flex', marginBottom: '32rpx', gap: '24rpx' }}>
-                <Skeleton variant='circle' width='96rpx' height='96rpx' />
-                <View style={{ flex: 1, paddingTop: '8rpx' }}>
-                  <Skeleton variant='rect' height='32rpx' width='40%' style={{ marginBottom: '16rpx' }} />
-                  <Skeleton variant='rect' height='24rpx' width='80%' />
-                </View>
+              <View key={i} style={{ marginBottom: '32rpx' }}>
+                <Skeleton avatar title row={2} loading />
               </View>
             ))}
           </View>
-        ) : listData.length === 0 ? (
+        ) : filteredSessions.length === 0 ? (
           <Empty style={{ marginTop: '20vh' }}>
             <Empty.Image src='default' />
-            <Empty.Description>开启你的第一条消息</Empty.Description>
+            <Empty.Description>{keyword.trim() ? '未找到相关会话' : '开启你的第一条消息'}</Empty.Description>
           </Empty>
         ) : (
           <Cell.Group>
-            {listData.map((session) => (
+            {filteredSessions.map((session) => (
               <Cell
                 key={session.roomId}
                 clickable
@@ -166,7 +175,7 @@ export default function MessageIndex() {
                 })}
                 onLongPress={() => handleLongPress(session)}
                 title={session.name}
-                label={session.lastMessage || '暂无内容'}
+                brief={session.lastMessage || '暂无内容'}
                 icon={
                   <View className='session-avatar-wrap'>
                     <Avatar 
@@ -188,16 +197,16 @@ export default function MessageIndex() {
                     )}
                   </View>
                 }
-                extra={
-                  <View className='session-extra'>
-                    <View className='session-time'>{formatTime(session.activeTime)}</View>
-                  </View>
-                }
+                titleStyle={{ fontWeight: 500 }}
                 style={{
                   backgroundColor: session.topStatus === 1 ? 'var(--ios-bg-secondary)' : '#fff',
                   padding: '28rpx 32rpx'
                 }}
-              />
+              >
+                <View className='session-extra'>
+                  <View className='session-time'>{formatTime(session.activeTime)}</View>
+                </View>
+              </Cell>
             ))}
           </Cell.Group>
         )}

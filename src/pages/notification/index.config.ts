@@ -1,7 +1,7 @@
 export default definePageConfig({
-  navigationBarTitleText: '新朋友',
+  navigationBarTitleText: '通知',
   navigationStyle: 'default',
   navigationBarBackgroundColor: '#F2F2F7',
   backgroundColor: '#F2F2F7',
-  enablePullDownRefresh: true
+  enablePullDownRefresh: true,
 })

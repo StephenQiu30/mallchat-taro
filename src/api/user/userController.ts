@@ -168,6 +168,36 @@ export async function userLoginByApple(
   });
 }
 
+/** 邮箱登录 通过邮箱和验证码进行登录或注册 POST /user/login/email */
+export async function userLoginByEmail(
+  body: UserAPI.UserEmailLoginRequest,
+  options?: { [key: string]: any }
+) {
+  return request<UserAPI.BaseResponseLoginUserVO>("/user/login/email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 发送邮箱验证码 向指定邮箱发送 6 位数登录验证码 POST /user/login/email/code */
+export async function sendEmailCode(
+  body: UserAPI.UserEmailCodeRequest,
+  options?: { [key: string]: any }
+) {
+  return request<UserAPI.BaseResponseBoolean>("/user/login/email/code", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** 微信小程序登录 通过微信小程序 code 进行登录或注册 POST /user/login/ma */
 export async function userLoginByMa(
   body: UserAPI.UserMaLoginRequest,

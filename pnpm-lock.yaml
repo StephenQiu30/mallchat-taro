@@ -65,9 +65,6 @@ importers:
       '@tarojs/taro':
         specifier: 4.1.11
         version: 4.1.11(@tarojs/components@4.1.11(@tarojs/helper@4.1.11(@swc/helpers@0.5.21))(@types/react@18.3.28)(postcss@8.5.8)(rollup@3.30.0))(@tarojs/helper@4.1.11(@swc/helpers@0.5.21))(@tarojs/shared@4.1.11)(@types/react@18.3.28)(postcss@8.5.8)(rollup@3.30.0)
-      axios:
-        specifier: ^1.14.0
-        version: 1.14.0
       axios-taro-adapter:
         specifier: ^0.0.3
         version: 0.0.3(@tarojs/helper@4.1.11(@swc/helpers@0.5.21))(@tarojs/runtime@4.1.11)(@types/react@18.3.28)(postcss@8.5.8)
