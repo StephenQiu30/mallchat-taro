@@ -10,7 +10,8 @@ export default defineAppConfig({
     'pages/notification/index',
     'pages/contact/apply/index',
     'pages/contact/search/index',
-    'pages/profile/edit/index'
+    'pages/profile/edit/index',
+    'pages/profile/moments/index'
   ],
   window: {
     backgroundTextStyle: 'light',
