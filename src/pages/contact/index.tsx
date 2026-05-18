@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import type { CSSProperties } from 'react'
-import { View } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import { UserOutlined, Search as SearchIcon, Plus } from '@taroify/icons'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
@@ -21,11 +21,17 @@ const searchStyle = {
   '--search-input-height': '72rpx',
 } as CSSProperties
 
+interface FriendGroup {
+  letter: string
+  friends: ChatAPI.ChatFriendUserVO[]
+}
+
 export default function ContactPage() {
   const { isLoggedIn } = useSelector((state: RootState) => state.user)
   const [listData, setListData] = useState<ChatAPI.ChatFriendUserVO[]>([])
   const [keyword, setKeyword] = useState('')
   const [loading, setLoading] = useState(true)
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
 
   const fetchFriends = useCallback(async (isSilent = false) => {
     if (!isLoggedIn) {
@@ -34,7 +40,7 @@ export default function ContactPage() {
       Taro.stopPullDownRefresh()
       return
     }
-    
+
     if (!isSilent) setLoading(true)
     try {
       const res = await listFriends()
@@ -60,6 +66,52 @@ export default function ContactPage() {
   const filteredFriends = listData.filter((friend) => {
     return (friend.userName || '').toLowerCase().includes(keyword.trim().toLowerCase())
   })
+
+  const friendGroups = useMemo(() => {
+    const groups: FriendGroup[] = []
+    const groupMap = new Map<string, ChatAPI.ChatFriendUserVO[]>()
+
+    filteredFriends.forEach((friend) => {
+      const name = friend.userName || '未命名'
+      const firstChar = name.charAt(0).toUpperCase()
+      const letter = /[A-Z]/.test(firstChar) ? firstChar : '#'
+
+      if (!groupMap.has(letter)) {
+        groupMap.set(letter, [])
+      }
+      groupMap.get(letter)!.push(friend)
+    })
+
+    const sortedKeys = Array.from(groupMap.keys()).sort((a, b) => {
+      if (a === '#') return 1
+      if (b === '#') return -1
+      return a.localeCompare(b)
+    })
+
+    sortedKeys.forEach((letter) => {
+      groups.push({ letter, friends: groupMap.get(letter)! })
+    })
+
+    return groups
+  }, [filteredFriends])
+
+  const toggleGroup = (letter: string) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev)
+      if (next.has(letter)) {
+        next.delete(letter)
+      } else {
+        next.add(letter)
+      }
+      return next
+    })
+  }
+
+  const handleFriendClick = (friend: ChatAPI.ChatFriendUserVO) => {
+    Taro.navigateTo({
+      url: `/pages/chat/index?id=${friend.id || 0}&name=${encodeURIComponent(friend.userName || '')}`
+    })
+  }
 
   return (
     <PageShell
@@ -96,7 +148,7 @@ export default function ContactPage() {
         />
       </InsetCard>
 
-      <View className='mall-section-title'>所有联系人</View>
+      <View className='mall-section-title'>好友分组</View>
 
       {!isLoggedIn ? (
         <ListStatus kind='login' description='登录后查看联系人列表' />
@@ -105,24 +157,37 @@ export default function ContactPage() {
       ) : filteredFriends.length === 0 ? (
         <ListStatus kind='empty' description={keyword.trim() ? '未找到相关联系人' : '暂无好友'} />
       ) : (
-        <InsetCard className='contact-card'>
-          {filteredFriends.map((friend, idx) => (
-            <Cell
-              key={friend.id}
-              title={friend.userName}
-              brief={friend.onlineStatus === 1 ? '在线中，发起新的对话' : '保持联系，开始新的对话'}
-              icon={
-                <Avatar
-                  className='mall-avatar'
-                  src={friend.userAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${friend.id}`}
-                  style={{ width: '84rpx', height: '84rpx', marginRight: '20rpx' }}
+        <View className='contact-groups'>
+          {friendGroups.map((group) => (
+            <InsetCard key={group.letter} className='contact-card'>
+              <View className='contact-group__header' onClick={() => toggleGroup(group.letter)}>
+                <Text className='contact-group__arrow'>
+                  {collapsedGroups.has(group.letter) ? '▶' : '▼'}
+                </Text>
+                <Text className='contact-group__letter'>{group.letter}</Text>
+                <Text className='contact-group__count'>
+                  {group.friends.length}人
+                </Text>
+              </View>
+              {!collapsedGroups.has(group.letter) && group.friends.map((friend) => (
+                <Cell
+                  key={friend.id}
+                  title={friend.userName}
+                  brief={friend.onlineStatus === 1 ? '在线中' : '离线'}
+                  icon={
+                    <Avatar
+                      className='mall-avatar'
+                      src={friend.userAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${friend.id}`}
+                      style={{ width: '84rpx', height: '84rpx', marginRight: '20rpx' }}
+                    />
+                  }
+                  clickable
+                  onClick={() => handleFriendClick(friend)}
                 />
-              }
-              clickable
-              style={{ borderBottom: idx === filteredFriends.length - 1 ? 'none' : '1rpx solid var(--ios-separator)' }}
-            />
+              ))}
+            </InsetCard>
           ))}
-        </InsetCard>
+        </View>
       )}
     </PageShell>
   )

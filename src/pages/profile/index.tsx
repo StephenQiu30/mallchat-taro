@@ -169,8 +169,15 @@ export default function ProfilePage() {
         </Cell>
       </InsetCard>
 
-      <View className='mall-section-title'>系统服务</View>
+      <View className='mall-section-title'>社交与服务</View>
       <InsetCard className='profile-card'>
+        <Cell
+          title='好友动态'
+          icon={<View className='profile-icon-box'><StarOutlined color='#0A84FF' /></View>}
+          onClick={() => Taro.navigateTo({ url: '/pages/profile/moments/index' })}
+          rightIcon={<Arrow />}
+          clickable
+        />
         <Cell
           title='通知中心'
           icon={<View className='profile-icon-box profile-icon-box--active'><Bell color='#0A84FF' /></View>}
