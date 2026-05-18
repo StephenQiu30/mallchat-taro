@@ -1,6 +1,22 @@
 .chat-page {
   background: var(--ios-bg-primary);
 
+  &__top-bar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8rpx 24rpx;
+  }
+
+  &__top-bar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64rpx;
+    height: 64rpx;
+    border-radius: 50%;
+    color: var(--ios-blue);
+  }
+
   &__content {
     padding-top: 24rpx;
   }

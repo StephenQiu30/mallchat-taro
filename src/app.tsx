@@ -1,9 +1,9 @@
-import { PropsWithChildren } from 'react'
-import { Provider } from 'react-redux'
+import { PropsWithChildren, useEffect } from 'react'
+import { Provider, useSelector } from 'react-redux'
 import { ConfigProvider } from '@taroify/core'
-import { store } from '@/store'
+import { store, RootState } from '@/store'
+import { wsManager } from '@/services/websocket'
 
-// 核心样式
 import '@taroify/core/index.css'
 import '@taroify/icons/index.css'
 import './app.scss'
@@ -43,11 +43,30 @@ const theme = {
   navBarBackgroundColor: 'rgba(255, 255, 255, 0.82)',
 } as const
 
+function WebSocketProvider({ children }: PropsWithChildren) {
+  const { isLoggedIn } = useSelector((state: RootState) => state.user)
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      wsManager.connect()
+    } else {
+      wsManager.disconnect()
+    }
+    return () => {
+      wsManager.disconnect()
+    }
+  }, [isLoggedIn])
+
+  return <>{children}</>
+}
+
 function App({ children }: PropsWithChildren) {
   return (
     <Provider store={store}>
       <ConfigProvider theme={theme}>
-        {children}
+        <WebSocketProvider>
+          {children}
+        </WebSocketProvider>
       </ConfigProvider>
     </Provider>
   )

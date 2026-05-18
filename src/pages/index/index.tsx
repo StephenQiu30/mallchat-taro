@@ -1,11 +1,12 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import type { CSSProperties } from 'react'
 import { View } from '@tarojs/components'
-import { Comment } from '@taroify/icons'
+import { Comment, Add } from '@taroify/icons'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listMySessions, topSession, deleteSession } from '@/api/chat/chatSessionController'
+import { wsManager, WsMessageType } from '@/services/websocket'
 import { refreshNotificationBadge } from '@/utils/notification'
 import { Search, Avatar, Badge } from '@taroify/core'
 import PageShell from '@/components/PageShell'
@@ -58,6 +59,14 @@ export default function MessageIndex() {
   usePullDownRefresh(() => {
     fetchSessions()
   })
+
+  useEffect(() => {
+    if (!isLoggedIn) return
+    const unsubscribe = wsManager.on(WsMessageType.MESSAGE, () => {
+      fetchSessions(true)
+    })
+    return () => { unsubscribe() }
+  }, [isLoggedIn, fetchSessions])
 
   const handleLongPress = (session: ChatAPI.ChatSessionVO) => {
     const isPinned = session.topStatus === 1
@@ -137,6 +146,11 @@ export default function MessageIndex() {
             icon={<Comment size='18px' color='#0A84FF' />}
             text='AI 助手'
             onClick={() => Taro.navigateTo({ url: '/pages/chat/ai/index' })}
+          />
+          <ActionPill
+            icon={<Add size='18px' color='#0A84FF' />}
+            text='创建群聊'
+            onClick={() => Taro.navigateTo({ url: '/pages/chat/group/create/index' })}
           />
         </View>
       )}

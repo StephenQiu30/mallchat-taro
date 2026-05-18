@@ -1,13 +1,15 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import type { CSSProperties } from 'react'
 import { Input, ScrollView, Text, View, Image } from '@tarojs/components'
-import { Plus, Photo, DescriptionOutlined } from '@taroify/icons'
+import { Plus, Photo, DescriptionOutlined, SettingOutlined } from '@taroify/icons'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listHistoryMessages, sendMessage, markMessageRead, recallMessage } from '@/api/chat/chatMessageController'
 import { Avatar, Button } from '@taroify/core'
 import ListStatus from '@/components/ListStatus'
+import { wsManager, WsMessageType } from '@/services/websocket'
+import { uploadFileByBizType } from '@/utils/upload'
 
 import './index.scss'
 
@@ -19,14 +21,12 @@ export default function ChatDetail() {
   const router = useRouter()
   const { id: roomId, name: roomName } = router.params
   const { userInfo, isLoggedIn } = useSelector((state: RootState) => state.user)
-  
+
   const [messages, setMessages] = useState<ChatAPI.ChatMessageVO[]>([])
   const [loading, setLoading] = useState(true)
   const [inputValue, setInputValue] = useState('')
   const [scrollIntoView, setScrollIntoView] = useState('')
   const [sending, setSending] = useState(false)
-  
-  const pollingTimer = useRef<NodeJS.Timeout>()
 
   const markRead = useCallback(async (msgs: ChatAPI.ChatMessageVO[]) => {
     if (!roomId || msgs.length === 0) return
@@ -49,7 +49,7 @@ export default function ChatDetail() {
       setLoading(false)
       return
     }
-    
+
     if (!isSilent) setLoading(true)
     try {
       const res = await listHistoryMessages({
@@ -57,7 +57,7 @@ export default function ChatDetail() {
         limit: 50
       })
       if (res.code === 0 && res.data) {
-        const sortedMsgs = [...(res.data || [])].sort((a, b) => 
+        const sortedMsgs = [...(res.data || [])].sort((a, b) =>
           new Date(a.createTime || 0).getTime() - new Date(b.createTime || 0).getTime()
         )
         setMessages(sortedMsgs)
@@ -75,19 +75,29 @@ export default function ChatDetail() {
       Taro.setNavigationBarTitle({ title: decodeURIComponent(roomName) })
     }
     fetchMessages()
+  }, [roomId, roomName, isLoggedIn, fetchMessages])
 
-    if (!roomId || !isLoggedIn) {
-      return
-    }
+  useEffect(() => {
+    if (!roomId || !isLoggedIn) return
 
-    pollingTimer.current = setInterval(() => {
-      fetchMessages(true)
-    }, 5000)
+    const unsubscribe = wsManager.on(WsMessageType.MESSAGE, (msg) => {
+      const chatMsg = msg.data as ChatAPI.ChatMessageVO
+      if (chatMsg?.roomId === Number(roomId)) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === chatMsg.id)) return prev
+          const next = [...prev, chatMsg].sort((a, b) =>
+            new Date(a.createTime || 0).getTime() - new Date(b.createTime || 0).getTime()
+          )
+          return next
+        })
+        markRead([chatMsg])
+      }
+    })
 
     return () => {
-      if (pollingTimer.current) clearInterval(pollingTimer.current)
+      unsubscribe()
     }
-  }, [roomId, roomName, isLoggedIn, fetchMessages])
+  }, [roomId, isLoggedIn, markRead])
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -110,7 +120,7 @@ export default function ChatDetail() {
         content: text,
         type: 1
       })
-      
+
       if (res.code === 0) {
         setInputValue('')
         await fetchMessages(true)
@@ -118,6 +128,38 @@ export default function ChatDetail() {
     } catch (err) {
       console.error('Send message failed:', err)
       Taro.showToast({ title: '发送失败', icon: 'none' })
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const handleSendImage = async () => {
+    if (sending || !roomId || !isLoggedIn) return
+
+    try {
+      const res = await Taro.chooseImage({
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: ['album', 'camera'],
+      })
+
+      const filePath = res.tempFilePaths[0]
+      setSending(true)
+
+      const uploadRes = await uploadFileByBizType('chat_image', filePath)
+
+      if (uploadRes?.url) {
+        await sendMessage({
+          roomId: Number(roomId),
+          clientMsgId: `local-img-${Date.now()}`,
+          content: uploadRes.url,
+          type: 2,
+        })
+        await fetchMessages(true)
+      }
+    } catch (err) {
+      console.error('Send image failed:', err)
+      Taro.showToast({ title: '发送图片失败', icon: 'none' })
     } finally {
       setSending(false)
     }
@@ -139,20 +181,15 @@ export default function ChatDetail() {
     if (!isMe || msg.status === 1 || !msg.createTime) {
       return false
     }
-
     return Date.now() - new Date(msg.createTime).getTime() <= 2 * 60 * 1000
   }
 
   const handleMessageLongPress = (msg: ChatAPI.ChatMessageVO, isMe: boolean) => {
-    if (!isMe || msg.status === 1) {
-      return
-    }
-
+    if (!isMe || msg.status === 1) return
     if (!canRecallMessage(msg, isMe)) {
       Taro.showToast({ title: '仅支持 2 分钟内撤回', icon: 'none' })
       return
     }
-
     handleRecall(msg.id!)
   }
 
@@ -169,7 +206,7 @@ export default function ChatDetail() {
 
     switch (msg.type) {
       case 2:
-        return <Image src={msg.content || ''} mode='widthFix' style={{ width: '100%', borderRadius: '24rpx' }} showMenuByLongpress />
+        return <Image src={msg.content || ''} mode='widthFix' style={{ maxWidth: '400rpx', borderRadius: '24rpx' }} showMenuByLongpress />
       case 3:
         return (
           <View style={{ display: 'flex', alignItems: 'center', gap: '16rpx' }}>
@@ -182,8 +219,17 @@ export default function ChatDetail() {
     }
   }
 
+  const handleGoGroupDetail = () => {
+    Taro.navigateTo({ url: `/pages/chat/group/detail/index?id=${roomId}` })
+  }
+
   return (
     <View className='mall-page chat-page'>
+      <View className='chat-page__top-bar'>
+        <View className='chat-page__top-bar-btn' onClick={handleGoGroupDetail}>
+          <SettingOutlined size='20px' />
+        </View>
+      </View>
       <ScrollView
         scrollY
         enhanced
@@ -206,7 +252,7 @@ export default function ChatDetail() {
               const prevMsg = messages[index - 1]
               const showUser = !prevMsg || prevMsg.fromUserId !== msg.fromUserId
               const showTime = showUser || !prevMsg || formatTime(prevMsg.createTime) !== formatTime(msg.createTime)
-              
+
               return (
                 <View key={msg.id}>
                   {showTime ? <View className='chat-message__time-divider'>{formatTime(msg.createTime)}</View> : null}
@@ -274,7 +320,7 @@ export default function ChatDetail() {
               </Button>
             ) : (
               <View className='action-icons'>
-                <Photo size='24px' color='var(--ios-text-tertiary)' />
+                <Photo size='24px' color='var(--ios-text-tertiary)' onClick={handleSendImage} />
                 <Plus size='24px' color='var(--ios-text-tertiary)' />
               </View>
             )}
