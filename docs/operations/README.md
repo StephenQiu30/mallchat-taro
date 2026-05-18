@@ -2,6 +2,13 @@
 
 本目录存放运维、发布和协作操作类文档。
 
+## 文档清单
+
+| 文档 | 说明 |
+|------|------|
+| [O-001-github-ci.md](./O-001-github-ci.md) | GitHub CI 配置说明 |
+| [O-002-deployment-guide.md](./O-002-deployment-guide.md) | 部署与运维指南 |
+
 ## 适合放入
 
 1. Git 提交规范。
@@ -18,4 +25,4 @@
 
 ## 命名建议
 
-使用 `序号-主题-操作.md`，例如 `001-pr合并前tag流程.md`。
+使用 `{layer}-{doc_no}-{主题}.md` 格式，例如 `O-001-github-ci.md`。
