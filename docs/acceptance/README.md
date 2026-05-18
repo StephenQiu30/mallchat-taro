@@ -2,6 +2,12 @@
 
 本目录存放验收与验证类文档。
 
+## 文档清单
+
+| 文档 | 说明 |
+|------|------|
+| [A-001-test-acceptance-plan.md](./A-001-test-acceptance-plan.md) | 测试验收计划 |
+
 ## 适合放入
 
 1. 验收标准。
@@ -18,4 +24,4 @@
 
 ## 命名建议
 
-使用 `序号-主题-验收.md`，例如 `001-agent规范验收.md`。
+使用 `{layer}-{doc_no}-{主题}.md` 格式，例如 `A-001-test-acceptance-plan.md`。
