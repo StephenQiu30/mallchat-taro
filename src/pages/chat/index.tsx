@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import type { CSSProperties } from 'react'
 import { Input, ScrollView, Text, View, Image } from '@tarojs/components'
-import { Plus, Photo, DescriptionOutlined, SettingOutlined } from '@taroify/icons'
+import { Plus, Photo, DescriptionOutlined, SettingOutlined, Arrow } from '@taroify/icons'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
@@ -12,10 +11,6 @@ import { wsManager, WsMessageType } from '@/services/websocket'
 import { uploadFileByBizType } from '@/utils/upload'
 
 import './index.scss'
-
-const primaryButtonStyle = {
-  '--button-primary-background-color': 'var(--ios-blue)',
-} as CSSProperties
 
 export default function ChatDetail() {
   const router = useRouter()
@@ -226,6 +221,11 @@ export default function ChatDetail() {
   return (
     <View className='mall-page chat-page'>
       <View className='chat-page__top-bar'>
+        <View className='chat-page__back' onClick={() => Taro.navigateBack()}>
+          <Arrow size='18px' color='var(--ios-text-primary)' />
+          <Text className='chat-page__back-text'>返回</Text>
+        </View>
+        <View className='chat-page__title mall-text-ellipsis'>{roomName ? decodeURIComponent(roomName) : '聊天'}</View>
         <View className='chat-page__top-bar-btn' onClick={handleGoGroupDetail}>
           <SettingOutlined size='20px' />
         </View>
@@ -315,7 +315,7 @@ export default function ChatDetail() {
 
           <View className='chat-page__actions'>
             {inputValue.trim() ? (
-              <Button color='primary' size='small' shape='round' onClick={handleSend} loading={sending} style={primaryButtonStyle}>
+              <Button color='primary' size='small' shape='round' onClick={handleSend} loading={sending}>
                 发送
               </Button>
             ) : (

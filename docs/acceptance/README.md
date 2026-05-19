@@ -7,6 +7,7 @@
 | 文档 | 说明 |
 |------|------|
 | [A-001-test-acceptance-plan.md](./A-001-test-acceptance-plan.md) | 测试验收计划 |
+| [A-002-demo-ui-agents-ci-report.md](./A-002-demo-ui-agents-ci-report.md) | demo UI、AGENTS 迁移与 CI 验收结论 |
 
 ## 适合放入
 

@@ -42,7 +42,7 @@ export default defineAppConfig({
       },
       {
         pagePath: 'pages/profile/index',
-        text: '我的',
+        text: '动态',
         iconPath: 'assets/tabbar/profile.png',
         selectedIconPath: 'assets/tabbar/profile-active.png'
       }

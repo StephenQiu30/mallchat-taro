@@ -6,7 +6,7 @@ import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listFriends } from '@/api/chat/chatFriendController'
-import { Search, Cell, Avatar } from '@taroify/core'
+import { Search, Cell, Avatar, Badge } from '@taroify/core'
 import PageShell from '@/components/PageShell'
 import ActionPill from '@/components/ActionPill'
 import InsetCard from '@/components/InsetCard'
@@ -116,19 +116,28 @@ export default function ContactPage() {
   return (
     <PageShell
       header={(
-        <View className='mall-page-toolbar'>
-          <Search
-            placeholder='搜索联系人'
-            value={keyword}
-            onChange={(event) => setKeyword(event.detail.value)}
-            onClear={() => setKeyword('')}
-            style={searchStyle}
-          />
-          <ActionPill
-            icon={<Plus size='18px' color='#0A84FF' />}
-            text='添加'
-            onClick={() => Taro.navigateTo({ url: '/pages/contact/search/index' })}
-          />
+        <View className='contact-header-wrap'>
+          <View className='contact-header'>
+            <View className='contact-header__spacer' />
+            <View className='contact-header__title'>联系人</View>
+            <View className='contact-header__add' onClick={() => Taro.navigateTo({ url: '/pages/contact/search/index' })}>
+              <Plus size='20px' color='#344054' />
+            </View>
+          </View>
+          <View className='mall-page-toolbar contact-toolbar'>
+            <Search
+              placeholder='搜索联系人'
+              value={keyword}
+              onChange={(event) => setKeyword(event.detail.value)}
+              onClear={() => setKeyword('')}
+              style={searchStyle}
+            />
+            <ActionPill
+              icon={<Plus size='18px' color='#0A84FF' />}
+              text='添加'
+              onClick={() => Taro.navigateTo({ url: '/pages/contact/search/index' })}
+            />
+          </View>
         </View>
       )}
       contentClassName='mall-page__content--top-gap'
@@ -139,6 +148,13 @@ export default function ContactPage() {
           icon={<View className='contact-icon-box'><UserOutlined color='#0A84FF' /></View>}
           clickable
           onClick={() => Taro.navigateTo({ url: '/pages/contact/apply/index' })}
+        />
+        <Cell
+          title='群通知'
+          icon={<View className='contact-icon-box contact-icon-box--group'><UserOutlined color='#0A84FF' /></View>}
+          rightIcon={<Badge content='1' />}
+          clickable
+          onClick={() => Taro.navigateTo({ url: '/pages/notification/index' })}
         />
         <Cell
           title='搜索发现'

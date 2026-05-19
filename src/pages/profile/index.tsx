@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from 'react'
-import type { CSSProperties } from 'react'
 import { View } from '@tarojs/components'
 import { Arrow, StarOutlined, GoldCoinOutlined, SettingOutlined, Bell, UserOutlined } from '@taroify/icons'
 import Taro, { useDidShow } from '@tarojs/taro'
@@ -9,19 +8,12 @@ import { setUserInfoAction, setTokenAction, logoutAction } from '@/store/slices/
 import { getLoginUser, userLogout, userLoginByMa } from '@/api/user/userController'
 import { setToken, setUserInfo, removeToken, removeUserInfo } from '@/utils/auth'
 import { refreshNotificationBadge } from '@/utils/notification'
-import { Cell, Avatar, Badge, Search } from '@taroify/core'
+import { Cell, Avatar, Badge } from '@taroify/core'
 import PageShell from '@/components/PageShell'
 import InsetCard from '@/components/InsetCard'
 import ActionPill from '@/components/ActionPill'
 
 import './index.scss'
-
-const searchStyle = {
-  '--search-background-color': '#F3F4F6',
-  '--search-content-background-color': '#FFFFFF',
-  '--search-padding': '8rpx 16rpx',
-  '--search-input-height': '72rpx',
-} as CSSProperties
 
 export default function ProfilePage() {
   const dispatch = useDispatch()
@@ -111,17 +103,16 @@ export default function ProfilePage() {
   return (
     <PageShell
       header={(
-        <View className='mall-page-toolbar mall-page-toolbar--search-only'>
-          <Search
-            placeholder='搜索系统设置（暂未开放）'
-            readonly
-            disabled
-            style={searchStyle}
-          />
+        <View className='profile-topbar'>
+          <View className='profile-topbar__title'>动态</View>
+          <View className='profile-topbar__setting'>
+            <SettingOutlined size='20px' color='#FFFFFF' />
+          </View>
         </View>
       )}
-      contentClassName='mall-page__content--top-gap'
+      contentClassName='profile-page__content'
     >
+      <View className='profile-blue-cover' />
       <View className='profile-hero' onClick={!isLoggedIn ? handleLogin : () => Taro.navigateTo({ url: '/pages/profile/edit/index' })}>
         <Avatar
           className='mall-avatar profile-hero__avatar'
@@ -146,6 +137,21 @@ export default function ProfilePage() {
             />
           ) : null}
           <Arrow color='#98A2B3' />
+        </View>
+      </View>
+
+      <View className='profile-stats'>
+        <View className='profile-stats__item'>
+          <View className='profile-stats__value'>128</View>
+          <View className='profile-stats__label'>空间访客</View>
+        </View>
+        <View className='profile-stats__item'>
+          <View className='profile-stats__value'>45</View>
+          <View className='profile-stats__label'>好友动态</View>
+        </View>
+        <View className='profile-stats__item'>
+          <View className='profile-stats__value'>12</View>
+          <View className='profile-stats__label'>我的收藏</View>
         </View>
       </View>
 

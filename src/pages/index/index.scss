@@ -1,11 +1,93 @@
+.session-header-wrap {
+  background: var(--ios-glass-bg);
+  backdrop-filter: var(--ios-blur);
+}
+
+.session-header {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: calc(20rpx + env(safe-area-inset-top)) var(--mall-page-padding) 6rpx;
+}
+
+.session-header__avatar {
+  border: 1rpx solid rgba(10, 132, 255, 0.16);
+  box-shadow: 0 8rpx 20rpx rgba(10, 132, 255, 0.08);
+}
+
+.session-header__title-block {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-header__eyebrow {
+  font-size: 21rpx;
+  color: var(--ios-text-tertiary);
+  font-weight: 600;
+}
+
+.session-header__title {
+  margin-top: 2rpx;
+  font-size: 44rpx;
+  line-height: 1.1;
+  font-weight: 800;
+  color: var(--ios-text-primary);
+}
+
+.session-header__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1rpx solid rgba(17, 24, 39, 0.06);
+  box-shadow: var(--ios-shadow-sm);
+}
+
+.session-toolbar {
+  padding-top: 12rpx;
+}
+
 .session-card__avatar {
   position: relative;
+}
+
+.session-card__avatar--group .mall-avatar {
+  border-radius: 22rpx;
+}
+
+.session-card__avatar-img--group {
+  background: linear-gradient(135deg, #58A6FF 0%, #0A84FF 100%);
 }
 
 .session-card__badge {
   position: absolute !important;
   top: -10rpx;
   right: -12rpx;
+}
+
+.session-card__status-dot {
+  position: absolute;
+  right: 0;
+  bottom: 2rpx;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: #D0D5DD;
+  border: 4rpx solid #FFFFFF;
+}
+
+.session-card__status-dot--online {
+  background: var(--ios-green);
+}
+
+.session-card__tags {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  flex-wrap: wrap;
 }
 
 .session-card--pinned::before {

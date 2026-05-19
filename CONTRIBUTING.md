@@ -1,10 +1,10 @@
 # Contributing
 
-感谢你愿意改进 Claude Agent 规范模板。
+感谢你愿意改进 Codex Agent 规范模板。
 
 ## 贡献范围
 
-1. 修正或补充 `CLAUDE.md`、`CLAUDE.local.md` 中的协作规范。
+1. 修正或补充 `AGENTS.md`、`AGENTS.local.md` 中的协作规范。
 2. 优化 `.claude/agents/` 中的角色职责。
 3. 补充 `docs/` 下的 PRD、计划、设计、验收或运维文档。
 4. 改进 OpenSpec 使用说明和验收流程。

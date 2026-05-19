@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 本文件用于存放项目开发过程中的规范性要求。
 
@@ -66,11 +66,11 @@
 
 ## 角色协作结构
 
-当前项目按 `CLAUDE.md + CLAUDE.local.md + .claude/agents/*.md` 的方式组织协作规则：
+当前项目按 `AGENTS.md + AGENTS.local.md + .claude/agents/*.md` 的方式组织协作规则：
 
-1. `CLAUDE.md` 记录 Claude 侧长期稳定的全局协作规则、验收要求和输出格式。
-2. `CLAUDE.local.md` 记录放在具体项目中的局部规范性配置，用于和全局规则区分。
-3. `.claude/agents/*.md` 记录 Claude 可识别的具体角色、职责边界、输入输出和执行约束。
+1. `AGENTS.md` 记录 Codex 侧长期稳定的全局协作规则、验收要求和输出格式。
+2. `AGENTS.local.md` 记录放在具体项目中的局部规范性配置，用于和全局规则区分。
+3. `.claude/agents/*.md` 记录 Codex 可识别的具体角色、职责边界、输入输出和执行约束。
 4. 复杂任务优先使用多角色协作；简单任务可合并为 `PM -> Builder -> Tester` 三段式执行。
 5. 角色越专一，协作越稳定；不要让单个角色同时承担需求拆解、实现、验证和总结的全部职责。
 

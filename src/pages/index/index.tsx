@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import type { CSSProperties } from 'react'
 import { View } from '@tarojs/components'
-import { Comment, Add } from '@taroify/icons'
+import { Comment, Add, UserOutlined } from '@taroify/icons'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
@@ -23,7 +23,7 @@ const searchStyle = {
 } as CSSProperties
 
 export default function MessageIndex() {
-  const { isLoggedIn } = useSelector((state: RootState) => state.user)
+  const { isLoggedIn, userInfo } = useSelector((state: RootState) => state.user)
   const [listData, setListData] = useState<ChatAPI.ChatSessionVO[]>([])
   const [keyword, setKeyword] = useState('')
   const [loading, setLoading] = useState(true)
@@ -112,6 +112,21 @@ export default function MessageIndex() {
     })
   }
 
+  const handleCreateAction = () => {
+    Taro.showActionSheet({
+      itemList: ['创建群聊', '添加好友', 'AI 助手'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          Taro.navigateTo({ url: '/pages/chat/group/create/index' })
+        } else if (res.tapIndex === 1) {
+          Taro.navigateTo({ url: '/pages/contact/search/index' })
+        } else if (res.tapIndex === 2) {
+          Taro.navigateTo({ url: '/pages/chat/ai/index' })
+        }
+      }
+    })
+  }
+
   const formatTime = (timeStr?: string) => {
     if (!timeStr) return ''
     try {
@@ -134,24 +149,37 @@ export default function MessageIndex() {
   return (
     <PageShell
       header={(
-        <View className='mall-page-toolbar'>
-          <Search
-            placeholder='搜索聊天记录'
-            value={keyword}
-            onChange={(event) => setKeyword(event.detail.value)}
-            onClear={() => setKeyword('')}
-            style={searchStyle}
-          />
-          <ActionPill
-            icon={<Comment size='18px' color='#0A84FF' />}
-            text='AI 助手'
-            onClick={() => Taro.navigateTo({ url: '/pages/chat/ai/index' })}
-          />
-          <ActionPill
-            icon={<Add size='18px' color='#0A84FF' />}
-            text='创建群聊'
-            onClick={() => Taro.navigateTo({ url: '/pages/chat/group/create/index' })}
-          />
+        <View className='session-header-wrap'>
+          <View className='session-header'>
+            <Avatar
+              className='mall-avatar mall-avatar--circle session-header__avatar'
+              src={userInfo?.userAvatar || 'https://api.dicebear.com/7.x/identicon/svg?seed=mallchat-user'}
+              style={{ width: '80rpx', height: '80rpx' }}
+            >
+              <UserOutlined />
+            </Avatar>
+            <View className='session-header__title-block'>
+              <View className='session-header__eyebrow'>MallChat</View>
+              <View className='session-header__title'>消息</View>
+            </View>
+            <View className='session-header__add' onClick={handleCreateAction}>
+              <Add size='20px' color='#344054' />
+            </View>
+          </View>
+          <View className='mall-page-toolbar session-toolbar'>
+            <Search
+              placeholder='搜索聊天记录'
+              value={keyword}
+              onChange={(event) => setKeyword(event.detail.value)}
+              onClear={() => setKeyword('')}
+              style={searchStyle}
+            />
+            <ActionPill
+              icon={<Comment size='18px' color='#0A84FF' />}
+              text='AI 助手'
+              onClick={() => Taro.navigateTo({ url: '/pages/chat/ai/index' })}
+            />
+          </View>
         </View>
       )}
       contentClassName='mall-page__content--top-gap'
@@ -173,12 +201,15 @@ export default function MessageIndex() {
               })}
               onLongPress={() => handleLongPress(session)}
             >
-              <View className='session-card__avatar'>
+              <View className={`session-card__avatar ${session.type === 1 ? 'session-card__avatar--group' : ''}`}>
                 <Avatar
-                  className='mall-avatar'
+                  className={`mall-avatar ${session.type === 1 ? 'session-card__avatar-img--group' : 'mall-avatar--circle'}`}
                   src={session.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${session.roomId}`}
                   style={{ width: '104rpx', height: '104rpx' }}
                 />
+                {session.type === 2 ? (
+                  <View className={`session-card__status-dot ${session.onlineStatus === 1 ? 'session-card__status-dot--online' : ''}`} />
+                ) : null}
                 {(session.unreadCount || 0) > 0 ? (
                   <Badge
                     className='session-card__badge'
@@ -192,8 +223,15 @@ export default function MessageIndex() {
                   <View className='mall-card-item__title mall-text-ellipsis'>{session.name || '未命名会话'}</View>
                   <View className='mall-card-item__meta'>{formatTime(session.activeTime)}</View>
                 </View>
-                <View className='mall-card-item__desc mall-text-clamp-2'>{session.lastMessage || '暂无内容'}</View>
-                {session.topStatus === 1 ? <View className='mall-card-item__hint'>置顶</View> : null}
+                <View className='mall-card-item__desc mall-text-clamp-2'>
+                  {session.type === 1 && (session.unreadCount || 0) > 0 ? '[群聊] ' : ''}
+                  {session.lastMessage || '暂无内容'}
+                </View>
+                <View className='session-card__tags'>
+                  {session.topStatus === 1 ? <View className='mall-card-item__hint'>置顶</View> : null}
+                  {session.type === 1 ? <View className='mall-card-item__hint'>群聊</View> : null}
+                  {session.type === 2 && session.onlineStatus === 1 ? <View className='mall-card-item__hint'>在线</View> : null}
+                </View>
               </View>
             </View>
           ))}
