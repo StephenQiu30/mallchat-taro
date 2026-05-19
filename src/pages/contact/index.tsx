@@ -6,6 +6,8 @@ import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { listFriends } from '@/api/chat/chatFriendController'
+import { getOrCreatePrivateRoom } from '@/api/chat/chatRoomController'
+import { createPrivateRoomNavigation } from './privateRoomNavigation'
 import { Search, Cell, Avatar, Badge } from '@taroify/core'
 import PageShell from '@/components/PageShell'
 import ActionPill from '@/components/ActionPill'
@@ -107,10 +109,21 @@ export default function ContactPage() {
     })
   }
 
-  const handleFriendClick = (friend: ChatAPI.ChatFriendUserVO) => {
-    Taro.navigateTo({
-      url: `/pages/chat/index?id=${friend.id || 0}&name=${encodeURIComponent(friend.userName || '')}`
-    })
+  const handleFriendClick = async (friend: ChatAPI.ChatFriendUserVO) => {
+    try {
+      Taro.showLoading({ title: '打开聊天...' })
+      const navigation = await createPrivateRoomNavigation(friend, { getOrCreatePrivateRoom })
+      if (navigation.ok) {
+        Taro.navigateTo({ url: navigation.url })
+      } else {
+        Taro.showToast({ title: navigation.message, icon: 'none' })
+      }
+    } catch (err) {
+      console.error('Open private room failed:', err)
+      Taro.showToast({ title: '打开聊天失败', icon: 'none' })
+    } finally {
+      Taro.hideLoading()
+    }
   }
 
   return (
