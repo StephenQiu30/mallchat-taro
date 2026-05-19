@@ -1,6 +1,7 @@
 {
   "name": "mallchat-taro",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.20.0",
   "private": true,
   "description": "mallchat-taro",
   "templateInfo": {
