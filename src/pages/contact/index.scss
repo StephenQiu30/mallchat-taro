@@ -1,3 +1,42 @@
+.contact-header-wrap {
+  background: var(--ios-glass-bg);
+  backdrop-filter: var(--ios-blur);
+}
+
+.contact-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(24rpx + env(safe-area-inset-top)) var(--mall-page-padding) 6rpx;
+}
+
+.contact-header__spacer,
+.contact-header__add {
+  width: 72rpx;
+  height: 72rpx;
+}
+
+.contact-header__title {
+  font-size: 36rpx;
+  line-height: 1.2;
+  font-weight: 800;
+  color: var(--ios-text-primary);
+}
+
+.contact-header__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1rpx solid rgba(17, 24, 39, 0.06);
+  box-shadow: var(--ios-shadow-sm);
+}
+
+.contact-toolbar {
+  padding-top: 12rpx;
+}
+
 .contact-card {
   margin-bottom: 24rpx;
 }
@@ -12,6 +51,11 @@
   margin-right: 24rpx;
   background: #F5F7FA;
   border: 1rpx solid rgba(17, 24, 39, 0.05);
+}
+
+.contact-icon-box--group {
+  background: var(--ios-primary-soft);
+  border-color: rgba(10, 132, 255, 0.12);
 }
 
 .contact-groups {

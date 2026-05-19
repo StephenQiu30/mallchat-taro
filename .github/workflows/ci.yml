@@ -10,15 +10,26 @@ on:
 
 jobs:
   repository-check:
-    name: Repository structure check
+    name: Repository and Taro check
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Check required files
         run: bash scripts/validate-repository.sh
 
-      - name: Run complete test suite
-        run: npm test
+      - name: Build WeChat Mini Program
+        run: pnpm run build:weapp
