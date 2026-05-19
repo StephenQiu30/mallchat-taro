@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Input, ScrollView, Text, View, Image } from '@tarojs/components'
-import { Plus, Photo, DescriptionOutlined, SettingOutlined, Arrow } from '@taroify/icons'
+import { Plus, Photo, DescriptionOutlined, SettingOutlined, Arrow, VolumeOutlined, SmileCommentOutlined } from '@taroify/icons'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
@@ -9,6 +9,7 @@ import { Avatar, Button } from '@taroify/core'
 import ListStatus from '@/components/ListStatus'
 import { wsManager, WsMessageType } from '@/services/websocket'
 import { uploadFileByBizType } from '@/utils/upload'
+import { CHAT_COMPOSER_PLACEHOLDERS, shouldShowSendAction } from './composerTools'
 
 import './index.scss'
 
@@ -218,6 +219,18 @@ export default function ChatDetail() {
     Taro.navigateTo({ url: `/pages/chat/group/detail/index?id=${roomId}` })
   }
 
+  const handleVoicePlaceholder = () => {
+    Taro.showToast({ title: CHAT_COMPOSER_PLACEHOLDERS.voice, icon: 'none' })
+  }
+
+  const handleEmojiPlaceholder = () => {
+    Taro.showToast({ title: CHAT_COMPOSER_PLACEHOLDERS.emoji, icon: 'none' })
+  }
+
+  const handleMorePlaceholder = () => {
+    Taro.showToast({ title: CHAT_COMPOSER_PLACEHOLDERS.more, icon: 'none' })
+  }
+
   return (
     <View className='mall-page chat-page'>
       <View className='chat-page__top-bar'>
@@ -300,6 +313,10 @@ export default function ChatDetail() {
 
       <View className='chat-page__composer'>
         <View className='chat-page__composer-inner'>
+          <View className='chat-page__tool-btn' onClick={handleVoicePlaceholder}>
+            <VolumeOutlined size='20px' color='var(--ios-text-secondary)' />
+          </View>
+
           <View className='chat-page__input-shell'>
             <Input
               className='chat-page__input-field'
@@ -314,14 +331,21 @@ export default function ChatDetail() {
           </View>
 
           <View className='chat-page__actions'>
-            {inputValue.trim() ? (
+            {shouldShowSendAction(inputValue) ? (
               <Button color='primary' size='small' shape='round' onClick={handleSend} loading={sending}>
                 发送
               </Button>
             ) : (
               <View className='action-icons'>
-                <Photo size='24px' color='var(--ios-text-tertiary)' onClick={handleSendImage} />
-                <Plus size='24px' color='var(--ios-text-tertiary)' />
+                <View className='chat-page__tool-btn chat-page__tool-btn--plain' onClick={handleEmojiPlaceholder}>
+                  <SmileCommentOutlined size='22px' color='var(--ios-text-secondary)' />
+                </View>
+                <View className='chat-page__tool-btn chat-page__tool-btn--plain' onClick={handleSendImage}>
+                  <Photo size='22px' color='var(--ios-text-secondary)' />
+                </View>
+                <View className='chat-page__tool-btn chat-page__tool-btn--primary' onClick={handleMorePlaceholder}>
+                  <Plus size='20px' color='#FFFFFF' />
+                </View>
               </View>
             )}
           </View>

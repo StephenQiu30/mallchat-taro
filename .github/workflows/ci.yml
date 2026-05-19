@@ -33,5 +33,8 @@ jobs:
       - name: Check required files
         run: bash scripts/validate-repository.sh
 
+      - name: Run unit tests
+        run: pnpm run test
+
       - name: Build WeChat Mini Program
         run: pnpm run build:weapp
