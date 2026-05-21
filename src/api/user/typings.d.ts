@@ -17,6 +17,30 @@ declare namespace UserAPI {
     message?: string;
   };
 
+  type BaseResponseUserAdminStatusVO = {
+    /** 状态码 */
+    code?: number;
+    data?: UserAdminStatusVO;
+    /** 消息 */
+    message?: string;
+  };
+
+  type BaseResponseUserIdVO = {
+    /** 状态码 */
+    code?: number;
+    data?: UserIdVO;
+    /** 消息 */
+    message?: string;
+  };
+
+  type BaseResponseUserOperationResultVO = {
+    /** 状态码 */
+    code?: number;
+    data?: UserOperationResultVO;
+    /** 消息 */
+    message?: string;
+  };
+
   type BaseResponseLoginUserVO = {
     /** 状态码 */
     code?: number;
@@ -190,6 +214,11 @@ declare namespace UserAPI {
     userEmail?: string;
   };
 
+  type UserAdminStatusVO = {
+    /** 是否管理员 */
+    admin?: boolean;
+  };
+
   type UserAppleLoginRequest = {
     /** Apple Identity Token (JWT) */
     identityToken: string;
@@ -227,9 +256,29 @@ declare namespace UserAPI {
     code?: string;
   };
 
+  type UserIdRequest = {
+    /** 用户ID */
+    id: number;
+  };
+
+  type UserIdsRequest = {
+    /** 用户ID列表 */
+    ids: number[];
+  };
+
+  type UserIdVO = {
+    /** 用户ID */
+    id?: number;
+  };
+
   type UserMaLoginRequest = {
     /** 微信小程序登录 code */
     code?: string;
+  };
+
+  type UserOperationResultVO = {
+    /** 是否成功 */
+    success?: boolean;
   };
 
   type UserQueryRequest = {
