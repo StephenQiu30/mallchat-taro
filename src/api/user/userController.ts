@@ -7,7 +7,7 @@ export async function addUser(
   body: UserAPI.UserAddRequest,
   options?: { [key: string]: any }
 ) {
-  return request<UserAPI.BaseResponseLong>("/user/add", {
+  return request<UserAPI.BaseResponseUserIdVO>("/user/add", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -19,10 +19,10 @@ export async function addUser(
 
 /** 删除用户 删除指定 ID 的用户（仅本人或管理员） POST /user/delete */
 export async function deleteUser(
-  body: UserAPI.DeleteRequest,
+  body: UserAPI.UserIdRequest,
   options?: { [key: string]: any }
 ) {
-  return request<UserAPI.BaseResponseBoolean>("/user/delete", {
+  return request<UserAPI.BaseResponseUserOperationResultVO>("/user/delete", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -37,7 +37,7 @@ export async function editUser(
   body: UserAPI.UserEditRequest,
   options?: { [key: string]: any }
 ) {
-  return request<UserAPI.BaseResponseBoolean>("/user/edit", {
+  return request<UserAPI.BaseResponseUserOperationResultVO>("/user/edit", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -49,11 +49,10 @@ export async function editUser(
 
 /** 根据ID获取用户 根据用户ID获取用户详细信息（仅管理员） GET /user/get */
 export async function getUserById(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: UserAPI.getUserByIdParams,
+  params: UserAPI.UserIdRequest,
   options?: { [key: string]: any }
 ) {
-  return request<UserAPI.BaseResponseUser>("/user/get", {
+  return request<UserAPI.BaseResponseUserVO>("/user/get", {
     method: "GET",
     params: {
       ...params,
@@ -72,8 +71,7 @@ export async function getLoginUser(options?: { [key: string]: any }) {
 
 /** 根据ID获取用户视图对象 根据用户ID获取用户脱敏后的视图对象 GET /user/get/vo */
 export async function getUserVoById(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: UserAPI.getUserVOByIdParams,
+  params: UserAPI.UserIdRequest,
   options?: { [key: string]: any }
 ) {
   return request<UserAPI.BaseResponseUserVO>("/user/get/vo", {
@@ -87,8 +85,7 @@ export async function getUserVoById(
 
 /** 批量获取用户视图对象 根据用户ID列表批量获取用户脱敏后的视图对象 GET /user/get/vo/batch */
 export async function getUserVoByIds(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: UserAPI.getUserVOByIdsParams,
+  params: UserAPI.UserIdsRequest,
   options?: { [key: string]: any }
 ) {
   return request<UserAPI.BaseResponseListUserVO>("/user/get/vo/batch", {
@@ -102,7 +99,7 @@ export async function getUserVoByIds(
 
 /** 是否管理员 返回当前登录用户是否为管理员 GET /user/is/admin */
 export async function isAdmin(options?: { [key: string]: any }) {
-  return request<UserAPI.BaseResponseBoolean>("/user/is/admin", {
+  return request<UserAPI.BaseResponseUserAdminStatusVO>("/user/is/admin", {
     method: "GET",
     ...(options || {}),
   });
@@ -113,7 +110,7 @@ export async function listUserByPage(
   body: UserAPI.UserQueryRequest,
   options?: { [key: string]: any }
 ) {
-  return request<UserAPI.BaseResponsePageUser>("/user/list/page", {
+  return request<UserAPI.BaseResponsePageUserVO>("/user/list/page", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -188,14 +185,17 @@ export async function sendEmailCode(
   body: UserAPI.UserEmailCodeRequest,
   options?: { [key: string]: any }
 ) {
-  return request<UserAPI.BaseResponseBoolean>("/user/login/email/code", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: body,
-    ...(options || {}),
-  });
+  return request<UserAPI.BaseResponseUserOperationResultVO>(
+    "/user/login/email/code",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: body,
+      ...(options || {}),
+    }
+  );
 }
 
 /** 微信小程序登录 通过微信小程序 code 进行登录或注册 POST /user/login/ma */
@@ -215,7 +215,7 @@ export async function userLoginByMa(
 
 /** 用户注销 退出当前登录状态 POST /user/logout */
 export async function userLogout(options?: { [key: string]: any }) {
-  return request<UserAPI.BaseResponseBoolean>("/user/logout", {
+  return request<UserAPI.BaseResponseUserOperationResultVO>("/user/logout", {
     method: "POST",
     ...(options || {}),
   });
@@ -226,7 +226,7 @@ export async function updateUser(
   body: UserAPI.UserUpdateRequest,
   options?: { [key: string]: any }
 ) {
-  return request<UserAPI.BaseResponseBoolean>("/user/update", {
+  return request<UserAPI.BaseResponseUserOperationResultVO>("/user/update", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
