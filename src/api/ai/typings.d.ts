@@ -16,6 +16,11 @@ declare namespace AiAPI {
     searchText?: string;
   };
 
+  type AiChatRecordDeleteRequest = {
+    /** 对话记录ID */
+    id: number;
+  };
+
   type AiChatRecordVO = {
     /** 主键 */
     id?: number;
@@ -64,10 +69,23 @@ declare namespace AiAPI {
     description?: string;
   };
 
+  type AiOperationResultVO = {
+    /** 是否成功 */
+    success?: boolean;
+  };
+
   type BaseResponseAiChatResponse = {
     /** 状态码 */
     code?: number;
     data?: AiChatResponse;
+    /** 消息 */
+    message?: string;
+  };
+
+  type BaseResponseAiOperationResultVO = {
+    /** 状态码 */
+    code?: number;
+    data?: AiOperationResultVO;
     /** 消息 */
     message?: string;
   };
